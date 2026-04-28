@@ -1,0 +1,275 @@
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>リミー 管理画面</title>
+  <link rel="stylesheet" href="style.css">
+  <style>
+    .admin-nav { display:flex; gap:8px; margin-bottom:24px; }
+    .nav-btn { flex:1; padding:12px; border:2px solid var(--border); border-radius:10px; background:white; font-size:14px; font-weight:600; color:var(--text-sub); cursor:pointer; transition:all 0.2s; }
+    .nav-btn.active { border-color:var(--primary); color:var(--primary); background:var(--primary-light); }
+    .tab { display:none; }
+    .tab.active { display:block; }
+    .card { background:white; border-radius:var(--radius); border:1px solid var(--border); padding:20px; margin-bottom:12px; }
+    .card-header { display:flex; justify-content:space-between; align-items:flex-start; }
+    .company-name { font-size:16px; font-weight:700; color:var(--text); margin-bottom:4px; }
+    .company-email { font-size:13px; color:var(--text-sub); }
+    .url-box { background:var(--bg); border:1px solid var(--border); border-radius:8px; padding:10px 12px; margin-top:12px; display:flex; align-items:center; gap:8px; }
+    .url-text { font-size:12px; font-family:monospace; color:var(--text); flex:1; word-break:break-all; }
+    .copy-btn { padding:6px 12px; background:var(--primary); color:white; border:none; border-radius:6px; font-size:12px; font-weight:600; cursor:pointer; white-space:nowrap; }
+    .delete-btn { padding:6px 12px; background:white; color:#EF4444; border:1.5px solid #EF4444; border-radius:6px; font-size:12px; font-weight:600; cursor:pointer; }
+    .add-form { background:white; border-radius:var(--radius); border:1px solid var(--border); padding:24px; margin-bottom:24px; }
+    .add-form h3 { font-size:15px; font-weight:700; margin-bottom:16px; color:var(--text); }
+    .form-grid { display:grid; grid-template-columns:1fr 1fr; gap:12px; }
+    .form-item label { display:block; font-size:12px; font-weight:600; color:var(--text-sub); margin-bottom:6px; }
+    .form-item input { width:100%; border:1px solid var(--border); border-radius:8px; padding:10px 12px; font-size:14px; outline:none; }
+    .form-item input:focus { border-color:var(--primary); }
+    .add-btn { margin-top:16px; padding:12px 24px; background:var(--primary); color:white; border:none; border-radius:8px; font-size:14px; font-weight:600; cursor:pointer; }
+    .badge { display:inline-block; padding:3px 10px; border-radius:99px; font-size:11px; font-weight:700; }
+    .badge-risk { background:#FEE2E2; color:#EF4444; }
+    .badge-ok   { background:#D1FAE5; color:#10B981; }
+    .response-row { display:flex; justify-content:space-between; align-items:center; padding:12px 0; border-bottom:1px solid var(--border); }
+    .response-row:last-child { border-bottom:none; }
+    .response-info { font-size:13px; color:var(--text); }
+    .response-scores { display:flex; gap:6px; }
+    .score-chip { font-size:11px; font-weight:700; padding:3px 7px; border-radius:6px; background:var(--bg); }
+    .empty-state { text-align:center; padding:40px; color:var(--text-sub); font-size:14px; }
+    @media(max-width:480px) { .form-grid { grid-template-columns:1fr; } }
+  </style>
+</head>
+<body>
+
+  <!-- ログイン画面 -->
+  <div id="login-screen">
+    <div class="container" style="max-width:400px;padding-top:80px;">
+      <div class="header">
+        <img src="logo.jpg" alt="リミー" class="logo-img">
+        <h1 style="font-size:18px;margin-top:8px;">管理画面</h1>
+      </div>
+      <div class="profile-fields">
+        <div class="profile-item">
+          <label>管理者パスワード</label>
+          <input type="password" id="admin-password" placeholder="パスワードを入力" onkeydown="if(event.key==='Enter')login()">
+        </div>
+      </div>
+      <button onclick="login()" class="submit-btn" style="margin-top:0;">ログイン</button>
+      <p id="login-error" style="color:#EF4444;font-size:13px;text-align:center;margin-top:12px;display:none;">パスワードが違います</p>
+    </div>
+  </div>
+
+  <!-- 管理画面 -->
+  <div id="admin-screen" class="hidden">
+    <div class="container">
+      <div class="header" style="padding-bottom:16px;">
+        <img src="logo.jpg" alt="リミー" class="logo-img">
+        <h1 style="font-size:18px;margin-top:8px;">管理画面</h1>
+      </div>
+
+      <div class="admin-nav">
+        <button class="nav-btn active" onclick="showTab('companies')">🏢 会社管理</button>
+        <button class="nav-btn" onclick="showTab('responses')">📋 回答一覧</button>
+      </div>
+
+      <!-- 会社管理タブ -->
+      <div id="tab-companies" class="tab active">
+        <div class="add-form">
+          <h3>＋ 新規会社を登録</h3>
+          <div class="form-grid">
+            <div class="form-item">
+              <label>会社名 *</label>
+              <input type="text" id="new-company-name" placeholder="例：株式会社サンプル">
+            </div>
+            <div class="form-item">
+              <label>上司のメールアドレス *</label>
+              <input type="email" id="new-manager-email" placeholder="manager@example.com">
+            </div>
+            <div class="form-item">
+              <label>人事担当のメールアドレス</label>
+              <input type="email" id="new-hr-email" placeholder="hr@example.com（任意）">
+            </div>
+          </div>
+          <button onclick="addCompany()" class="add-btn">登録してURLを発行</button>
+        </div>
+
+        <div id="companies-list"></div>
+      </div>
+
+      <!-- 回答一覧タブ -->
+      <div id="tab-responses" class="tab">
+        <div class="card" style="margin-bottom:12px;">
+          <div class="profile-item">
+            <label>会社で絞り込み</label>
+            <select id="filter-company" onchange="loadResponses()" style="width:100%;border:1px solid var(--border);border-radius:8px;padding:10px 12px;font-size:14px;background:white;">
+              <option value="">すべての会社</option>
+            </select>
+          </div>
+        </div>
+        <div id="responses-list"></div>
+      </div>
+    </div>
+  </div>
+
+  <script>
+    // ===== 設定（デプロイ後に書き換えてください） =====
+    const APPS_SCRIPT_URL = 'https://script.google.com/macros/s/AKfycbyGceshWFX-_kepVh5KHTvNwsrNAh7hW22U48KSp4DVvohXurOsAa6BDW7MFrsbKJ0n/exec';
+    const BASE_URL = window.location.origin + window.location.pathname.replace('admin.html', 'index.html');
+    const makeUrl = (code, name) => `${BASE_URL}?code=${code}&c=${encodeURIComponent(name)}`;
+
+    let adminSecret = '';
+
+    // ===== ログイン =====
+    async function login() {
+      const pw = document.getElementById('admin-password').value.trim();
+      if (!pw) return;
+
+      // Apps Scriptで認証確認
+      try {
+        const res = await apiFetch(`${APPS_SCRIPT_URL}?action=get_companies&adminSecret=${encodeURIComponent(pw)}`);
+        if (!res.success) throw new Error(res.error);
+        adminSecret = pw;
+        document.getElementById('login-screen').classList.add('hidden');
+        document.getElementById('admin-screen').classList.remove('hidden');
+        renderCompanies(res.companies);
+        populateCompanyFilter(res.companies);
+      } catch(e) {
+        document.getElementById('login-error').style.display = 'block';
+      }
+    }
+
+    // ===== タブ切り替え =====
+    function showTab(name) {
+      document.querySelectorAll('.tab').forEach(t => t.classList.remove('active'));
+      document.querySelectorAll('.nav-btn').forEach(b => b.classList.remove('active'));
+      document.getElementById(`tab-${name}`).classList.add('active');
+      event.target.classList.add('active');
+      if (name === 'responses') loadResponses();
+    }
+
+    // ===== 会社管理 =====
+    async function addCompany() {
+      const name         = document.getElementById('new-company-name').value.trim();
+      const managerEmail = document.getElementById('new-manager-email').value.trim();
+      const hrEmail      = document.getElementById('new-hr-email').value.trim();
+
+      if (!name || !managerEmail) { alert('会社名と上司のメールアドレスは必須です'); return; }
+
+      try {
+        const res = await apiPost({ action: 'add_company', adminSecret, name, managerEmail, hrEmail });
+        if (!res.success) throw new Error(res.error);
+        document.getElementById('new-company-name').value = '';
+        document.getElementById('new-manager-email').value = '';
+        document.getElementById('new-hr-email').value = '';
+        await refreshCompanies();
+        alert(`登録しました！\nURL: ${makeUrl(res.code, name)}`);
+      } catch(e) { alert('エラー: ' + e.message); }
+    }
+
+    async function deleteCompany(code, name) {
+      if (!confirm(`「${name}」を削除しますか？`)) return;
+      try {
+        const res = await apiPost({ action: 'delete_company', adminSecret, code });
+        if (!res.success) throw new Error(res.error);
+        await refreshCompanies();
+      } catch(e) { alert('エラー: ' + e.message); }
+    }
+
+    async function refreshCompanies() {
+      const res = await apiFetch(`${APPS_SCRIPT_URL}?action=get_companies&adminSecret=${encodeURIComponent(adminSecret)}`);
+      renderCompanies(res.companies);
+      populateCompanyFilter(res.companies);
+    }
+
+    function renderCompanies(companies) {
+      const container = document.getElementById('companies-list');
+      if (!companies || companies.length === 0) {
+        container.innerHTML = '<div class="empty-state">登録された会社はまだありません</div>';
+        return;
+      }
+      container.innerHTML = companies.map(c => {
+        const url = makeUrl(c.code, c.name);
+        return `
+        <div class="card">
+          <div class="card-header">
+            <div>
+              <div class="company-name">${c.name}</div>
+              <div class="company-email">上司: ${c.managerEmail}${c.hrEmail ? ' ／ 人事: ' + c.hrEmail : ''}</div>
+            </div>
+            <button onclick="deleteCompany('${c.code}','${c.name}')" class="delete-btn">削除</button>
+          </div>
+          <div class="url-box">
+            <span class="url-text" id="url-${c.code}">${url}</span>
+            <button onclick="copyUrl('${c.code}')" class="copy-btn">コピー</button>
+          </div>
+          <div style="margin-top:8px;font-size:11px;color:var(--text-sub);">コード: ${c.code} ／ 登録日: ${new Date(c.createdAt).toLocaleDateString('ja-JP')}</div>
+        </div>`;
+      }).join('');
+    }
+
+    function copyUrl(code) {
+      const url = document.getElementById(`url-${code}`).textContent;
+      navigator.clipboard.writeText(url).then(() => alert('URLをコピーしました'));
+    }
+
+    // ===== 回答一覧 =====
+    function populateCompanyFilter(companies) {
+      const sel = document.getElementById('filter-company');
+      sel.innerHTML = '<option value="">すべての会社</option>';
+      (companies || []).forEach(c => {
+        const opt = document.createElement('option');
+        opt.value = c.code;
+        opt.textContent = c.name;
+        sel.appendChild(opt);
+      });
+    }
+
+    async function loadResponses() {
+      const code = document.getElementById('filter-company').value;
+      const url = `${APPS_SCRIPT_URL}?action=get_responses&adminSecret=${encodeURIComponent(adminSecret)}${code ? '&companyCode='+code : ''}`;
+      const res = await apiFetch(url);
+      renderResponses(res.responses);
+    }
+
+    function renderResponses(responses) {
+      const container = document.getElementById('responses-list');
+      if (!responses || responses.length === 0) {
+        container.innerHTML = '<div class="card"><div class="empty-state">回答データはまだありません</div></div>';
+        return;
+      }
+      const sc = v => v >= 3.5 ? '#10B981' : v >= 2.5 ? '#F59E0B' : '#EF4444';
+      const risk = r => r.scores.C < 2.5 || r.scores.D < 2.5 || r.scores.E < 2.5;
+
+      container.innerHTML = `<div class="card">` +
+        responses.slice().reverse().map(r => `
+        <div class="response-row">
+          <div>
+            <div class="response-info">
+              ${risk(r) ? '<span class="badge badge-risk">要注意</span> ' : '<span class="badge badge-ok">良好</span> '}
+              <strong>${r.name}</strong>（${r.companyName}）
+            </div>
+            <div style="font-size:12px;color:var(--text-sub);margin-top:3px;">${r.job} ／ ${r.age} ／ ${new Date(r.timestamp).toLocaleDateString('ja-JP')}</div>
+          </div>
+          <div class="response-scores">
+            ${['A','B','C','D','E'].map(k => `<span class="score-chip" style="color:${sc(r.scores[k])};">${r.scores[k]}</span>`).join('')}
+          </div>
+        </div>`).join('') +
+        `</div>`;
+    }
+
+    // ===== API ヘルパー =====
+    async function apiFetch(url) {
+      const res = await fetch(url);
+      return res.json();
+    }
+
+    async function apiPost(data) {
+      const res = await fetch(APPS_SCRIPT_URL, {
+        method: 'POST',
+        headers: { 'Content-Type': 'text/plain' },
+        body: JSON.stringify(data),
+      });
+      return res.json();
+    }
+  </script>
+</body>
+</html>

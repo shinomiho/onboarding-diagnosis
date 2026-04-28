@@ -1,0 +1,184 @@
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>診断結果｜リミー / RE:Me</title>
+  <link rel="stylesheet" href="style.css">
+</head>
+<body>
+
+  <div id="loading-screen">
+    <div class="loading-content">
+      <div class="spinner"></div>
+      <p>結果を読み込んでいます…</p>
+    </div>
+  </div>
+
+  <div id="result-screen" class="hidden">
+    <div class="container">
+      <div class="header">
+        <img src="logo.jpg" alt="リミー" class="logo-img">
+        <h2 id="result-name-title">診断レポート</h2>
+        <p id="result-date" class="subtitle"></p>
+      </div>
+
+      <div class="chart-section">
+        <h3>6因子スコア</h3>
+        <canvas id="radar-chart" width="340" height="340"></canvas>
+      </div>
+
+      <div class="score-bars" id="score-bars"></div>
+
+      <div class="ai-report">
+        <div class="report-label">あなたへのパーソナルレポート</div>
+        <div id="ai-report-content" class="report-content"></div>
+      </div>
+
+      <div class="result-actions no-print">
+        <button class="action-btn action-pdf" onclick="window.print()">📄 PDFで保存</button>
+      </div>
+    </div>
+  </div>
+
+  <div id="error-screen" class="hidden">
+    <div class="container" style="padding-top:80px;text-align:center;">
+      <img src="logo.jpg" alt="リミー" class="logo-img" style="margin:0 auto 24px;">
+      <p style="color:#EF4444;font-size:15px;line-height:1.8;">結果が見つかりませんでした。<br>URLを確認してください。</p>
+    </div>
+  </div>
+
+  <script>
+    const APPS_SCRIPT_URL = 'https://script.google.com/macros/s/AKfycbyGceshWFX-_kepVh5KHTvNwsrNAh7hW22U48KSp4DVvohXurOsAa6BDW7MFrsbKJ0n/exec';
+
+    const FACTORS = {
+      A: { label: '業務適応' },
+      B: { label: '対人関係' },
+      C: { label: '心理エナジー' },
+      D: { label: '行動リスク' },
+      E: { label: '定着意思' },
+    };
+
+    window.onload = async () => {
+      const params = new URLSearchParams(window.location.search);
+      const id = params.get('id');
+      if (!id) { showError(); return; }
+
+      try {
+        const res = await fetch(`${APPS_SCRIPT_URL}?action=get_result&id=${id}`);
+        const data = await res.json();
+        if (!data.success) throw new Error();
+        renderResult(data.result);
+      } catch {
+        showError();
+      }
+    };
+
+    function renderResult(r) {
+      document.getElementById('loading-screen').classList.add('hidden');
+      document.getElementById('result-screen').classList.remove('hidden');
+      document.getElementById('result-name-title').textContent = `${r.name} さんの診断レポート`;
+      document.getElementById('result-date').textContent = new Date(r.timestamp).toLocaleDateString('ja-JP') + ' 実施';
+
+      renderScoreBars(r.scores);
+      renderRadarChart(r.scores);
+      document.getElementById('ai-report-content').innerHTML = renderReport(r.employeeReport);
+    }
+
+    function showError() {
+      document.getElementById('loading-screen').classList.add('hidden');
+      document.getElementById('error-screen').classList.remove('hidden');
+    }
+
+    function renderScoreBars(scores) {
+      const container = document.getElementById('score-bars');
+      container.innerHTML = '';
+      for (const [key, factor] of Object.entries(FACTORS)) {
+        const val = scores[key];
+        const pct = (val / 5) * 100;
+        const cls = val >= 3.5 ? 'score-high' : val >= 2.5 ? 'score-mid' : 'score-low';
+        container.innerHTML += `
+          <div class="score-bar-item">
+            <div class="score-bar-header">
+              <span class="score-bar-label">${factor.label}</span>
+              <span class="score-bar-value">${parseFloat(val).toFixed(1)}</span>
+            </div>
+            <div class="score-bar-track">
+              <div class="score-bar-fill ${cls}" style="width:${pct}%"></div>
+            </div>
+          </div>`;
+      }
+    }
+
+    function renderRadarChart(scores) {
+      const canvas = document.getElementById('radar-chart');
+      const ctx = canvas.getContext('2d');
+      const W = canvas.width, H = canvas.height;
+      const cx = W/2, cy = H/2, R = Math.min(W,H)/2 - 50;
+      const labels = Object.values(FACTORS).map(f => f.label);
+      const vals = ['A','B','C','D','E'].map(k => scores[k] / 5);
+      const N = labels.length;
+      ctx.clearRect(0, 0, W, H);
+      for (let r = 1; r <= 5; r++) {
+        ctx.beginPath();
+        for (let i = 0; i < N; i++) {
+          const a = (Math.PI*2*i/N) - Math.PI/2;
+          const x = cx + (R*r/5)*Math.cos(a), y = cy + (R*r/5)*Math.sin(a);
+          i===0 ? ctx.moveTo(x,y) : ctx.lineTo(x,y);
+        }
+        ctx.closePath(); ctx.strokeStyle='#E5E7EB'; ctx.lineWidth=1; ctx.stroke();
+      }
+      for (let i = 0; i < N; i++) {
+        const a = (Math.PI*2*i/N) - Math.PI/2;
+        ctx.beginPath(); ctx.moveTo(cx,cy); ctx.lineTo(cx+R*Math.cos(a),cy+R*Math.sin(a));
+        ctx.strokeStyle='#E5E7EB'; ctx.lineWidth=1; ctx.stroke();
+      }
+      ctx.beginPath();
+      for (let i = 0; i < N; i++) {
+        const a = (Math.PI*2*i/N) - Math.PI/2;
+        const x = cx+R*vals[i]*Math.cos(a), y = cy+R*vals[i]*Math.sin(a);
+        i===0 ? ctx.moveTo(x,y) : ctx.lineTo(x,y);
+      }
+      ctx.closePath(); ctx.fillStyle='rgba(79,70,229,0.15)'; ctx.fill();
+      ctx.strokeStyle='#4F46E5'; ctx.lineWidth=2; ctx.stroke();
+      for (let i = 0; i < N; i++) {
+        const a = (Math.PI*2*i/N) - Math.PI/2;
+        const x = cx+R*vals[i]*Math.cos(a), y = cy+R*vals[i]*Math.sin(a);
+        ctx.beginPath(); ctx.arc(x,y,4,0,Math.PI*2); ctx.fillStyle='#4F46E5'; ctx.fill();
+      }
+      ctx.fillStyle='#374151'; ctx.font='12px sans-serif'; ctx.textAlign='center'; ctx.textBaseline='middle';
+      for (let i = 0; i < N; i++) {
+        const a = (Math.PI*2*i/N) - Math.PI/2;
+        ctx.fillText(labels[i], cx+(R+30)*Math.cos(a), cy+(R+30)*Math.sin(a));
+      }
+    }
+
+    function renderReport(text) {
+      const lines = text.split('\n');
+      let html = '';
+      lines.forEach(line => {
+        if (/^━+$/.test(line.trim())) { html += '<hr class="report-divider">'; return; }
+        if (/^▼/.test(line.trim())) { html += `<div class="report-section-header">${escHtml(line.trim())}</div>`; return; }
+        if (/^【.+】$/.test(line.trim())) { html += `<div class="report-block-title">${escHtml(line.trim())}</div>`; return; }
+        if (/^・.+：[\d.]+\s*\/\s*5\.0/.test(line.trim())) {
+          const match = line.match(/^・(.+)：([\d.]+)\s*\/\s*5\.0/);
+          if (match) {
+            const val = parseFloat(match[2]), pct = Math.round(val/5*100);
+            const cls = val>=3.5?'#10B981':val>=2.5?'#F59E0B':'#EF4444';
+            html += `<div class="report-score-row"><div class="report-score-label">${escHtml(match[1])}</div><div class="report-score-bar-wrap"><div class="report-score-bar" style="width:${pct}%;background:${cls};"></div></div><div class="report-score-num" style="color:${cls};">${val}</div></div>`;
+            return;
+          }
+        }
+        if (/^\d+\.\s/.test(line.trim())) { html += `<div class="report-list-item">${renderInline(line.trim())}</div>`; return; }
+        if (/^●/.test(line.trim())) { html += `<div class="report-bullet">${renderInline(line.trim())}</div>`; return; }
+        if (line.trim() === '') { html += '<div class="report-spacer"></div>'; return; }
+        html += `<div class="report-line">${renderInline(line)}</div>`;
+      });
+      return html;
+    }
+
+    function renderInline(text) { return escHtml(text).replace(/\*\*(.+?)\*\*/g,'<strong>$1</strong>'); }
+    function escHtml(s) { return s.replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;'); }
+  </script>
+</body>
+</html>

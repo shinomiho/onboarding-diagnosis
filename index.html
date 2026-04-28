@@ -1,0 +1,153 @@
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>入社適性チェック｜リミー / RE:Me</title>
+  <link rel="stylesheet" href="style.css">
+</head>
+<body>
+
+  <!-- 入力フォーム -->
+  <div id="form-screen">
+    <div class="container">
+      <div class="header">
+        <img src="logo.jpg" alt="リミー" class="logo-img">
+        <div id="company-badge" class="company-badge hidden"></div>
+        <h1>入社90日サポート診断</h1>
+        <p class="subtitle">あなたの状況を正直に教えてください。<br>結果はあなたのサポートのために使われます。</p>
+        <div class="privacy-notice">
+          <span class="privacy-notice-icon">🔒</span>
+          <span>入力された情報は診断レポート生成のみに使用します。AI処理のためAnthropicに送信されますが、第三者への提供・販売は一切行いません。詳しくは<a href="privacy.html" target="_blank">プライバシーポリシー</a>をご確認ください。</span>
+        </div>
+      </div>
+
+      <form id="diagnosis-form">
+        <div class="profile-fields">
+          <div class="profile-row">
+            <div class="profile-item">
+              <label for="employee-name">お名前</label>
+              <input type="text" id="employee-name" placeholder="例：山田 太郎" required>
+            </div>
+            <div class="profile-item">
+              <label for="employee-email">メールアドレス</label>
+              <input type="email" id="employee-email" placeholder="例：taro@example.com" required>
+            </div>
+          </div>
+          <div class="profile-row">
+            <div class="profile-item">
+              <label for="employee-gender">性別</label>
+              <select id="employee-gender" required>
+                <option value="">選択してください</option>
+                <option value="男性">男性</option>
+                <option value="女性">女性</option>
+                <option value="その他">その他</option>
+                <option value="回答しない">回答しない</option>
+              </select>
+            </div>
+            <div class="profile-item">
+              <label for="employee-age">年齢</label>
+              <select id="employee-age" required>
+                <option value="">選択してください</option>
+                <option value="20歳未満">20歳未満</option>
+                <option value="20〜24歳">20〜24歳</option>
+                <option value="25〜29歳">25〜29歳</option>
+                <option value="30〜34歳">30〜34歳</option>
+                <option value="35〜39歳">35〜39歳</option>
+                <option value="40〜44歳">40〜44歳</option>
+                <option value="45歳以上">45歳以上</option>
+              </select>
+            </div>
+          </div>
+          <div class="profile-row">
+            <div class="profile-item">
+              <label for="employee-job">職種</label>
+              <select id="employee-job" required>
+                <option value="">選択してください</option>
+                <option value="営業・販売">営業・販売</option>
+                <option value="エンジニア・技術職">エンジニア・技術職</option>
+                <option value="事務・管理">事務・管理</option>
+                <option value="マーケティング・企画">マーケティング・企画</option>
+                <option value="製造・現場">製造・現場</option>
+                <option value="医療・介護">医療・介護</option>
+                <option value="教育">教育</option>
+                <option value="クリエイティブ">クリエイティブ</option>
+                <option value="その他">その他</option>
+              </select>
+            </div>
+            <div class="profile-item">
+              <label for="employee-type">入社形態</label>
+              <select id="employee-type" required>
+                <option value="">選択してください</option>
+                <option value="新卒入社">新卒入社</option>
+                <option value="中途入社">中途入社</option>
+                <option value="転籍・異動">転籍・異動</option>
+              </select>
+            </div>
+          </div>
+        </div>
+
+        <div class="questions" id="questions-container"></div>
+
+        <div class="consent-box">
+          <label class="consent-label">
+            <input type="checkbox" id="consent-check">
+            <span class="consent-text">
+              <a href="privacy.html" target="_blank">プライバシーポリシー</a>に同意します。入力情報はAI診断レポート生成のためAnthropicに送信されます。
+            </span>
+          </label>
+        </div>
+
+        <button type="submit" class="submit-btn" id="submit-btn">
+          診断結果を見る
+        </button>
+      </form>
+    </div>
+  </div>
+
+  <!-- ローディング -->
+  <div id="loading-screen" class="hidden">
+    <div class="loading-content">
+      <div class="spinner"></div>
+      <p>あなたのデータを分析中です…</p>
+      <p class="loading-sub">マネージャー向けレポートを生成しています</p>
+    </div>
+  </div>
+
+  <!-- 結果画面 -->
+  <div id="result-screen" class="hidden">
+    <div class="container">
+      <div class="header">
+        <img src="logo.jpg" alt="リミー" class="logo-img">
+        <h2 id="result-name-title">診断レポート</h2>
+      </div>
+
+      <!-- レーダーチャート -->
+      <div class="chart-section">
+        <h3>6因子スコア</h3>
+        <canvas id="radar-chart" width="340" height="340"></canvas>
+      </div>
+
+      <!-- スコアバー -->
+      <div class="score-bars" id="score-bars"></div>
+
+      <!-- AIレポート -->
+      <div class="ai-report">
+        <div class="report-label">あなたへのパーソナルレポート</div>
+        <div id="ai-report-content" class="report-content"></div>
+      </div>
+
+      <div class="result-actions">
+        <button class="action-btn action-pdf" onclick="downloadPdf()">📄 PDFで保存</button>
+        <button class="action-btn action-copy" id="copy-url-btn" onclick="copyResultUrl()">🔗 結果URLをコピー</button>
+      </div>
+      <button class="restart-btn no-print" onclick="restart()">もう一度診断する</button>
+    </div>
+  </div>
+
+  <!-- APIキーモーダル（無効化：Apps Scriptに移行済み） -->
+  <div id="api-modal" class="modal-overlay hidden"></div>
+
+  <script src="app.js"></script>
+</body>
+</html>
