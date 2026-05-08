@@ -80,6 +80,7 @@ function getConfig() {
     spreadsheetId: p.getProperty('SPREADSHEET_ID'),
     claudeApiKey:  p.getProperty('CLAUDE_API_KEY'),
     adminSecret:   p.getProperty('ADMIN_SECRET'),
+    regToken:      p.getProperty('REG_TOKEN') || '',
     limeeEmail:    'miho.shinohe@remenow.com',
     claudeModel:   'claude-sonnet-4-6',
     pharmacistName: '薬剤師 ○○ ○○',
@@ -97,10 +98,11 @@ function doPost(e) {
   try {
     const data = JSON.parse(e.postData.contents);
     const config = getConfig();
-    if (data.action === 'submit_diagnosis')  return handleDiagnosis(data, config);
-    if (data.action === 'add_company')       { if (!validateAdmin(data.adminSecret, config)) return err('認証エラー'); return addCompany(data, config); }
-    if (data.action === 'delete_company')    { if (!validateAdmin(data.adminSecret, config)) return err('認証エラー'); return deleteCompany(data, config); }
+    if (data.action === 'submit_diagnosis')    return handleDiagnosis(data, config);
+    if (data.action === 'add_company')         { if (!validateAdmin(data.adminSecret, config)) return err('認証エラー'); return addCompany(data, config); }
+    if (data.action === 'delete_company')      { if (!validateAdmin(data.adminSecret, config)) return err('認証エラー'); return deleteCompany(data, config); }
     if (data.action === 'submit_action_check') return submitActionCheck(data, config);
+    if (data.action === 'register_company')    return registerCompany(data, config);
     return err('不明なアクション');
   } catch(e) { return err(e.message); }
 }
@@ -1040,6 +1042,123 @@ function getKpiData(companyCode, config) {
         ? Math.round(actionRates.reduce((s, r) => s + r.rate, 0) / actionRates.length)
         : null,
     }
+  });
+}
+
+// ===== 企業自己登録（register.html から） =====
+
+function registerCompany(data, config) {
+  if (config.regToken && data.regToken !== config.regToken) return err('無効なトークンです');
+  if (!data.companyName || !data.managerEmail) return err('会社名と管理者メールは必須です');
+
+  const ss = SpreadsheetApp.openById(config.spreadsheetId);
+  let sheet = ss.getSheetByName('companies');
+  if (!sheet) {
+    sheet = ss.insertSheet('companies');
+    sheet.appendRow(['code','name','manager_email','hr_email','created_at','team_name','manager_name','hr_name']);
+    sheet.setFrozenRows(1);
+  } else {
+    // team_name・manager_name・hr_name 列が未追加なら追加
+    const headers = sheet.getRange(1, 1, 1, sheet.getLastColumn()).getValues()[0];
+    if (!headers.includes('team_name'))    sheet.getRange(1, sheet.getLastColumn() + 1).setValue('team_name');
+    if (!headers.includes('manager_name')) sheet.getRange(1, sheet.getLastColumn() + 1).setValue('manager_name');
+    if (!headers.includes('hr_name'))      sheet.getRange(1, sheet.getLastColumn() + 1).setValue('hr_name');
+  }
+
+  const code = 'LIMEE_' + Array.from({length:6}, ()=>'ABCDEFGHJKLMNPQRSTUVWXYZ23456789'[Math.floor(Math.random()*32)]).join('');
+  const displayName = data.companyName + (data.teamName ? ` ／ ${data.teamName}` : '');
+  const diagUrl = `${config.siteUrl}/index.html?code=${code}&c=${encodeURIComponent(displayName)}`;
+
+  sheet.appendRow([
+    code, data.companyName, data.managerEmail, data.hrEmail || '',
+    new Date().toISOString(), data.teamName || '', data.managerName || '', data.hrName || '',
+  ]);
+
+  sendWelcomeEmail(data, diagUrl, config);
+  sendRegistrationNotify(data, diagUrl, code, config);
+
+  return ok({ code, url: diagUrl });
+}
+
+function sendWelcomeEmail(data, diagUrl, config) {
+  const displayName = data.companyName + (data.teamName ? ` ／ ${data.teamName}` : '');
+  const managerLabel = data.managerName ? `${data.managerName} 様` : '管理者 様';
+
+  const html = `<!DOCTYPE html><html lang="ja"><head><meta charset="UTF-8"></head>
+<body style="margin:0;padding:0;background:#F9FAFB;font-family:'Hiragino Sans',sans-serif;">
+<table width="100%" cellpadding="0" cellspacing="0" style="padding:32px 16px;">
+<tr><td><table width="600" align="center" cellpadding="0" cellspacing="0" style="background:#fff;border-radius:16px;overflow:hidden;box-shadow:0 2px 12px rgba(0,0,0,0.08);">
+
+  <tr><td style="background:linear-gradient(135deg,#4F46E5,#7C3AED);padding:36px;text-align:center;">
+    <p style="margin:0 0 6px;font-size:11px;color:rgba(255,255,255,0.6);letter-spacing:3px;">WELCOME TO LIMEE</p>
+    <h1 style="margin:0 0 8px;font-size:22px;color:#fff;font-weight:800;">${displayName}</h1>
+    <p style="margin:0;font-size:13px;color:rgba(255,255,255,0.8);">診断URL発行のお知らせ</p>
+  </td></tr>
+
+  <tr><td style="padding:32px;">
+    <p style="font-size:15px;color:#1F2937;margin:0 0 20px;">${managerLabel}</p>
+    <p style="font-size:14px;color:#374151;line-height:1.9;margin:0 0 24px;">
+      この度はリミーをご導入いただきありがとうございます。<br>
+      貴社専用の診断URLが発行されました。
+    </p>
+
+    <div style="background:#EEF2FF;border-radius:12px;padding:24px;margin-bottom:28px;text-align:center;">
+      <p style="margin:0 0 8px;font-size:12px;font-weight:700;color:#4F46E5;">貴社専用 診断URL</p>
+      <p style="margin:0 0 16px;font-size:12px;font-family:monospace;color:#374151;word-break:break-all;">${diagUrl}</p>
+      <a href="${diagUrl}" style="display:inline-block;background:#4F46E5;color:#fff;font-size:14px;font-weight:700;padding:12px 28px;border-radius:10px;text-decoration:none;">
+        診断URLを開く →
+      </a>
+    </div>
+
+    <p style="font-size:14px;font-weight:700;color:#1F2937;margin:0 0 12px;">📋 ご利用の流れ</p>
+    <ol style="font-size:14px;color:#374151;line-height:2;margin:0 0 24px;padding-left:20px;">
+      <li>上記URLを新入社員へ共有する（メール・LINE等）</li>
+      <li>新入社員が25問の診断に回答（約10〜15分）</li>
+      <li>回答後すぐに、管理者様へ診断レポートが自動送信される</li>
+      <li>毎月の月次レポートで、チーム全体の状態を把握できる</li>
+    </ol>
+
+    <div style="background:#F0FDF4;border-radius:10px;padding:16px;">
+      <p style="margin:0;font-size:13px;color:#166534;line-height:1.8;">
+        ✅ 診断レポート・月次レポートは管理者様のメールアドレスへ自動送信されます<br>
+        ✅ データはすべて安全に管理・蓄積されます<br>
+        ✅ ご不明な点はリミー事務局までお気軽にご連絡ください
+      </p>
+    </div>
+  </td></tr>
+
+  <tr><td style="background:#F9FAFB;padding:28px 32px;text-align:center;border-top:1px solid #E5E7EB;">
+    <img src="https://drive.google.com/uc?export=view&id=1EXtEctBTrl__APTO1h4DUD_dmBy8jkEg" alt="リミー" style="width:160px;height:auto;margin-bottom:12px;display:block;margin-left:auto;margin-right:auto;">
+    <p style="margin:0 0 4px;font-size:12px;color:#9CA3AF;">入社後90日に特化した採用後支援HRテック</p>
+    <p style="margin:0;font-size:12px;color:#9CA3AF;">${config.limeeEmail}</p>
+  </td></tr>
+
+</table></td></tr></table>
+</body></html>`;
+
+  const recipients = [data.managerEmail, data.hrEmail].filter(Boolean).join(',');
+  MailApp.sendEmail({
+    to: recipients,
+    subject: `【リミー】${displayName}様の診断URLが発行されました`,
+    htmlBody: html,
+  });
+}
+
+function sendRegistrationNotify(data, diagUrl, code, config) {
+  const displayName = data.companyName + (data.teamName ? ` ／ ${data.teamName}` : '');
+  MailApp.sendEmail({
+    to: config.limeeEmail,
+    subject: `【リミー】新規登録：${displayName}`,
+    htmlBody: `<p>新規企業登録が完了しました。</p>
+    <ul>
+      <li>会社名：${data.companyName}</li>
+      <li>チーム：${data.teamName || '—'}</li>
+      <li>管理者名：${data.managerName || '—'}</li>
+      <li>管理者メール：${data.managerEmail}</li>
+      <li>人事メール：${data.hrEmail || '—'}</li>
+      <li>コード：${code}</li>
+      <li>URL：<a href="${diagUrl}">${diagUrl}</a></li>
+    </ul>`,
   });
 }
 

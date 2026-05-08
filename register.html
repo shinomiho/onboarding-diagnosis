@@ -1,0 +1,189 @@
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>リミー｜企業登録フォーム</title>
+  <link rel="stylesheet" href="style.css">
+  <style>
+    .reg-label { display:block; font-size:12px; font-weight:700; color:var(--text-sub); margin-bottom:6px; }
+    .reg-input { width:100%; border:1px solid var(--border); border-radius:8px; padding:12px 14px; font-size:14px; outline:none; box-sizing:border-box; font-family:inherit; }
+    .reg-input:focus { border-color:var(--primary); }
+    .reg-input.optional { background:var(--bg); }
+    .optional-tag { font-size:11px; font-weight:400; color:#9CA3AF; margin-left:6px; }
+    .field { margin-bottom:18px; }
+    .divider { border:none; border-top:1px solid var(--border); margin:24px 0; }
+    .intro-box { background:var(--primary-light); border-radius:12px; padding:18px; margin-bottom:28px; }
+  </style>
+</head>
+<body>
+
+  <!-- 登録フォーム -->
+  <div id="form-screen">
+    <div class="container" style="max-width:480px;">
+      <div class="header">
+        <img src="logo.jpg" alt="リミー" class="logo-img">
+        <h1 style="font-size:18px;margin-top:8px;">企業登録フォーム</h1>
+        <p style="font-size:13px;color:var(--text-sub);margin-top:6px;">入力後、診断URLを即時発行します</p>
+      </div>
+
+      <div class="intro-box">
+        <p style="margin:0;font-size:13px;color:var(--primary);line-height:1.8;">
+          📋 登録完了後、担当管理者のメールアドレスへ<br>
+          <strong>診断URLと使い方ガイド</strong>を自動送信します。<br>
+          所要時間：約1分
+        </p>
+      </div>
+
+      <div class="profile-fields">
+
+        <p style="font-size:13px;font-weight:700;color:var(--text);margin:0 0 16px;">🏢 企業情報</p>
+
+        <div class="field">
+          <label class="reg-label">会社名 <span style="color:#EF4444;">*</span></label>
+          <input type="text" id="company-name" class="reg-input" placeholder="例：株式会社サンプル">
+        </div>
+
+        <div class="field">
+          <label class="reg-label">部署・チーム名 <span class="optional-tag">任意</span></label>
+          <input type="text" id="team-name" class="reg-input optional" placeholder="例：営業部、開発チーム">
+        </div>
+
+        <hr class="divider">
+        <p style="font-size:13px;font-weight:700;color:var(--text);margin:0 0 16px;">👤 直属の管理者（上司）情報</p>
+        <p style="font-size:12px;color:var(--text-sub);margin:-8px 0 16px;line-height:1.7;">診断レポートの送付先になります。新入社員の直属の管理者をご入力ください。</p>
+
+        <div class="field">
+          <label class="reg-label">管理者のお名前 <span style="color:#EF4444;">*</span></label>
+          <input type="text" id="manager-name" class="reg-input" placeholder="例：山田 太郎">
+        </div>
+
+        <div class="field">
+          <label class="reg-label">管理者のメールアドレス <span style="color:#EF4444;">*</span></label>
+          <input type="email" id="manager-email" class="reg-input" placeholder="manager@example.com">
+        </div>
+
+        <hr class="divider">
+        <p style="font-size:13px;font-weight:700;color:var(--text);margin:0 0 16px;">👥 人事担当者情報 <span class="optional-tag" style="font-size:12px;">任意</span></p>
+
+        <div class="field">
+          <label class="reg-label">人事担当者のお名前 <span class="optional-tag">任意</span></label>
+          <input type="text" id="hr-name" class="reg-input optional" placeholder="例：鈴木 花子">
+        </div>
+
+        <div class="field">
+          <label class="reg-label">人事担当者のメールアドレス <span class="optional-tag">任意</span></label>
+          <input type="email" id="hr-email" class="reg-input optional" placeholder="hr@example.com">
+        </div>
+
+      </div>
+
+      <button onclick="submitRegistration()" class="submit-btn" id="submit-btn">登録して診断URLを発行する</button>
+      <p id="form-error" style="color:#EF4444;font-size:13px;text-align:center;margin-top:8px;display:none;"></p>
+
+      <p style="font-size:11px;color:#9CA3AF;text-align:center;margin-top:16px;line-height:1.7;">
+        登録情報はリミー事務局が管理します。<br>
+        <a href="privacy.html" style="color:#9CA3AF;">プライバシーポリシー</a>
+      </p>
+    </div>
+  </div>
+
+  <!-- 完了画面 -->
+  <div id="done-screen" class="hidden">
+    <div class="container" style="max-width:480px;padding-top:60px;text-align:center;">
+      <p style="font-size:48px;margin:0 0 16px;">🎉</p>
+      <h2 style="font-size:20px;color:var(--text);margin-bottom:8px;">登録が完了しました！</h2>
+      <p id="done-company" style="font-size:15px;font-weight:700;color:var(--primary);margin-bottom:20px;"></p>
+      <p style="font-size:14px;color:var(--text-sub);line-height:1.8;margin-bottom:28px;">
+        管理者のメールアドレスへ<br>
+        <strong>診断URLと使い方ガイド</strong>を送信しました。<br>
+        メールをご確認ください。
+      </p>
+
+      <div style="background:var(--bg);border-radius:12px;padding:20px;margin-bottom:24px;text-align:left;">
+        <p style="font-size:12px;font-weight:700;color:var(--text-sub);margin:0 0 8px;">発行された診断URL</p>
+        <p id="done-url" style="font-size:12px;font-family:monospace;color:var(--text);word-break:break-all;margin:0 0 12px;"></p>
+        <button onclick="copyUrl()" style="padding:8px 20px;background:var(--primary);color:white;border:none;border-radius:8px;font-size:13px;font-weight:700;cursor:pointer;">URLをコピー</button>
+      </div>
+
+      <p style="font-size:13px;color:var(--text-sub);line-height:1.8;">
+        このURLを新入社員に共有してください。<br>
+        診断結果は管理者へ自動送信されます。
+      </p>
+    </div>
+  </div>
+
+  <!-- エラー画面 -->
+  <div id="error-screen" class="hidden">
+    <div class="container" style="max-width:480px;padding-top:80px;text-align:center;">
+      <p style="font-size:40px;">⚠️</p>
+      <h2 style="font-size:18px;color:var(--text);margin-bottom:8px;">エラーが発生しました</h2>
+      <p id="error-message" style="font-size:14px;color:var(--text-sub);"></p>
+      <button onclick="location.reload()" style="margin-top:20px;padding:10px 24px;background:var(--primary);color:white;border:none;border-radius:8px;font-size:14px;cursor:pointer;">もう一度試す</button>
+    </div>
+  </div>
+
+  <script>
+    const APPS_SCRIPT_URL = 'https://script.google.com/macros/s/AKfycbyGceshWFX-_kepVh5KHTvNwsrNAh7hW22U48KSp4DVvohXurOsAa6BDW7MFrsbKJ0n/exec';
+    const params = new URLSearchParams(window.location.search);
+    const regToken = params.get('token') || '';
+    let generatedUrl = '';
+
+    async function submitRegistration() {
+      const companyName  = document.getElementById('company-name').value.trim();
+      const teamName     = document.getElementById('team-name').value.trim();
+      const managerName  = document.getElementById('manager-name').value.trim();
+      const managerEmail = document.getElementById('manager-email').value.trim();
+      const hrName       = document.getElementById('hr-name').value.trim();
+      const hrEmail      = document.getElementById('hr-email').value.trim();
+
+      if (!companyName || !managerName || !managerEmail) {
+        showError('会社名・管理者名・管理者メールアドレスは必須です');
+        return;
+      }
+
+      const btn = document.getElementById('submit-btn');
+      btn.disabled = true;
+      btn.textContent = '登録中...';
+
+      try {
+        const res = await fetch(APPS_SCRIPT_URL, {
+          method: 'POST',
+          headers: { 'Content-Type': 'text/plain' },
+          body: JSON.stringify({
+            action: 'register_company',
+            regToken, companyName, teamName, managerName, managerEmail, hrName, hrEmail,
+          }),
+        });
+        const data = await res.json();
+        if (!data.success) throw new Error(data.error);
+
+        generatedUrl = data.url;
+        document.getElementById('done-company').textContent =
+          companyName + (teamName ? ` ／ ${teamName}` : '');
+        document.getElementById('done-url').textContent = generatedUrl;
+        document.getElementById('form-screen').classList.add('hidden');
+        document.getElementById('done-screen').classList.remove('hidden');
+      } catch(e) {
+        const errEl = document.getElementById('form-error');
+        errEl.textContent = e.message === '無効なトークンです'
+          ? '登録リンクが正しくありません。リミー事務局からお送りしたリンクをご確認ください。'
+          : '登録に失敗しました。もう一度お試しください。';
+        errEl.style.display = 'block';
+        btn.disabled = false;
+        btn.textContent = '登録して診断URLを発行する';
+      }
+    }
+
+    function showError(msg) {
+      const errEl = document.getElementById('form-error');
+      errEl.textContent = msg;
+      errEl.style.display = 'block';
+    }
+
+    function copyUrl() {
+      navigator.clipboard.writeText(generatedUrl).then(() => alert('URLをコピーしました'));
+    }
+  </script>
+</body>
+</html>
