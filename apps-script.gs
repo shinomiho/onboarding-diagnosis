@@ -800,6 +800,96 @@ function getResultById(id, config) {
   return err('結果が見つかりません');
 }
 
+// ===== アクションチェック リマインドメール（毎月5日・20日） =====
+
+function sendActionCheckReminders() {
+  const now = new Date();
+  const day = now.getDate();
+  if (day !== 5 && day !== 20) return; // 5日・20日以外は何もしない
+
+  const config = getConfig();
+  const ss = SpreadsheetApp.openById(config.spreadsheetId);
+
+  // 対象期間ラベルを算出（月次レポートと同じロジック）
+  let periodLabel;
+  if (day === 5) {
+    // 1日レポート分（前月後半）のリマインド
+    const prevMonth = new Date(now.getFullYear(), now.getMonth() - 1, 1);
+    periodLabel = `${prevMonth.getFullYear()}年${prevMonth.getMonth() + 1}月 後半`;
+  } else {
+    // 15日レポート分（当月前半）のリマインド
+    periodLabel = `${now.getFullYear()}年${now.getMonth() + 1}月 前半`;
+  }
+
+  const companies = getCompaniesInternal(config);
+  const actionsSheet = ss.getSheetByName('manager_actions');
+
+  companies.forEach(company => {
+    // すでに回答済みならスキップ
+    if (actionsSheet) {
+      const already = actionsSheet.getDataRange().getValues().slice(1)
+        .find(r => r[1] === company.code && r[3] === periodLabel);
+      if (already) return;
+    }
+
+    if (!config.siteUrl) return;
+    const actionCheckUrl = `${config.siteUrl}/action-check.html?company=${company.code}&period=${encodeURIComponent(periodLabel)}&manager=${encodeURIComponent(company.managerEmail)}`;
+
+    MailApp.sendEmail({
+      to: company.managerEmail,
+      subject: `【リミー】アクションチェックのご回答をお願いします（${periodLabel}）`,
+      htmlBody: buildReminderEmailHTML(company, periodLabel, actionCheckUrl, config),
+    });
+  });
+}
+
+function buildReminderEmailHTML(company, periodLabel, actionCheckUrl, config) {
+  return `<!DOCTYPE html><html lang="ja"><head><meta charset="UTF-8"></head>
+<body style="margin:0;padding:0;background:#F9FAFB;font-family:'Hiragino Sans',sans-serif;">
+<table width="100%" cellpadding="0" cellspacing="0" style="padding:32px 16px;">
+<tr><td><table width="600" align="center" cellpadding="0" cellspacing="0" style="background:#fff;border-radius:16px;overflow:hidden;box-shadow:0 2px 12px rgba(0,0,0,0.08);">
+
+  <tr><td style="background:linear-gradient(135deg,#4F46E5,#7C3AED);padding:32px;text-align:center;">
+    <p style="margin:0 0 6px;font-size:11px;color:rgba(255,255,255,0.6);letter-spacing:2px;">ACTION CHECK REMINDER</p>
+    <h1 style="margin:0;font-size:20px;color:#fff;font-weight:700;">${company.name} 様</h1>
+  </td></tr>
+
+  <tr><td style="padding:32px;">
+    <p style="font-size:15px;font-weight:700;color:#1F2937;margin:0 0 12px;">📋 アクションチェックのご回答をお願いします</p>
+    <p style="font-size:14px;color:#374151;line-height:1.9;margin:0 0 20px;">
+      <strong>${periodLabel}</strong>の月次レポートで推奨したアクション、どのくらい実施できましたか？<br>
+      5つの質問に答えるだけで、約2分で完了します。
+    </p>
+
+    <div style="background:#EEF2FF;border-radius:12px;padding:16px;margin-bottom:24px;">
+      <p style="margin:0;font-size:13px;color:#4F46E5;line-height:1.8;">
+        💡 回答いただいた実施率は次回の月次レポートに<br>
+        <strong>「マネジメントアクション実施率（プロセス指標）」</strong>として反映されます。<br>
+        蓄積データは人的資本開示KPIとしてご活用いただけます。
+      </p>
+    </div>
+
+    <div style="text-align:center;margin-bottom:20px;">
+      <a href="${actionCheckUrl}" style="display:inline-block;background:#4F46E5;color:#fff;font-size:15px;font-weight:700;padding:16px 40px;border-radius:12px;text-decoration:none;">
+        ✅ アクションを振り返る →
+      </a>
+    </div>
+
+    <p style="font-size:12px;color:#9CA3AF;text-align:center;margin:0;">
+      ※ すでにご回答済みの場合はこのメールを無視してください
+    </p>
+  </td></tr>
+
+  <tr><td style="background:#F9FAFB;padding:28px 32px;text-align:center;border-top:1px solid #E5E7EB;">
+    <img src="https://drive.google.com/uc?export=view&id=1EXtEctBTrl__APTO1h4DUD_dmBy8jkEg" alt="リミー" style="width:160px;height:auto;margin-bottom:12px;display:block;margin-left:auto;margin-right:auto;">
+    <p style="margin:0 0 4px;font-size:12px;color:#9CA3AF;">入社後90日に特化した採用後支援HRテック</p>
+    <a href="${config.inquiryUrl}" style="font-size:12px;color:#4F46E5;text-decoration:none;">お問い合わせ</a>
+  </td></tr>
+
+</table></td></tr></table>
+</body></html>`;
+}
+
 // ===== フェーズ2: アクションチェック =====
 
 function getOrCreateActionSheet(ss) {
