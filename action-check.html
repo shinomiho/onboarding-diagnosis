@@ -1,0 +1,195 @@
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>アクションチェックイン | リミー</title>
+  <link rel="stylesheet" href="style.css">
+  <style>
+    .question-card { background: white; border-radius: 12px; border: 1px solid var(--border); padding: 20px; margin-bottom: 16px; }
+    .question-title { font-size: 14px; font-weight: 700; color: var(--text); margin-bottom: 12px; line-height: 1.6; }
+    .options { display: flex; gap: 8px; }
+    .option-btn { flex: 1; padding: 10px 4px; border: 2px solid var(--border); border-radius: 10px; background: white; font-size: 12px; font-weight: 600; cursor: pointer; transition: all 0.15s; text-align: center; line-height: 1.4; }
+    .option-btn.selected-3 { border-color: #10B981; background: #D1FAE5; color: #065F46; }
+    .option-btn.selected-2 { border-color: #F59E0B; background: #FEF3C7; color: #92400E; }
+    .option-btn.selected-1 { border-color: #EF4444; background: #FEE2E2; color: #991B1B; }
+    .free-text { width: 100%; min-height: 80px; border: 1px solid var(--border); border-radius: 8px; padding: 12px; font-size: 14px; resize: vertical; box-sizing: border-box; font-family: inherit; }
+    .rate-number { font-size: 56px; font-weight: 800; color: var(--primary); text-align: center; line-height: 1; }
+    .thank-you { text-align: center; padding: 40px 20px; }
+    .intro-box { background: var(--primary-light); border-radius: 12px; padding: 16px; margin-bottom: 24px; }
+  </style>
+</head>
+<body>
+
+  <div id="loading-screen">
+    <div class="container" style="max-width:480px;padding-top:80px;text-align:center;">
+      <p style="color:var(--text-sub);">読み込み中...</p>
+    </div>
+  </div>
+
+  <div id="form-screen" class="hidden">
+    <div class="container" style="max-width:480px;">
+      <div class="header">
+        <img src="logo.jpg" alt="リミー" class="logo-img">
+        <h1 style="font-size:18px;margin-top:8px;">アクションチェックイン</h1>
+        <p id="period-label" style="font-size:13px;color:var(--text-sub);margin-top:6px;"></p>
+      </div>
+
+      <div class="intro-box">
+        <p style="margin:0;font-size:13px;color:var(--primary);line-height:1.8;">
+          月次レポートで推奨されたアクション、どのくらい実施できましたか？<br>
+          5つの項目を振り返ってください（約2分）。<br>
+          結果は次回レポートの<strong>プロセス指標</strong>として反映されます。
+        </p>
+      </div>
+
+      <div id="questions"></div>
+
+      <div class="question-card">
+        <div class="question-title">📝 自由メモ（任意）</div>
+        <textarea id="free-text" class="free-text" placeholder="実施できた理由、難しかった点、来月に向けての想いなどをご記入ください"></textarea>
+      </div>
+
+      <button onclick="submitCheck()" class="submit-btn" id="submit-btn" disabled style="margin-top:8px;">回答を送信する</button>
+      <p id="form-error" style="color:#EF4444;font-size:13px;text-align:center;margin-top:8px;display:none;"></p>
+    </div>
+  </div>
+
+  <div id="thanks-screen" class="hidden">
+    <div class="container" style="max-width:480px;padding-top:60px;">
+      <div class="thank-you">
+        <p style="font-size:48px;margin:0 0 16px;">✅</p>
+        <h2 style="font-size:20px;color:var(--text);margin-bottom:8px;">ありがとうございました！</h2>
+        <p id="rate-message" style="font-size:14px;color:var(--text-sub);line-height:1.8;margin-bottom:24px;"></p>
+        <div class="rate-number" id="rate-value"></div>
+        <p style="font-size:14px;color:var(--text-sub);margin-top:8px;">マネジメントアクション実施率</p>
+        <p style="font-size:13px;color:var(--text-sub);margin-top:32px;line-height:1.7;background:var(--bg);border-radius:10px;padding:16px;">
+          この実施率は次回の月次レポートに「プロセス指標」として反映され、<br>
+          人的資本開示のKPIデータとして蓄積されます。
+        </p>
+      </div>
+    </div>
+  </div>
+
+  <div id="error-screen" class="hidden">
+    <div class="container" style="max-width:480px;padding-top:80px;text-align:center;">
+      <p style="font-size:40px;">⚠️</p>
+      <h2 style="font-size:18px;color:var(--text);margin-bottom:8px;">エラーが発生しました</h2>
+      <p id="error-message" style="font-size:14px;color:var(--text-sub);"></p>
+    </div>
+  </div>
+
+  <script>
+    const APPS_SCRIPT_URL = 'https://script.google.com/macros/s/AKfycbyGceshWFX-_kepVh5KHTvNwsrNAh7hW22U48KSp4DVvohXurOsAa6BDW7MFrsbKJ0n/exec';
+
+    const QUESTIONS = [
+      { id: 'q1', text: '月次レポートで特定されたメンバーに、個別に声をかけ・面談を実施しましたか？' },
+      { id: 'q2', text: '担当業務や期待する役割・目標を、明確に伝えて確認しましたか？' },
+      { id: 'q3', text: '1on1ミーティング（週1回または隔週）を実施しましたか？' },
+      { id: 'q4', text: '具体的なフィードバック（良い点・改善点）をメンバーに伝えましたか？' },
+      { id: 'q5', text: 'メンバーが意見を言いやすい雰囲気づくりを意識したアクションを取りましたか？' },
+    ];
+
+    const OPTIONS = [
+      { value: 3, label: '✅ 実施した' },
+      { value: 2, label: '△ 一部実施' },
+      { value: 1, label: '❌ 未実施' },
+    ];
+
+    const params = new URLSearchParams(window.location.search);
+    const companyCode = params.get('company');
+    const period = params.get('period');
+    const answers = {};
+
+    async function init() {
+      if (!companyCode || !period) {
+        showError('URLが正しくありません。月次レポートのメールからアクセスしてください。');
+        return;
+      }
+      try {
+        const res = await fetch(`${APPS_SCRIPT_URL}?action=get_action_check_info&company=${encodeURIComponent(companyCode)}`);
+        const data = await res.json();
+        if (!data.success) throw new Error(data.error);
+
+        document.getElementById('period-label').textContent = `${data.companyName} ／ ${period}`;
+        renderQuestions();
+        document.getElementById('loading-screen').classList.add('hidden');
+        document.getElementById('form-screen').classList.remove('hidden');
+      } catch(e) {
+        showError(e.message || '読み込みに失敗しました');
+      }
+    }
+
+    function renderQuestions() {
+      document.getElementById('questions').innerHTML = QUESTIONS.map((q, i) => `
+        <div class="question-card">
+          <div class="question-title">${i + 1}. ${q.text}</div>
+          <div class="options">
+            ${OPTIONS.map(opt => `
+              <button class="option-btn" id="${q.id}-${opt.value}"
+                onclick="selectOption('${q.id}', ${opt.value})">
+                ${opt.label}
+              </button>`).join('')}
+          </div>
+        </div>`).join('');
+    }
+
+    function selectOption(questionId, value) {
+      OPTIONS.forEach(opt => {
+        document.getElementById(`${questionId}-${opt.value}`).className = 'option-btn';
+      });
+      document.getElementById(`${questionId}-${value}`).className = `option-btn selected-${value}`;
+      answers[questionId] = value;
+      document.getElementById('submit-btn').disabled = !QUESTIONS.every(q => answers[q.id] !== undefined);
+    }
+
+    async function submitCheck() {
+      const btn = document.getElementById('submit-btn');
+      btn.disabled = true;
+      btn.textContent = '送信中...';
+      try {
+        const res = await fetch(APPS_SCRIPT_URL, {
+          method: 'POST',
+          headers: { 'Content-Type': 'text/plain' },
+          body: JSON.stringify({
+            action: 'submit_action_check',
+            companyCode, period,
+            q1: answers.q1, q2: answers.q2, q3: answers.q3, q4: answers.q4, q5: answers.q5,
+            freeText: document.getElementById('free-text').value,
+          }),
+        });
+        const data = await res.json();
+        if (!data.success) throw new Error(data.error);
+
+        const rate = data.rate;
+        const rateEl = document.getElementById('rate-value');
+        rateEl.textContent = `${rate}%`;
+        rateEl.style.color = rate >= 80 ? '#10B981' : rate >= 50 ? '#F59E0B' : '#EF4444';
+        document.getElementById('rate-message').textContent =
+          rate >= 80 ? '素晴らしい実施率です！この調子でメンバーをサポートし続けてください。' :
+          rate >= 50 ? 'よく取り組んでいただいています。来月はさらに一歩踏み込んでみましょう。' :
+          '現場の忙しさの中でのチャレンジ、お疲れさまです。来月は一つだけでも実践することから始めてみてください。';
+
+        document.getElementById('form-screen').classList.add('hidden');
+        document.getElementById('thanks-screen').classList.remove('hidden');
+      } catch(e) {
+        const errEl = document.getElementById('form-error');
+        errEl.textContent = e.message === 'すでにこの期間の回答が登録されています'
+          ? 'この期間の回答はすでに登録されています。'
+          : '送信に失敗しました。もう一度お試しください。';
+        errEl.style.display = 'block';
+        btn.disabled = false;
+        btn.textContent = '回答を送信する';
+      }
+    }
+
+    function showError(msg) {
+      document.getElementById('loading-screen').classList.add('hidden');
+      document.getElementById('error-message').textContent = msg;
+      document.getElementById('error-screen').classList.remove('hidden');
+    }
+
+    init();
+  </script>
+</body>
+</html>

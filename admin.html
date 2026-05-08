@@ -69,6 +69,7 @@
       <div class="admin-nav">
         <button class="nav-btn active" onclick="showTab('companies')">🏢 会社管理</button>
         <button class="nav-btn" onclick="showTab('responses')">📋 回答一覧</button>
+        <button class="nav-btn" onclick="showTab('kpi')">📊 KPI</button>
       </div>
 
       <!-- 会社管理タブ -->
@@ -107,6 +108,28 @@
         </div>
         <div id="responses-list"></div>
       </div>
+
+      <!-- KPIタブ -->
+      <div id="tab-kpi" class="tab">
+        <div class="card" style="margin-bottom:12px;">
+          <div class="profile-item">
+            <label>会社で絞り込み（未選択 = 全社合算）</label>
+            <select id="kpi-filter-company" onchange="loadKpi()" style="width:100%;border:1px solid var(--border);border-radius:8px;padding:10px 12px;font-size:14px;background:white;">
+              <option value="">全社合算</option>
+            </select>
+          </div>
+        </div>
+
+        <div style="background:#EEF2FF;border-radius:12px;padding:14px 16px;margin-bottom:16px;font-size:12px;color:#4F46E5;line-height:1.7;">
+          <strong>人的資本開示KPI（3層構造）</strong><br>
+          インプット指標（スコア） → プロセス指標（管理者アクション実施率） → アウトカム指標（リスク率・定着スコア）
+        </div>
+
+        <div id="kpi-summary" style="display:grid;grid-template-columns:1fr 1fr;gap:12px;margin-bottom:16px;"></div>
+        <div id="kpi-scores" class="card" style="margin-bottom:12px;"></div>
+        <div id="kpi-trend" class="card" style="margin-bottom:12px;"></div>
+        <div id="kpi-actions" class="card" style="display:none;"></div>
+      </div>
     </div>
   </div>
 
@@ -144,6 +167,7 @@
       document.getElementById(`tab-${name}`).classList.add('active');
       event.target.classList.add('active');
       if (name === 'responses') loadResponses();
+      if (name === 'kpi') loadKpi();
     }
 
     // ===== 会社管理 =====
@@ -213,13 +237,19 @@
 
     // ===== 回答一覧 =====
     function populateCompanyFilter(companies) {
-      const sel = document.getElementById('filter-company');
-      sel.innerHTML = '<option value="">すべての会社</option>';
-      (companies || []).forEach(c => {
-        const opt = document.createElement('option');
-        opt.value = c.code;
-        opt.textContent = c.name;
-        sel.appendChild(opt);
+      [
+        { id: 'filter-company',     label: 'すべての会社' },
+        { id: 'kpi-filter-company', label: '全社合算' },
+      ].forEach(({ id, label }) => {
+        const sel = document.getElementById(id);
+        if (!sel) return;
+        sel.innerHTML = `<option value="">${label}</option>`;
+        (companies || []).forEach(c => {
+          const opt = document.createElement('option');
+          opt.value = c.code;
+          opt.textContent = c.name;
+          sel.appendChild(opt);
+        });
       });
     }
 
@@ -254,6 +284,100 @@
           </div>
         </div>`).join('') +
         `</div>`;
+    }
+
+    // ===== KPI =====
+    async function loadKpi() {
+      const code = document.getElementById('kpi-filter-company').value;
+      const url = `${APPS_SCRIPT_URL}?action=get_kpi_data&adminSecret=${encodeURIComponent(adminSecret)}${code ? '&companyCode=' + code : ''}`;
+      const res = await apiFetch(url);
+      if (!res.success || !res.kpi) {
+        document.getElementById('kpi-summary').innerHTML = '<div class="empty-state" style="grid-column:1/-1;">データがありません</div>';
+        document.getElementById('kpi-scores').innerHTML = '';
+        document.getElementById('kpi-trend').innerHTML = '';
+        document.getElementById('kpi-actions').style.display = 'none';
+        return;
+      }
+      renderKpi(res.kpi);
+    }
+
+    function renderKpi(kpi) {
+      const sc = v => v >= 3.5 ? '#10B981' : v >= 2.5 ? '#F59E0B' : '#EF4444';
+      const card = (tag, title, value, sub, color) => `
+        <div style="background:white;border:1px solid var(--border);border-radius:12px;padding:20px;text-align:center;">
+          <p style="margin:0 0 2px;font-size:10px;font-weight:700;color:#9CA3AF;text-transform:uppercase;letter-spacing:1px;">${tag}</p>
+          <p style="margin:0 0 8px;font-size:12px;color:#6B7280;">${title}</p>
+          <p style="margin:0;font-size:38px;font-weight:800;color:${color};line-height:1;">${value}</p>
+          <p style="margin:6px 0 0;font-size:11px;color:#9CA3AF;">${sub}</p>
+        </div>`;
+
+      document.getElementById('kpi-summary').innerHTML =
+        card('インプット指標', 'エンゲージメント総合スコア', kpi.avgScores.overall + '<span style="font-size:16px;"> / 5.0</span>', `回答数 ${kpi.totalRespondents}名`, sc(kpi.avgScores.overall)) +
+        card('プロセス指標', 'マネジメントアクション実施率', kpi.avgActionRate !== null ? kpi.avgActionRate + '<span style="font-size:20px;">%</span>' : '—', kpi.avgActionRate !== null ? '全期間平均' : 'フェーズ2で計測開始', kpi.avgActionRate !== null ? (kpi.avgActionRate >= 70 ? '#10B981' : kpi.avgActionRate >= 40 ? '#F59E0B' : '#EF4444') : '#D1D5DB') +
+        card('アウトカム指標', '要注意アラート発生率', kpi.riskRate + '<span style="font-size:20px;">%</span>', `${kpi.atRiskCount}名 / ${kpi.totalRespondents}名`, kpi.riskRate >= 30 ? '#EF4444' : kpi.riskRate >= 10 ? '#F59E0B' : '#10B981') +
+        card('アウトカム指標', '定着意思スコア平均', kpi.avgScores.E + '<span style="font-size:16px;"> / 5.0</span>', '離職リスク逆指標', sc(kpi.avgScores.E));
+
+      const labels = [['A','業務適応'],['B','対人関係'],['C','心理エナジー'],['D','行動リスク'],['E','定着意思']];
+      const bar = (v) => `<div style="display:flex;align-items:center;gap:10px;margin-bottom:10px;">
+        <div style="width:90px;font-size:12px;color:#374151;text-align:right;">${labels.find(l=>l[0]===v[0])[1]}</div>
+        <div style="flex:1;background:#F3F4F6;border-radius:99px;height:10px;">
+          <div style="background:${sc(v[1])};height:10px;border-radius:99px;width:${Math.round(v[1]/5*100)}%;"></div>
+        </div>
+        <div style="font-size:13px;font-weight:700;color:${sc(v[1])};width:32px;">${v[1]}</div>
+      </div>`;
+      document.getElementById('kpi-scores').innerHTML =
+        `<h3 style="margin:0 0 16px;font-size:14px;font-weight:700;color:var(--text);">📊 5因子スコア（全期間平均）</h3>` +
+        labels.map(([k,]) => bar([k, kpi.avgScores[k]])).join('');
+
+      if (kpi.trend.length > 0) {
+        document.getElementById('kpi-trend').innerHTML =
+          `<h3 style="margin:0 0 16px;font-size:14px;font-weight:700;color:var(--text);">📈 月別スコア推移</h3>
+          <div style="overflow-x:auto;">
+          <table style="width:100%;border-collapse:collapse;font-size:12px;min-width:420px;">
+            <thead><tr style="background:#F9FAFB;">
+              <th style="padding:8px;text-align:left;">月</th>
+              <th style="padding:8px;text-align:center;">人数</th>
+              <th style="padding:8px;text-align:center;">業務</th>
+              <th style="padding:8px;text-align:center;">対人</th>
+              <th style="padding:8px;text-align:center;">エナジー</th>
+              <th style="padding:8px;text-align:center;">リスク</th>
+              <th style="padding:8px;text-align:center;">定着</th>
+              <th style="padding:8px;text-align:center;">要注意</th>
+            </tr></thead>
+            <tbody>${kpi.trend.map(t => `
+              <tr style="border-top:1px solid var(--border);">
+                <td style="padding:8px;font-size:11px;">${t.month}</td>
+                <td style="padding:8px;text-align:center;">${t.count}</td>
+                ${['A','B','C','D','E'].map(k => `<td style="padding:8px;text-align:center;font-weight:700;color:${sc(t[k])};">${t[k]}</td>`).join('')}
+                <td style="padding:8px;text-align:center;font-weight:700;color:${t.riskCount > 0 ? '#EF4444' : '#10B981'};">${t.riskCount}</td>
+              </tr>`).join('')}
+            </tbody>
+          </table></div>`;
+      } else {
+        document.getElementById('kpi-trend').innerHTML = '<div class="empty-state">月別データがありません</div>';
+      }
+
+      if (kpi.actionRates.length > 0) {
+        document.getElementById('kpi-actions').style.display = 'block';
+        document.getElementById('kpi-actions').innerHTML =
+          `<h3 style="margin:0 0 16px;font-size:14px;font-weight:700;color:var(--text);">📋 マネジメントアクション実施率推移</h3>
+          <table style="width:100%;border-collapse:collapse;font-size:13px;">
+            <thead><tr style="background:#F9FAFB;">
+              <th style="padding:10px 12px;text-align:left;">期間</th>
+              <th style="padding:10px 12px;text-align:center;">実施率</th>
+              <th style="padding:10px 12px;text-align:left;">評価</th>
+            </tr></thead>
+            <tbody>${kpi.actionRates.map(r => `
+              <tr style="border-top:1px solid var(--border);">
+                <td style="padding:10px 12px;">${r.period}</td>
+                <td style="padding:10px 12px;text-align:center;font-size:20px;font-weight:800;color:${r.rate >= 80 ? '#10B981' : r.rate >= 50 ? '#F59E0B' : '#EF4444'};">${r.rate}%</td>
+                <td style="padding:10px 12px;font-size:12px;color:#6B7280;">${r.rate >= 80 ? '素晴らしい' : r.rate >= 50 ? '良好' : '改善余地あり'}</td>
+              </tr>`).join('')}
+            </tbody>
+          </table>`;
+      } else {
+        document.getElementById('kpi-actions').style.display = 'none';
+      }
     }
 
     // ===== API ヘルパー =====
