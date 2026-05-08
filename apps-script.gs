@@ -483,7 +483,7 @@ function sendMonthlyReports() {
     const aiAnalysis = generateMonthlyAnalysis(company, responses, config);
     const prevActionData = getPrevActionRate(ss, company.code);
     const actionCheckUrl = config.siteUrl
-      ? `${config.siteUrl}/action-check.html?company=${company.code}&period=${encodeURIComponent(periodLabel)}`
+      ? `${config.siteUrl}/action-check.html?company=${company.code}&period=${encodeURIComponent(periodLabel)}&manager=${encodeURIComponent(company.managerEmail)}`
       : null;
     const html = buildMonthlyReportHTML(company, responses, aiAnalysis, periodLabel, prevActionData, actionCheckUrl);
     const subject = `【リミー】${company.name}様 オンボーディングレポート（${periodLabel}）`;
@@ -806,8 +806,13 @@ function getOrCreateActionSheet(ss) {
   let sheet = ss.getSheetByName('manager_actions');
   if (!sheet) {
     sheet = ss.insertSheet('manager_actions');
-    sheet.appendRow(['timestamp','company_code','company_name','period','q1','q2','q3','q4','q5','free_text','implementation_rate']);
+    sheet.appendRow(['timestamp','company_code','company_name','period','q1','q2','q3','q4','q5','free_text','implementation_rate','manager_email']);
     sheet.setFrozenRows(1);
+  } else {
+    const headers = sheet.getRange(1, 1, 1, sheet.getLastColumn()).getValues()[0];
+    if (!headers.includes('manager_email')) {
+      sheet.getRange(1, sheet.getLastColumn() + 1).setValue('manager_email');
+    }
   }
   return sheet;
 }
@@ -829,7 +834,7 @@ function submitActionCheck(data, config) {
     new Date().toISOString(),
     data.companyCode, company.name, data.period,
     data.q1, data.q2, data.q3, data.q4, data.q5,
-    data.freeText || '', rate,
+    data.freeText || '', rate, data.managerEmail || '',
   ]);
   return ok({ rate });
 }
@@ -895,12 +900,52 @@ function getKpiData(companyCode, config) {
       .sort((a, b) => a.period.localeCompare(b.period));
   }
 
+  // 会社別内訳（全社表示時のみ）
+  let companiesBreakdown = [];
+  if (!companyCode) {
+    const allCompanies = getCompaniesInternal(config);
+    companiesBreakdown = allCompanies.map(company => {
+      const cRows = allRows.filter(r => r[1] === company.code);
+      if (cRows.length === 0) return null;
+      const avgC = idx => (cRows.reduce((s, r) => s + Number(r[idx]), 0) / cRows.length).toFixed(1);
+      const cs = { A: avgC(9), B: avgC(10), C: avgC(11), D: avgC(12), E: avgC(13) };
+      cs.overall = ((+cs.A + +cs.B + +cs.C + +cs.D + +cs.E) / 5).toFixed(1);
+      const cRisk = cRows.filter(r => Number(r[11]) < 2.5 || Number(r[12]) < 2.5 || Number(r[13]) < 2.5).length;
+      let latestActionRate = null;
+      if (actionsSheet) {
+        const ca = actionsSheet.getDataRange().getValues().slice(1).filter(r => r[0] && r[1] === company.code);
+        if (ca.length > 0) latestActionRate = Number(ca[ca.length - 1][10]);
+      }
+      return { code: company.code, name: company.name, totalRespondents: cRows.length, avgScores: cs, atRiskCount: cRisk, riskRate: Math.round(cRisk / cRows.length * 100), latestActionRate };
+    }).filter(Boolean);
+  }
+
+  // 管理者別アクション実績
+  let managerRates = [];
+  if (actionsSheet) {
+    let aRows = actionsSheet.getDataRange().getValues().slice(1).filter(r => r[0]);
+    const aHeaders = actionsSheet.getRange(1, 1, 1, actionsSheet.getLastColumn()).getValues()[0];
+    const emailIdx = aHeaders.indexOf('manager_email');
+    if (companyCode) aRows = aRows.filter(r => r[1] === companyCode);
+    const groups = {};
+    aRows.forEach(r => {
+      const email = (emailIdx >= 0 && r[emailIdx]) ? r[emailIdx] : '';
+      const key = email || r[1];
+      if (!groups[key]) groups[key] = { email, companyName: r[2], companyCode: r[1], rates: [] };
+      groups[key].rates.push({ period: r[3], rate: Number(r[10]) });
+    });
+    managerRates = Object.values(groups).map(g => ({
+      ...g,
+      avgRate: Math.round(g.rates.reduce((s, r) => s + r.rate, 0) / g.rates.length),
+    }));
+  }
+
   return ok({
     kpi: {
       totalRespondents,
       atRiskCount: atRiskRows.length,
       riskRate: Math.round(atRiskRows.length / totalRespondents * 100),
-      avgScores, trend, actionRates,
+      avgScores, trend, actionRates, companiesBreakdown, managerRates,
       avgActionRate: actionRates.length > 0
         ? Math.round(actionRates.reduce((s, r) => s + r.rate, 0) / actionRates.length)
         : null,

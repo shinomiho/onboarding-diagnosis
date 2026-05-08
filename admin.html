@@ -125,10 +125,12 @@
           インプット指標（スコア） → プロセス指標（管理者アクション実施率） → アウトカム指標（リスク率・定着スコア）
         </div>
 
+        <div id="kpi-companies" style="margin-bottom:16px;display:none;"></div>
         <div id="kpi-summary" style="display:grid;grid-template-columns:1fr 1fr;gap:12px;margin-bottom:16px;"></div>
         <div id="kpi-scores" class="card" style="margin-bottom:12px;"></div>
         <div id="kpi-trend" class="card" style="margin-bottom:12px;"></div>
-        <div id="kpi-actions" class="card" style="display:none;"></div>
+        <div id="kpi-actions" class="card" style="display:none;margin-bottom:12px;"></div>
+        <div id="kpi-managers" class="card" style="display:none;"></div>
       </div>
     </div>
   </div>
@@ -303,6 +305,44 @@
 
     function renderKpi(kpi) {
       const sc = v => v >= 3.5 ? '#10B981' : v >= 2.5 ? '#F59E0B' : '#EF4444';
+
+      // 会社別KPI一覧（全社表示時）
+      const companiesEl = document.getElementById('kpi-companies');
+      if (kpi.companiesBreakdown && kpi.companiesBreakdown.length > 0) {
+        companiesEl.style.display = 'block';
+        companiesEl.innerHTML = `<div class="card">
+          <h3 style="margin:0 0 16px;font-size:14px;font-weight:700;color:var(--text);">🏢 会社別KPI一覧</h3>
+          <div style="overflow-x:auto;">
+          <table style="width:100%;border-collapse:collapse;font-size:12px;min-width:560px;">
+            <thead><tr style="background:#F9FAFB;">
+              <th style="padding:10px 12px;text-align:left;">会社名</th>
+              <th style="padding:10px 8px;text-align:center;">人数</th>
+              <th style="padding:10px 8px;text-align:center;">総合</th>
+              <th style="padding:10px 8px;text-align:center;">業務</th>
+              <th style="padding:10px 8px;text-align:center;">対人</th>
+              <th style="padding:10px 8px;text-align:center;">エナジー</th>
+              <th style="padding:10px 8px;text-align:center;">定着</th>
+              <th style="padding:10px 8px;text-align:center;">要注意率</th>
+              <th style="padding:10px 8px;text-align:center;">実施率</th>
+            </tr></thead>
+            <tbody>${kpi.companiesBreakdown.map(c => `
+              <tr style="border-top:1px solid var(--border);">
+                <td style="padding:10px 12px;font-weight:600;">${c.name}</td>
+                <td style="padding:10px 8px;text-align:center;">${c.totalRespondents}</td>
+                <td style="padding:10px 8px;text-align:center;font-weight:800;color:${sc(c.avgScores.overall)};">${c.avgScores.overall}</td>
+                <td style="padding:10px 8px;text-align:center;color:${sc(c.avgScores.A)};">${c.avgScores.A}</td>
+                <td style="padding:10px 8px;text-align:center;color:${sc(c.avgScores.B)};">${c.avgScores.B}</td>
+                <td style="padding:10px 8px;text-align:center;color:${sc(c.avgScores.C)};">${c.avgScores.C}</td>
+                <td style="padding:10px 8px;text-align:center;color:${sc(c.avgScores.E)};">${c.avgScores.E}</td>
+                <td style="padding:10px 8px;text-align:center;font-weight:700;color:${c.riskRate >= 30 ? '#EF4444' : c.riskRate >= 10 ? '#F59E0B' : '#10B981'};">${c.riskRate}%</td>
+                <td style="padding:10px 8px;text-align:center;font-weight:700;color:${c.latestActionRate !== null ? (c.latestActionRate >= 70 ? '#10B981' : c.latestActionRate >= 40 ? '#F59E0B' : '#EF4444') : '#D1D5DB'};">${c.latestActionRate !== null ? c.latestActionRate + '%' : '—'}</td>
+              </tr>`).join('')}
+            </tbody>
+          </table></div>
+        </div>`;
+      } else {
+        companiesEl.style.display = 'none';
+      }
       const card = (tag, title, value, sub, color) => `
         <div style="background:white;border:1px solid var(--border);border-radius:12px;padding:20px;text-align:center;">
           <p style="margin:0 0 2px;font-size:10px;font-weight:700;color:#9CA3AF;text-transform:uppercase;letter-spacing:1px;">${tag}</p>
@@ -360,7 +400,7 @@
       if (kpi.actionRates.length > 0) {
         document.getElementById('kpi-actions').style.display = 'block';
         document.getElementById('kpi-actions').innerHTML =
-          `<h3 style="margin:0 0 16px;font-size:14px;font-weight:700;color:var(--text);">📋 マネジメントアクション実施率推移</h3>
+          `<h3 style="margin:0 0 16px;font-size:14px;font-weight:700;color:var(--text);">📋 アクション実施率推移（期間別）</h3>
           <table style="width:100%;border-collapse:collapse;font-size:13px;">
             <thead><tr style="background:#F9FAFB;">
               <th style="padding:10px 12px;text-align:left;">期間</th>
@@ -377,6 +417,38 @@
           </table>`;
       } else {
         document.getElementById('kpi-actions').style.display = 'none';
+      }
+
+      // 管理者別アクション実施率
+      const managersEl = document.getElementById('kpi-managers');
+      if (kpi.managerRates && kpi.managerRates.length > 0) {
+        managersEl.style.display = 'block';
+        managersEl.innerHTML =
+          `<h3 style="margin:0 0 16px;font-size:14px;font-weight:700;color:var(--text);">👤 管理者別アクション実施率</h3>
+          <table style="width:100%;border-collapse:collapse;font-size:13px;">
+            <thead><tr style="background:#F9FAFB;">
+              <th style="padding:10px 12px;text-align:left;">管理者</th>
+              <th style="padding:10px 12px;text-align:left;">会社</th>
+              <th style="padding:10px 12px;text-align:center;">平均実施率</th>
+              <th style="padding:10px 12px;text-align:center;">回答回数</th>
+              <th style="padding:10px 12px;text-align:left;">期間別</th>
+            </tr></thead>
+            <tbody>${kpi.managerRates.map(m => `
+              <tr style="border-top:1px solid var(--border);">
+                <td style="padding:10px 12px;font-size:12px;">${m.email || '—'}</td>
+                <td style="padding:10px 12px;font-size:12px;color:#6B7280;">${m.companyName}</td>
+                <td style="padding:10px 12px;text-align:center;font-size:18px;font-weight:800;color:${m.avgRate >= 80 ? '#10B981' : m.avgRate >= 50 ? '#F59E0B' : '#EF4444'};">${m.avgRate}%</td>
+                <td style="padding:10px 12px;text-align:center;color:#6B7280;">${m.rates.length}回</td>
+                <td style="padding:10px 12px;">
+                  <div style="display:flex;gap:6px;flex-wrap:wrap;">
+                    ${m.rates.map(r => `<span style="font-size:11px;padding:3px 8px;border-radius:99px;background:${r.rate >= 80 ? '#D1FAE5' : r.rate >= 50 ? '#FEF3C7' : '#FEE2E2'};color:${r.rate >= 80 ? '#065F46' : r.rate >= 50 ? '#92400E' : '#991B1B'};white-space:nowrap;">${r.period.replace(/\d{4}年/, '')}：${r.rate}%</span>`).join('')}
+                  </div>
+                </td>
+              </tr>`).join('')}
+            </tbody>
+          </table>`;
+      } else {
+        managersEl.style.display = 'none';
       }
     }
 

@@ -99,6 +99,7 @@
     const params = new URLSearchParams(window.location.search);
     const companyCode = params.get('company');
     const period = params.get('period');
+    const managerEmail = params.get('manager') || '';
     const answers = {};
 
     async function init() {
@@ -153,7 +154,7 @@
           headers: { 'Content-Type': 'text/plain' },
           body: JSON.stringify({
             action: 'submit_action_check',
-            companyCode, period,
+            companyCode, period, managerEmail,
             q1: answers.q1, q2: answers.q2, q3: answers.q3, q4: answers.q4, q5: answers.q5,
             freeText: document.getElementById('free-text').value,
           }),
