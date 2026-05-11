@@ -1,0 +1,448 @@
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>リミー 従業員管理</title>
+  <style>
+    * { box-sizing: border-box; margin: 0; padding: 0; }
+    body { font-family: 'Hiragino Sans', 'Noto Sans JP', sans-serif; background: #F3F4F6; min-height: 100vh; }
+
+    .header {
+      background: linear-gradient(135deg, #4F46E5, #7C3AED);
+      padding: 24px 20px;
+      text-align: center;
+      color: #fff;
+    }
+    .header-label { font-size: 11px; letter-spacing: 3px; color: rgba(255,255,255,0.6); margin-bottom: 6px; }
+    .header-company { font-size: 20px; font-weight: 800; margin-bottom: 4px; }
+    .header-sub { font-size: 13px; color: rgba(255,255,255,0.75); }
+
+    .container { max-width: 680px; margin: 0 auto; padding: 20px 16px 60px; }
+
+    .setup-banner {
+      background: #FEF3C7; border: 1.5px solid #F59E0B; border-radius: 12px;
+      padding: 16px 20px; margin-bottom: 20px;
+    }
+    .setup-banner p { font-size: 13px; color: #92400E; margin-bottom: 10px; }
+    .setup-banner input {
+      width: 100%; padding: 10px 12px; border: 1.5px solid #F59E0B; border-radius: 8px;
+      font-size: 13px; margin-bottom: 8px; background: #fff;
+    }
+    .setup-banner button {
+      background: #F59E0B; color: #fff; border: none; padding: 10px 20px;
+      border-radius: 8px; font-size: 13px; font-weight: 700; cursor: pointer;
+    }
+
+    .stats-grid { display: grid; grid-template-columns: 1fr 1fr 1fr; gap: 10px; margin-bottom: 16px; }
+    .stat-card {
+      background: #fff; border-radius: 12px; padding: 16px 12px; text-align: center;
+      box-shadow: 0 1px 4px rgba(0,0,0,0.06);
+    }
+    .stat-label { font-size: 11px; color: #9CA3AF; margin-bottom: 4px; }
+    .stat-value { font-size: 26px; font-weight: 800; color: #1F2937; }
+    .stat-value.green { color: #10B981; }
+    .stat-value.blue { color: #4F46E5; }
+
+    .progress-card {
+      background: #fff; border-radius: 12px; padding: 16px 20px; margin-bottom: 16px;
+      box-shadow: 0 1px 4px rgba(0,0,0,0.06);
+    }
+    .progress-label { display: flex; justify-content: space-between; margin-bottom: 8px; font-size: 13px; color: #374151; }
+    .progress-bar { background: #E5E7EB; border-radius: 99px; height: 10px; }
+    .progress-fill { background: linear-gradient(90deg, #4F46E5, #7C3AED); height: 10px; border-radius: 99px; transition: width 0.6s ease; }
+
+    .url-card {
+      background: #EEF2FF; border: 1.5px solid #C7D2FE; border-radius: 12px;
+      padding: 14px 16px; margin-bottom: 16px; display: flex; align-items: center; gap: 10px;
+    }
+    .url-card-label { font-size: 11px; color: #6366F1; font-weight: 700; white-space: nowrap; }
+    .url-card-url { font-size: 12px; color: #4338CA; font-family: monospace; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; flex: 1; }
+    .copy-btn {
+      background: #4F46E5; color: #fff; border: none; padding: 7px 14px; border-radius: 8px;
+      font-size: 12px; font-weight: 700; cursor: pointer; white-space: nowrap; flex-shrink: 0;
+    }
+    .copy-btn:active { background: #3730A3; }
+
+    .section-header {
+      display: flex; justify-content: space-between; align-items: center;
+      margin-bottom: 12px;
+    }
+    .section-title { font-size: 15px; font-weight: 700; color: #1F2937; }
+
+    .add-btn {
+      background: #4F46E5; color: #fff; border: none; padding: 10px 18px; border-radius: 10px;
+      font-size: 13px; font-weight: 700; cursor: pointer; display: flex; align-items: center; gap: 6px;
+    }
+    .add-btn:active { background: #3730A3; }
+
+    .employee-list { display: flex; flex-direction: column; gap: 10px; }
+
+    .employee-card {
+      background: #fff; border-radius: 12px; padding: 14px 16px;
+      box-shadow: 0 1px 4px rgba(0,0,0,0.06);
+      display: flex; align-items: center; gap: 12px;
+    }
+    .emp-status { font-size: 20px; flex-shrink: 0; }
+    .emp-info { flex: 1; min-width: 0; }
+    .emp-name { font-size: 14px; font-weight: 700; color: #1F2937; }
+    .emp-email { font-size: 12px; color: #9CA3AF; margin-top: 2px; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+    .emp-dept { display: inline-block; font-size: 11px; background: #F3F4F6; color: #6B7280; padding: 2px 8px; border-radius: 99px; margin-top: 4px; }
+    .emp-badge-done { display: inline-block; font-size: 11px; background: #D1FAE5; color: #065F46; padding: 2px 8px; border-radius: 99px; margin-top: 4px; }
+    .emp-badge-pending { display: inline-block; font-size: 11px; background: #FEF3C7; color: #92400E; padding: 2px 8px; border-radius: 99px; margin-top: 4px; }
+    .emp-actions { display: flex; flex-direction: column; gap: 6px; flex-shrink: 0; }
+    .btn-resend {
+      background: #EEF2FF; color: #4F46E5; border: none; padding: 6px 12px; border-radius: 8px;
+      font-size: 12px; font-weight: 600; cursor: pointer; white-space: nowrap;
+    }
+    .btn-resend:active { background: #C7D2FE; }
+    .btn-remove {
+      background: #FEF2F2; color: #EF4444; border: none; padding: 6px 12px; border-radius: 8px;
+      font-size: 12px; font-weight: 600; cursor: pointer; white-space: nowrap;
+    }
+    .btn-remove:active { background: #FECACA; }
+
+    .empty-state {
+      background: #fff; border-radius: 12px; padding: 40px 20px; text-align: center;
+      box-shadow: 0 1px 4px rgba(0,0,0,0.06);
+    }
+    .empty-state p { font-size: 14px; color: #9CA3AF; }
+
+    .modal-overlay {
+      display: none; position: fixed; inset: 0; background: rgba(0,0,0,0.5);
+      z-index: 100; align-items: center; justify-content: center; padding: 16px;
+    }
+    .modal-overlay.open { display: flex; }
+    .modal {
+      background: #fff; border-radius: 16px; padding: 28px 24px; width: 100%; max-width: 420px;
+      box-shadow: 0 20px 60px rgba(0,0,0,0.2);
+    }
+    .modal h3 { font-size: 16px; font-weight: 800; color: #1F2937; margin-bottom: 20px; }
+    .form-group { margin-bottom: 14px; }
+    .form-label { display: block; font-size: 12px; font-weight: 700; color: #374151; margin-bottom: 6px; }
+    .form-input {
+      width: 100%; padding: 11px 14px; border: 1.5px solid #E5E7EB; border-radius: 10px;
+      font-size: 14px; outline: none; transition: border-color 0.2s;
+    }
+    .form-input:focus { border-color: #4F46E5; }
+    .modal-actions { display: flex; gap: 10px; margin-top: 20px; }
+    .btn-cancel {
+      flex: 1; background: #F3F4F6; color: #374151; border: none; padding: 12px;
+      border-radius: 10px; font-size: 14px; font-weight: 600; cursor: pointer;
+    }
+    .btn-submit {
+      flex: 2; background: #4F46E5; color: #fff; border: none; padding: 12px;
+      border-radius: 10px; font-size: 14px; font-weight: 700; cursor: pointer;
+    }
+    .btn-submit:disabled { opacity: 0.5; cursor: not-allowed; }
+
+    .toast {
+      position: fixed; bottom: 24px; left: 50%; transform: translateX(-50%);
+      background: #1F2937; color: #fff; padding: 12px 24px; border-radius: 99px;
+      font-size: 13px; font-weight: 600; opacity: 0; transition: opacity 0.3s;
+      white-space: nowrap; pointer-events: none; z-index: 200;
+    }
+    .toast.show { opacity: 1; }
+
+    .spinner {
+      display: inline-block; width: 18px; height: 18px;
+      border: 3px solid rgba(79,70,229,0.2); border-top-color: #4F46E5;
+      border-radius: 50%; animation: spin 0.8s linear infinite;
+    }
+    @keyframes spin { to { transform: rotate(360deg); } }
+
+    .loading-center { text-align: center; padding: 40px; }
+  </style>
+</head>
+<body>
+
+<div class="header">
+  <div class="header-label">LIMEE ADMIN</div>
+  <div class="header-company" id="companyName">読み込み中...</div>
+  <div class="header-sub">従業員管理ダッシュボード</div>
+</div>
+
+<div class="container">
+
+  <!-- Setup banner (shown when GAS URL not set) -->
+  <div class="setup-banner" id="setupBanner" style="display:none;">
+    <p>⚙️ 初回設定：GAS WebアプリのURLを入力してください</p>
+    <input type="url" id="gasUrlInput" placeholder="https://script.google.com/macros/s/.../exec">
+    <button onclick="saveGasUrl()">保存して読み込む</button>
+  </div>
+
+  <!-- Loading state -->
+  <div class="loading-center" id="loadingState">
+    <div class="spinner"></div>
+  </div>
+
+  <!-- Main content -->
+  <div id="mainContent" style="display:none;">
+
+    <!-- Stats -->
+    <div class="stats-grid">
+      <div class="stat-card">
+        <div class="stat-label">登録人数</div>
+        <div class="stat-value blue" id="statTotal">—</div>
+      </div>
+      <div class="stat-card">
+        <div class="stat-label">回答完了</div>
+        <div class="stat-value green" id="statDone">—</div>
+      </div>
+      <div class="stat-card">
+        <div class="stat-label">完了率</div>
+        <div class="stat-value" id="statRate">—</div>
+      </div>
+    </div>
+
+    <div class="progress-card">
+      <div class="progress-label">
+        <span>診断完了率</span>
+        <span id="progressLabel">—%</span>
+      </div>
+      <div class="progress-bar">
+        <div class="progress-fill" id="progressFill" style="width:0%"></div>
+      </div>
+    </div>
+
+    <!-- Diagnosis URL -->
+    <div class="url-card" id="diagUrlCard" style="display:none;">
+      <div class="url-card-label">診断URL</div>
+      <div class="url-card-url" id="diagUrlText">—</div>
+      <button class="copy-btn" onclick="copyDiagUrl()">コピー</button>
+    </div>
+
+    <!-- Employee list -->
+    <div class="section-header">
+      <div class="section-title">従業員一覧</div>
+      <button class="add-btn" onclick="openModal()">
+        <span>＋</span> 追加
+      </button>
+    </div>
+
+    <div class="employee-list" id="employeeList">
+      <div class="empty-state"><p>従業員が登録されていません</p></div>
+    </div>
+
+  </div>
+</div>
+
+<!-- Add Employee Modal -->
+<div class="modal-overlay" id="addModal">
+  <div class="modal">
+    <h3>従業員を追加</h3>
+    <div class="form-group">
+      <label class="form-label">氏名 <span style="color:#EF4444;">*</span></label>
+      <input class="form-input" type="text" id="inputName" placeholder="山田 太郎">
+    </div>
+    <div class="form-group">
+      <label class="form-label">メールアドレス <span style="color:#EF4444;">*</span></label>
+      <input class="form-input" type="email" id="inputEmail" placeholder="yamada@company.com">
+    </div>
+    <div class="form-group">
+      <label class="form-label">部署（任意）</label>
+      <input class="form-input" type="text" id="inputDept" placeholder="営業部">
+    </div>
+    <div class="modal-actions">
+      <button class="btn-cancel" onclick="closeModal()">キャンセル</button>
+      <button class="btn-submit" id="submitBtn" onclick="submitAddEmployee()">追加して案内メール送信</button>
+    </div>
+  </div>
+</div>
+
+<!-- Toast -->
+<div class="toast" id="toast"></div>
+
+<script>
+  const params = new URLSearchParams(location.search);
+  const COMPANY_CODE = params.get('code') || '';
+  let GAS_URL = localStorage.getItem('diag_gas_url') || '';
+  let diagUrl = '';
+
+  function saveGasUrl() {
+    const v = document.getElementById('gasUrlInput').value.trim();
+    if (!v) return;
+    localStorage.setItem('diag_gas_url', v);
+    GAS_URL = v;
+    document.getElementById('setupBanner').style.display = 'none';
+    loadDashboard();
+  }
+
+  function showToast(msg, duration = 2500) {
+    const t = document.getElementById('toast');
+    t.textContent = msg;
+    t.classList.add('show');
+    setTimeout(() => t.classList.remove('show'), duration);
+  }
+
+  async function gasGet(params) {
+    const qs = new URLSearchParams({ ...params }).toString();
+    const res = await fetch(`${GAS_URL}?${qs}`);
+    return res.json();
+  }
+
+  async function gasPost(body) {
+    const res = await fetch(GAS_URL, {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify(body),
+    });
+    return res.json();
+  }
+
+  async function loadDashboard() {
+    if (!COMPANY_CODE) {
+      document.getElementById('companyName').textContent = 'コードが指定されていません';
+      document.getElementById('loadingState').style.display = 'none';
+      return;
+    }
+    if (!GAS_URL) {
+      document.getElementById('loadingState').style.display = 'none';
+      document.getElementById('setupBanner').style.display = 'block';
+      return;
+    }
+
+    try {
+      const data = await gasGet({ action: 'get_company_dashboard', code: COMPANY_CODE });
+      if (!data.success) {
+        document.getElementById('companyName').textContent = 'エラー';
+        document.getElementById('loadingState').style.display = 'none';
+        showToast('❌ ' + (data.error || '読み込み失敗'), 4000);
+        return;
+      }
+
+      document.getElementById('companyName').textContent = data.company.name;
+      document.title = `${data.company.name} — リミー管理`;
+
+      const { total, completed } = data.stats;
+      const rate = total > 0 ? Math.round(completed / total * 100) : 0;
+      document.getElementById('statTotal').textContent = total;
+      document.getElementById('statDone').textContent = completed;
+      document.getElementById('statRate').textContent = rate + '%';
+      document.getElementById('progressLabel').textContent = rate + '%';
+      document.getElementById('progressFill').style.width = rate + '%';
+
+      if (data.diagUrl) {
+        diagUrl = data.diagUrl;
+        document.getElementById('diagUrlText').textContent = data.diagUrl;
+        document.getElementById('diagUrlCard').style.display = 'flex';
+      }
+
+      renderEmployees(data.employees);
+
+      document.getElementById('loadingState').style.display = 'none';
+      document.getElementById('mainContent').style.display = 'block';
+    } catch (e) {
+      document.getElementById('loadingState').style.display = 'none';
+      document.getElementById('companyName').textContent = '読み込みエラー';
+      showToast('❌ 通信エラーが発生しました', 4000);
+    }
+  }
+
+  function renderEmployees(employees) {
+    const list = document.getElementById('employeeList');
+    if (!employees || employees.length === 0) {
+      list.innerHTML = '<div class="empty-state"><p>まだ従業員が登録されていません<br>「＋ 追加」から追加してください</p></div>';
+      return;
+    }
+    list.innerHTML = employees.map(e => `
+      <div class="employee-card">
+        <div class="emp-status">${e.completed ? '✅' : '⏳'}</div>
+        <div class="emp-info">
+          <div class="emp-name">${esc(e.name)}</div>
+          <div class="emp-email">${esc(e.email)}</div>
+          <div>
+            ${e.department ? `<span class="emp-dept">${esc(e.department)}</span>` : ''}
+            <span class="${e.completed ? 'emp-badge-done' : 'emp-badge-pending'}">${e.completed ? '回答済み' : '未回答'}</span>
+          </div>
+        </div>
+        <div class="emp-actions">
+          ${!e.completed ? `<button class="btn-resend" onclick="resend('${esc(e.email)}')">再送信</button>` : ''}
+          <button class="btn-remove" onclick="removeEmployee('${esc(e.email)}', '${esc(e.name)}')">削除</button>
+        </div>
+      </div>
+    `).join('');
+  }
+
+  function esc(s) {
+    return String(s || '').replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;').replace(/"/g,'&quot;').replace(/'/g,'&#39;');
+  }
+
+  function copyDiagUrl() {
+    if (!diagUrl) return;
+    navigator.clipboard.writeText(diagUrl).then(() => showToast('✅ URLをコピーしました'));
+  }
+
+  function openModal() {
+    document.getElementById('inputName').value = '';
+    document.getElementById('inputEmail').value = '';
+    document.getElementById('inputDept').value = '';
+    document.getElementById('addModal').classList.add('open');
+    setTimeout(() => document.getElementById('inputName').focus(), 100);
+  }
+
+  function closeModal() {
+    document.getElementById('addModal').classList.remove('open');
+  }
+
+  document.getElementById('addModal').addEventListener('click', function(e) {
+    if (e.target === this) closeModal();
+  });
+
+  async function submitAddEmployee() {
+    const name = document.getElementById('inputName').value.trim();
+    const email = document.getElementById('inputEmail').value.trim();
+    const dept = document.getElementById('inputDept').value.trim();
+    if (!name || !email) { showToast('氏名とメールは必須です'); return; }
+
+    const btn = document.getElementById('submitBtn');
+    btn.disabled = true;
+    btn.textContent = '送信中...';
+
+    try {
+      const res = await gasPost({ action: 'add_employee', companyCode: COMPANY_CODE, name, email, department: dept });
+      if (res.success) {
+        showToast('✅ 追加しました。案内メールを送信しました');
+        closeModal();
+        loadDashboard();
+      } else {
+        showToast('❌ ' + (res.error || '追加失敗'), 4000);
+      }
+    } catch (e) {
+      showToast('❌ 通信エラー', 4000);
+    }
+
+    btn.disabled = false;
+    btn.textContent = '追加して案内メール送信';
+  }
+
+  async function resend(email) {
+    if (!confirm(`${email} に招待メールを再送しますか？`)) return;
+    try {
+      const res = await gasPost({ action: 'resend_invitation', companyCode: COMPANY_CODE, email });
+      showToast(res.success ? '✅ 再送信しました' : '❌ ' + (res.error || '失敗'), 3000);
+    } catch (e) {
+      showToast('❌ 通信エラー', 4000);
+    }
+  }
+
+  async function removeEmployee(email, name) {
+    if (!confirm(`「${name}」を削除しますか？この操作は取り消せません。`)) return;
+    try {
+      const res = await gasPost({ action: 'remove_employee', companyCode: COMPANY_CODE, email });
+      if (res.success) {
+        showToast('✅ 削除しました');
+        loadDashboard();
+      } else {
+        showToast('❌ ' + (res.error || '削除失敗'), 4000);
+      }
+    } catch (e) {
+      showToast('❌ 通信エラー', 4000);
+    }
+  }
+
+  // Init
+  loadDashboard();
+</script>
+</body>
+</html>

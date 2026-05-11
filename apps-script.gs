@@ -103,6 +103,9 @@ function doPost(e) {
     if (data.action === 'delete_company')      { if (!validateAdmin(data.adminSecret, config)) return err('認証エラー'); return deleteCompany(data, config); }
     if (data.action === 'submit_action_check') return submitActionCheck(data, config);
     if (data.action === 'register_company')    return registerCompany(data, config);
+    if (data.action === 'add_employee')        return addEmployee(data, config);
+    if (data.action === 'remove_employee')     return removeEmployee(data, config);
+    if (data.action === 'resend_invitation')   return resendInvitation(data, config);
     return err('不明なアクション');
   } catch(e) { return err(e.message); }
 }
@@ -117,6 +120,7 @@ function doGet(e) {
     if (action === 'get_result')           return getResultById(e.parameter.id, config);
     if (action === 'get_kpi_data')         { if (!validateAdmin(e.parameter.adminSecret, config)) return err('認証エラー'); return getKpiData(e.parameter.companyCode || '', config); }
     if (action === 'get_action_check_info') return getActionCheckInfo(e.parameter.company, config);
+    if (action === 'get_company_dashboard') return getCompanyDashboard(e.parameter, config);
     return err('不明なアクション');
   } catch(e) { return err(e.message); }
 }
@@ -1159,6 +1163,146 @@ function sendRegistrationNotify(data, diagUrl, code, config) {
       <li>コード：${code}</li>
       <li>URL：<a href="${diagUrl}">${diagUrl}</a></li>
     </ul>`,
+  });
+}
+
+// ===== 従業員管理 =====
+
+function getOrCreateEmployeeSheet(ss) {
+  let sheet = ss.getSheetByName('employees');
+  if (!sheet) {
+    sheet = ss.insertSheet('employees');
+    sheet.appendRow(['id', 'company_code', 'name', 'email', 'department', 'invited_at']);
+    sheet.setFrozenRows(1);
+  }
+  return sheet;
+}
+
+function getCompanyDashboard(params, config) {
+  const company = getCompanyByCodeInternal(params.code, config);
+  if (!company) return err('無効な会社コードです');
+
+  const ss = SpreadsheetApp.openById(config.spreadsheetId);
+  const empSheet = getOrCreateEmployeeSheet(ss);
+  const employees = empSheet.getDataRange().getValues().slice(1)
+    .filter(r => r[0] && r[1] === params.code)
+    .map(r => ({ id: r[0], name: r[2], email: r[3], department: r[4] || '', invitedAt: r[5] }));
+
+  const resSheet = ss.getSheetByName('responses');
+  const completedEmails = new Set();
+  if (resSheet && resSheet.getLastRow() > 1) {
+    resSheet.getDataRange().getValues().slice(1)
+      .filter(r => r[1] === params.code && r[4])
+      .forEach(r => completedEmails.add(r[4]));
+  }
+
+  const employeesWithStatus = employees.map(e => ({ ...e, completed: completedEmails.has(e.email) }));
+  const diagUrl = config.siteUrl
+    ? `${config.siteUrl}/index.html?code=${params.code}&c=${encodeURIComponent(company.name)}`
+    : '';
+
+  return ok({
+    company: { code: company.code, name: company.name },
+    employees: employeesWithStatus,
+    stats: { total: employees.length, completed: employeesWithStatus.filter(e => e.completed).length },
+    diagUrl,
+  });
+}
+
+function addEmployee(data, config) {
+  const company = getCompanyByCodeInternal(data.companyCode, config);
+  if (!company) return err('無効な会社コードです');
+  if (!data.name || !data.email) return err('氏名とメールアドレスは必須です');
+
+  const ss = SpreadsheetApp.openById(config.spreadsheetId);
+  const sheet = getOrCreateEmployeeSheet(ss);
+
+  const existing = sheet.getDataRange().getValues().slice(1)
+    .find(r => r[1] === data.companyCode && r[3] === data.email);
+  if (existing) return err('このメールアドレスはすでに登録されています');
+
+  const id = Utilities.getUuid();
+  sheet.appendRow([id, data.companyCode, data.name, data.email, data.department || '', new Date().toISOString()]);
+
+  if (config.siteUrl) {
+    const diagUrl = `${config.siteUrl}/index.html?code=${data.companyCode}&c=${encodeURIComponent(company.name)}`;
+    sendInvitationEmail({ name: data.name, email: data.email }, company, diagUrl, config);
+  }
+
+  return ok({ id });
+}
+
+function removeEmployee(data, config) {
+  const company = getCompanyByCodeInternal(data.companyCode, config);
+  if (!company) return err('無効な会社コードです');
+
+  const ss = SpreadsheetApp.openById(config.spreadsheetId);
+  const sheet = getOrCreateEmployeeSheet(ss);
+  const rows = sheet.getDataRange().getValues();
+  for (let i = 1; i < rows.length; i++) {
+    if (rows[i][1] === data.companyCode && rows[i][3] === data.email) {
+      sheet.deleteRow(i + 1);
+      return ok({});
+    }
+  }
+  return err('従業員が見つかりません');
+}
+
+function resendInvitation(data, config) {
+  const company = getCompanyByCodeInternal(data.companyCode, config);
+  if (!company) return err('無効な会社コードです');
+
+  const ss = SpreadsheetApp.openById(config.spreadsheetId);
+  const sheet = getOrCreateEmployeeSheet(ss);
+  const row = sheet.getDataRange().getValues().slice(1)
+    .find(r => r[1] === data.companyCode && r[3] === data.email);
+  if (!row) return err('従業員が見つかりません');
+
+  if (config.siteUrl) {
+    const diagUrl = `${config.siteUrl}/index.html?code=${data.companyCode}&c=${encodeURIComponent(company.name)}`;
+    sendInvitationEmail({ name: row[2], email: row[3] }, company, diagUrl, config);
+  }
+  return ok({});
+}
+
+function sendInvitationEmail(employee, company, diagUrl, config) {
+  const html = `<!DOCTYPE html><html lang="ja"><head><meta charset="UTF-8"></head>
+<body style="margin:0;padding:0;background:#F9FAFB;font-family:'Hiragino Sans',sans-serif;">
+<table width="100%" cellpadding="0" cellspacing="0" style="padding:32px 16px;">
+<tr><td><table width="600" align="center" cellpadding="0" cellspacing="0" style="background:#fff;border-radius:16px;overflow:hidden;box-shadow:0 2px 12px rgba(0,0,0,0.08);">
+  <tr><td style="background:linear-gradient(135deg,#4F46E5,#7C3AED);padding:36px;text-align:center;">
+    <p style="margin:0 0 6px;font-size:11px;color:rgba(255,255,255,0.6);letter-spacing:3px;">ONBOARDING DIAGNOSIS</p>
+    <h1 style="margin:0 0 8px;font-size:22px;color:#fff;font-weight:800;">${employee.name} さんへ</h1>
+    <p style="margin:0;font-size:13px;color:rgba(255,255,255,0.8);">${company.name} からのご案内</p>
+  </td></tr>
+  <tr><td style="padding:32px;">
+    <p style="font-size:14px;color:#374151;line-height:1.9;margin:0 0 24px;">
+      ${company.name}よりリミーのオンボーディング診断のご案内です。<br>
+      所要時間は約10〜15分です。ぜひご回答ください。
+    </p>
+    <div style="text-align:center;margin-bottom:24px;">
+      <a href="${diagUrl}" style="display:inline-block;background:#4F46E5;color:#fff;font-size:15px;font-weight:700;padding:16px 40px;border-radius:12px;text-decoration:none;">
+        診断を受ける →
+      </a>
+    </div>
+    <div style="background:#F0FDF4;border-radius:10px;padding:16px;">
+      <p style="margin:0;font-size:13px;color:#166534;line-height:1.8;">
+        ✅ 回答後、あなた専用のレポートがメールで届きます<br>
+        ✅ 個人の回答データは会社に共有されません
+      </p>
+    </div>
+  </td></tr>
+  <tr><td style="background:#F9FAFB;padding:28px 32px;text-align:center;border-top:1px solid #E5E7EB;">
+    <img src="https://drive.google.com/uc?export=view&id=1EXtEctBTrl__APTO1h4DUD_dmBy8jkEg" alt="リミー" style="width:160px;height:auto;margin-bottom:12px;display:block;margin-left:auto;margin-right:auto;">
+    <p style="margin:0;font-size:12px;color:#9CA3AF;">入社後90日に特化した採用後支援HRテック</p>
+  </td></tr>
+</table></td></tr></table>
+</body></html>`;
+
+  MailApp.sendEmail({
+    to: employee.email,
+    subject: `【リミー】${company.name}からオンボーディング診断のご案内`,
+    htmlBody: html,
   });
 }
 
