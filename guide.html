@@ -175,15 +175,44 @@
     .footer { text-align: center; margin-top: 40px; font-size: 12px; color: #9CA3AF; }
     .footer img { width: 120px; height: auto; margin-bottom: 8px; display: block; margin-left: auto; margin-right: auto; }
 
+    /* PDF button */
+    .pdf-bar {
+      position: sticky; top: 0; z-index: 50;
+      background: rgba(255,255,255,0.95); backdrop-filter: blur(8px);
+      border-bottom: 1px solid #E5E7EB;
+      padding: 10px 20px; display: flex; justify-content: flex-end;
+    }
+    .pdf-btn {
+      background: #4F46E5; color: #fff; border: none;
+      padding: 10px 22px; border-radius: 10px;
+      font-size: 13px; font-weight: 700; cursor: pointer;
+      display: flex; align-items: center; gap: 7px;
+    }
+    .pdf-btn:active { background: #3730A3; }
+
     /* Print */
     @media print {
+      .pdf-bar { display: none; }
       body { background: #fff; }
+      .hero { -webkit-print-color-adjust: exact; print-color-adjust: exact; }
       .container { padding: 0 20px 40px; }
-      .card { box-shadow: none; border: 1px solid #E5E7EB; }
+      .card { box-shadow: none; border: 1px solid #E5E7EB; break-inside: avoid; }
+      .section { break-inside: avoid; }
+      .contact-card { -webkit-print-color-adjust: exact; print-color-adjust: exact; }
+      .step-badge { -webkit-print-color-adjust: exact; print-color-adjust: exact; }
+      .report-card { -webkit-print-color-adjust: exact; print-color-adjust: exact; }
+      .screen-header { -webkit-print-color-adjust: exact; print-color-adjust: exact; }
     }
   </style>
 </head>
 <body>
+
+<div class="pdf-bar">
+  <button class="pdf-btn" onclick="window.print()">
+    <svg width="15" height="15" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path d="M6 9V2h12v7"/><rect x="6" y="17" width="12" height="5" rx="1"/><path d="M6 13H4a2 2 0 0 0-2 2v3h4"/><path d="M18 13h2a2 2 0 0 1 2 2v3h-4"/><circle cx="18" cy="14" r="1" fill="currentColor"/></svg>
+    PDFとして保存
+  </button>
+</div>
 
 <div class="hero">
   <div class="hero-label">LIMEE ONBOARDING</div>
