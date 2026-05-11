@@ -256,7 +256,7 @@
 <script>
   const params = new URLSearchParams(location.search);
   const COMPANY_CODE = params.get('code') || '';
-  let GAS_URL = localStorage.getItem('diag_gas_url') || '';
+  let GAS_URL = 'https://script.google.com/macros/s/AKfycbyGceshWFX-_kepVh5KHTvNwsrNAh7hW22U48KSp4DVvohXurOsAa6BDW7MFrsbKJ0n/exec';
   let diagUrl = '';
 
   function saveGasUrl() {
@@ -294,11 +294,6 @@
     if (!COMPANY_CODE) {
       document.getElementById('companyName').textContent = 'コードが指定されていません';
       document.getElementById('loadingState').style.display = 'none';
-      return;
-    }
-    if (!GAS_URL) {
-      document.getElementById('loadingState').style.display = 'none';
-      document.getElementById('setupBanner').style.display = 'block';
       return;
     }
 
