@@ -191,6 +191,32 @@
       display: flex; align-items: center; gap: 7px;
     }
 
+    /* ===== 組織図スタイル フロー ===== */
+    .org-root { text-align: center; }
+    .org-root-node { display: inline-block; background: linear-gradient(135deg,#4F46E5,#7C3AED); color:#fff; border-radius:14px; padding:14px 32px; font-size:15px; font-weight:800; }
+    .org-stem { width:2px; height:18px; background:#C7D2FE; margin:0 auto; }
+    .org-branches { display:flex; gap:10px; position:relative; align-items:flex-start; }
+    .org-branches::before { content:''; position:absolute; top:0; left:16.7%; right:16.7%; height:2px; background:#C7D2FE; }
+    .org-branch { flex:1; display:flex; flex-direction:column; align-items:center; }
+    .org-branch-drop { width:2px; height:20px; background:#C7D2FE; flex-shrink:0; }
+    .org-phase { width:100%; border-radius:12px; overflow:hidden; border:2px solid; }
+    .org-phase-header { color:#fff; font-size:11px; font-weight:800; padding:10px 12px; text-align:center; letter-spacing:0.5px; line-height:1.6; }
+    .org-phase-body { padding:12px 10px; }
+    .org-node { border-radius:8px; padding:10px; text-align:center; }
+    .org-node-icon { font-size:20px; margin-bottom:4px; }
+    .org-node-title { font-size:12px; font-weight:800; }
+    .org-node-sub { font-size:10px; color:#6B7280; margin-top:2px; line-height:1.5; }
+    .org-arrow { text-align:center; font-size:18px; line-height:1.2; padding:3px 0; }
+    .org-node-split { display:flex; gap:6px; }
+    .org-node-half { flex:1; border-radius:8px; padding:10px 6px; text-align:center; }
+    .org-footer { background:#EEF2FF; border-radius:10px; padding:12px 16px; margin-top:18px; font-size:13px; color:#4338CA; font-weight:700; text-align:center; }
+    @media (max-width:580px) {
+      .org-branches { flex-direction:column; gap:12px; }
+      .org-branches::before { display:none; }
+      .org-branch { width:100%; }
+      .org-branch-drop { display:none; }
+    }
+
     @media print {
       .pdf-bar { display: none; }
       body { background: #fff; }
@@ -227,110 +253,103 @@
     わからない点があればいつでも下記の連絡先にご相談ください。</p>
   </div>
 
-  <!-- 全体フロー図 -->
+  <!-- 全体フロー図（組織図スタイル） -->
   <div style="background:#fff;border-radius:16px;padding:28px 24px;margin-bottom:28px;box-shadow:0 1px 6px rgba(0,0,0,0.07);">
-    <div style="font-size:15px;font-weight:800;color:#4F46E5;margin-bottom:24px;display:flex;align-items:center;gap:8px;">🗺️ リミー 全体フロー</div>
 
-    <!-- 初期設定 -->
-    <div style="font-size:11px;font-weight:700;letter-spacing:2px;color:#9CA3AF;margin-bottom:10px;">── 初期設定（最初の1回だけ）</div>
-    <div style="display:flex;flex-direction:column;gap:0;">
-
-      <div style="display:flex;align-items:stretch;gap:0;">
-        <div style="display:flex;flex-direction:column;align-items:center;width:40px;flex-shrink:0;">
-          <div style="width:32px;height:32px;border-radius:50%;background:linear-gradient(135deg,#4F46E5,#7C3AED);display:flex;align-items:center;justify-content:center;color:#fff;font-size:13px;font-weight:800;">1</div>
-          <div style="width:2px;flex:1;background:#E0E7FF;margin:4px 0;"></div>
-        </div>
-        <div style="padding:0 0 20px 14px;">
-          <div style="font-size:14px;font-weight:800;color:#1F2937;margin-bottom:2px;">🏢 企業登録（約2分）</div>
-          <div style="font-size:12px;color:#6B7280;line-height:1.7;">会社名・管理者メールを入力 → 企業コードが自動発行される</div>
-        </div>
-      </div>
-
-      <div style="display:flex;align-items:stretch;gap:0;">
-        <div style="display:flex;flex-direction:column;align-items:center;width:40px;flex-shrink:0;">
-          <div style="width:32px;height:32px;border-radius:50%;background:linear-gradient(135deg,#4F46E5,#7C3AED);display:flex;align-items:center;justify-content:center;color:#fff;font-size:13px;font-weight:800;">2</div>
-          <div style="width:2px;flex:1;background:#E0E7FF;margin:4px 0;"></div>
-        </div>
-        <div style="padding:0 0 20px 14px;">
-          <div style="font-size:14px;font-weight:800;color:#1F2937;margin-bottom:2px;">👥 従業員を招待（1人あたり1分）</div>
-          <div style="font-size:12px;color:#6B7280;line-height:1.7;">管理画面から氏名・メールを入力 → 招待メールが自動送信される</div>
-        </div>
-      </div>
-
+    <!-- ルートノード -->
+    <div class="org-root">
+      <div class="org-root-node">🗺️ リミー 全体フロー</div>
     </div>
+    <div class="org-stem"></div>
 
-    <!-- 従業員の診断 -->
-    <div style="font-size:11px;font-weight:700;letter-spacing:2px;color:#9CA3AF;margin-bottom:10px;">── 従業員が回答するたびに自動実行</div>
-    <div style="display:flex;flex-direction:column;gap:0;">
+    <!-- 3フェーズ ブランチ -->
+    <div class="org-branches">
 
-      <div style="display:flex;align-items:stretch;gap:0;">
-        <div style="display:flex;flex-direction:column;align-items:center;width:40px;flex-shrink:0;">
-          <div style="width:32px;height:32px;border-radius:50%;background:linear-gradient(135deg,#10B981,#059669);display:flex;align-items:center;justify-content:center;color:#fff;font-size:15px;">📝</div>
-          <div style="width:2px;flex:1;background:#D1FAE5;margin:4px 0;"></div>
-        </div>
-        <div style="padding:0 0 20px 14px;">
-          <div style="font-size:14px;font-weight:800;color:#1F2937;margin-bottom:2px;">従業員が診断フォームに回答（約10〜15分）</div>
-          <div style="font-size:12px;color:#6B7280;line-height:1.7;">招待メールのリンクから回答。スマホ・PCどちらでもOK</div>
+      <!-- Phase 1: 初期設定 -->
+      <div class="org-branch">
+        <div class="org-branch-drop"></div>
+        <div class="org-phase" style="border-color:#4F46E5;">
+          <div class="org-phase-header" style="background:#4F46E5;">
+            初期設定<br><span style="font-size:9px;opacity:0.85;font-weight:600;">最初の1回だけ</span>
+          </div>
+          <div class="org-phase-body">
+            <div class="org-node" style="background:#EEF2FF;">
+              <div class="org-node-icon">🏢</div>
+              <div class="org-node-title" style="color:#3730A3;">企業登録</div>
+              <div class="org-node-sub">会社名・メールを入力<br>→ 企業コード自動発行</div>
+            </div>
+            <div class="org-arrow" style="color:#4F46E5;">↓</div>
+            <div class="org-node" style="background:#EEF2FF;">
+              <div class="org-node-icon">👥</div>
+              <div class="org-node-title" style="color:#3730A3;">従業員を招待</div>
+              <div class="org-node-sub">管理画面から氏名・メールを入力<br>→ 招待メール自動送信</div>
+            </div>
+          </div>
         </div>
       </div>
 
-      <div style="display:flex;align-items:stretch;gap:0;">
-        <div style="display:flex;flex-direction:column;align-items:center;width:40px;flex-shrink:0;">
-          <div style="width:32px;height:32px;border-radius:50%;background:linear-gradient(135deg,#10B981,#059669);display:flex;align-items:center;justify-content:center;color:#fff;font-size:15px;">📬</div>
-          <div style="width:2px;flex:1;background:#D1FAE5;margin:4px 0;"></div>
+      <!-- Phase 2: 従業員回答のたびに -->
+      <div class="org-branch">
+        <div class="org-branch-drop"></div>
+        <div class="org-phase" style="border-color:#10B981;">
+          <div class="org-phase-header" style="background:#10B981;">
+            従業員が回答するたびに<br><span style="font-size:9px;opacity:0.85;font-weight:600;">すべて自動</span>
+          </div>
+          <div class="org-phase-body">
+            <div class="org-node" style="background:#F0FDF4;">
+              <div class="org-node-icon">📝</div>
+              <div class="org-node-title" style="color:#065F46;">診断フォームに回答</div>
+              <div class="org-node-sub">約10〜15分<br>スマホ・PCどちらでもOK</div>
+            </div>
+            <div class="org-arrow" style="color:#10B981;">↓</div>
+            <div class="org-node-split">
+              <div class="org-node-half" style="background:#F0FDF4;border:1.5px solid #6EE7B7;">
+                <div style="font-size:18px;margin-bottom:4px;">👤</div>
+                <div style="font-size:11px;font-weight:800;color:#065F46;">本人へ<br>AIレポート</div>
+                <div class="org-node-sub">状態・強み・<br>改善ポイント</div>
+              </div>
+              <div class="org-node-half" style="background:#F0FDF4;border:1.5px solid #6EE7B7;">
+                <div style="font-size:18px;margin-bottom:4px;">📊</div>
+                <div style="font-size:11px;font-weight:800;color:#065F46;">管理者へ<br>マネジメントレポート</div>
+                <div class="org-node-sub">要介入時は<br>アラート付き</div>
+              </div>
+            </div>
+          </div>
         </div>
-        <div style="padding:0 0 20px 14px;">
-          <div style="font-size:14px;font-weight:800;color:#1F2937;margin-bottom:2px;">AIレポートが自動送信される（回答直後）</div>
-          <div style="font-size:12px;color:#6B7280;line-height:1.7;">
-            ・<strong>従業員本人へ：</strong>自分の状態・強み・改善ポイント<br>
-            ・<strong>管理者へ：</strong>マネジメントレポート（要介入の場合はアラート付き）
+      </div>
+
+      <!-- Phase 3: 毎月自動 -->
+      <div class="org-branch">
+        <div class="org-branch-drop"></div>
+        <div class="org-phase" style="border-color:#F59E0B;">
+          <div class="org-phase-header" style="background:#F59E0B;">
+            毎月自動で継続<br><span style="font-size:9px;opacity:0.85;font-weight:600;">運用フェーズ</span>
+          </div>
+          <div class="org-phase-body">
+            <div class="org-node" style="background:#FFFBEB;">
+              <div class="org-node-icon">📅</div>
+              <div class="org-node-title" style="color:#92400E;">月次レポート</div>
+              <div class="org-node-sub">毎月1日・15日<br>チーム全体のAI分析を自動配信</div>
+            </div>
+            <div class="org-arrow" style="color:#F59E0B;">↓</div>
+            <div class="org-node" style="background:#FFFBEB;">
+              <div class="org-node-icon">✅</div>
+              <div class="org-node-title" style="color:#92400E;">アクションチェック</div>
+              <div class="org-node-sub">毎月5日・20日<br>マネジメントKPIを5問で記録</div>
+            </div>
+            <div class="org-arrow" style="color:#F59E0B;">↓</div>
+            <div class="org-node" style="background:#FEF3C7;border:1.5px solid #FCD34D;">
+              <div class="org-node-icon">📈</div>
+              <div class="org-node-title" style="color:#92400E;">KPI自動蓄積</div>
+              <div class="org-node-sub">→ 人的資本開示の<br>根拠データへ</div>
+            </div>
           </div>
         </div>
       </div>
 
     </div>
 
-    <!-- 月次サイクル -->
-    <div style="font-size:11px;font-weight:700;letter-spacing:2px;color:#9CA3AF;margin-bottom:10px;">── 毎月自動で継続（運用フェーズ）</div>
-    <div style="display:flex;flex-direction:column;gap:0;">
-
-      <div style="display:flex;align-items:stretch;gap:0;">
-        <div style="display:flex;flex-direction:column;align-items:center;width:40px;flex-shrink:0;">
-          <div style="width:32px;height:32px;border-radius:50%;background:linear-gradient(135deg,#F59E0B,#D97706);display:flex;align-items:center;justify-content:center;color:#fff;font-size:15px;">📅</div>
-          <div style="width:2px;flex:1;background:#FDE68A;margin:4px 0;"></div>
-        </div>
-        <div style="padding:0 0 20px 14px;">
-          <div style="font-size:14px;font-weight:800;color:#1F2937;margin-bottom:2px;">月次レポート（毎月1日・15日）</div>
-          <div style="font-size:12px;color:#6B7280;line-height:1.7;">チーム全体のAI分析レポートが管理者に自動送信。エンゲージメント推移・KPI確認ができる</div>
-        </div>
-      </div>
-
-      <div style="display:flex;align-items:stretch;gap:0;">
-        <div style="display:flex;flex-direction:column;align-items:center;width:40px;flex-shrink:0;">
-          <div style="width:32px;height:32px;border-radius:50%;background:linear-gradient(135deg,#F59E0B,#D97706);display:flex;align-items:center;justify-content:center;color:#fff;font-size:15px;">✅</div>
-          <div style="width:2px;flex:1;background:#FDE68A;margin:4px 0;"></div>
-        </div>
-        <div style="padding:0 0 20px 14px;">
-          <div style="font-size:14px;font-weight:800;color:#1F2937;margin-bottom:2px;">アクションチェック（毎月5日・20日）</div>
-          <div style="font-size:12px;color:#6B7280;line-height:1.7;">管理者へリマインドメール → 「先月のアクション実施率」を5問で記録。マネジメントKPIとして蓄積される</div>
-        </div>
-      </div>
-
-      <div style="display:flex;align-items:stretch;gap:0;">
-        <div style="display:flex;flex-direction:column;align-items:center;width:40px;flex-shrink:0;">
-          <div style="width:32px;height:32px;border-radius:50%;background:linear-gradient(135deg,#6366F1,#4F46E5);display:flex;align-items:center;justify-content:center;color:#fff;font-size:15px;">📈</div>
-        </div>
-        <div style="padding:0 0 0 14px;">
-          <div style="font-size:14px;font-weight:800;color:#1F2937;margin-bottom:2px;">KPIデータが自動蓄積 → 人的資本開示へ</div>
-          <div style="font-size:12px;color:#6B7280;line-height:1.7;">
-            エンゲージメントスコア・定着率・マネジメント実施率・早期離職リスク検知率などが自動で記録。そのまま人的資本開示の根拠データとして活用できる
-          </div>
-        </div>
-      </div>
-
-    </div>
-
-    <div style="background:#EEF2FF;border-radius:10px;padding:12px 16px;margin-top:20px;font-size:13px;color:#4338CA;font-weight:700;text-align:center;">
+    <div class="org-footer">
       💡 初期設定（STEP 1〜2）が完了すれば、あとはすべて自動で動きます
     </div>
   </div>
