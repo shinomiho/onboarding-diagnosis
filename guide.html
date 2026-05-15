@@ -366,12 +366,12 @@
               <div class="org-node-sub">毎月5日・20日<br>マネジメントKPIを5問で記録</div>
             </div>
             <div class="org-arrow" style="color:#F59E0B;">↓</div>
-            <div class="org-node" style="background:#FEF3C7;border:1.5px solid #FCD34D;">
+            <a href="#step4" style="text-decoration:none;" class="org-node" style="background:#FEF3C7;border:1.5px solid #FCD34D;display:block;">
               <span class="org-badge org-badge-auto">🤖 自動</span>
               <div class="org-node-icon">📈</div>
               <div class="org-node-title" style="color:#92400E;">KPI自動蓄積</div>
-              <div class="org-node-sub">→ 人的資本開示の<br>根拠データへ</div>
-            </div>
+              <div class="org-node-sub">人的資本経営開示用<br>KPIトラッキングDB↓</div>
+            </a>
           </div>
         </div>
       </div>
@@ -406,6 +406,13 @@
         <div class="flow-step-num">STEP 3</div>
         <div class="flow-step-label">診断・レポート確認</div>
         <div class="flow-step-time">自動で届きます</div>
+      </div>
+      <div class="flow-arrow">→</div>
+      <div class="flow-step">
+        <div class="flow-step-icon">📈</div>
+        <div class="flow-step-num">STEP 4</div>
+        <div class="flow-step-label">KPIで開示・報告</div>
+        <div class="flow-step-time">いつでも確認可</div>
       </div>
     </div>
   </div>
@@ -584,11 +591,79 @@
           <li><span class="icon">👤</span><div><strong>本人向けレポート</strong>：回答直後に従業員本人のメールへ。自分の状態・強み・改善ポイントが確認できます。</div></li>
           <li><span class="icon">👔</span><div><strong>マネジメントレポート</strong>：回答直後に管理者のメールへ。対応が必要な場合はアラートが届きます。</div></li>
           <li><span class="icon">📈</span><div><strong>月次チーム分析レポート</strong>：毎月1日・15日に管理者のメールへ。チーム全体のKPI推移が確認できます。</div></li>
+          <li><span class="icon">📊</span><div><strong>人的資本経営開示用KPIトラッキングダッシュボード</strong>：蓄積されたデータを5指標でリアルタイム可視化。<a href="#step4" style="color:#4F46E5;font-weight:700;">→ STEP 4で詳しく説明</a></div></li>
         </ul>
       </div>
     </div>
   </div>
 
+
+  <!-- STEP 4: KPIダッシュボード -->
+  <div class="section" id="step4">
+    <div class="step-header">
+      <div class="step-badge">STEP 4</div>
+      <div class="step-title">人的資本経営開示用KPIトラッキングダッシュボードで確認・報告する</div>
+      <div class="step-time">⏱ いつでも確認可能</div>
+    </div>
+    <div class="card">
+      <p class="step-desc">
+        診断データが蓄積されると、<strong>貴社専用のKPIダッシュボード</strong>でいつでも5指標の進捗を確認できます。<br>
+        有価証券報告書への人的資本開示に必要なデータをそのまま活用できます。
+      </p>
+
+      <div class="url-box" style="margin-bottom:20px;">
+        <div class="url-box-label">📊 貴社専用 KPIトラッキングダッシュボード（登録完了メールに記載）</div>
+        <div class="url-box-url" style="color:#2563EB;">https://shinomiho.github.io/onboarding-diagnosis/kpi.html?code=<strong>企業コード</strong></div>
+      </div>
+
+      <ul class="steps-list">
+        <li>
+          <div class="step-num-circle">1</div>
+          <div class="step-text">
+            <strong>5指標をリアルタイムで確認する</strong>
+            <span class="sub">①エンゲージメントスコア　②オンボーディング定着率　③マネジメントアクション実施率　④早期離職リスク検知率　⑤職場環境スコア</span>
+          </div>
+        </li>
+        <li>
+          <div class="step-num-circle">2</div>
+          <div class="step-text">
+            <strong>目標値を設定する（任意）</strong>
+            <span class="sub">右上の「🎯 目標設定」ボタンから貴社の目標値を入力できます。デフォルト値（リミー推奨水準）がすでに設定されているため、そのままでも使えます。グラフに目標ラインが点線で表示されます。</span>
+          </div>
+        </li>
+        <li>
+          <div class="step-num-circle">3</div>
+          <div class="step-text">
+            <strong>期間を絞って傾向を分析する</strong>
+            <span class="sub">3ヶ月・6ヶ月・1年・全期間のショートカット、または日付を自由入力して絞り込めます。</span>
+          </div>
+        </li>
+        <li>
+          <div class="step-num-circle">4</div>
+          <div class="step-text">
+            <strong>PDFで保存 / CSVでダウンロードする</strong>
+            <span class="sub">「📄 PDFで保存」ボタンでブラウザの印刷機能からPDF出力できます。有価証券報告書への添付やステークホルダーへの報告にそのまま使えます。「📊 CSVダウンロード」で診断ローデータの一覧も取得できます。</span>
+            <span class="result">✅ 計算式・定義も画面下部に掲載しているので、有報記載の根拠として活用できます。</span>
+          </div>
+        </li>
+      </ul>
+
+      <div class="report-card" style="margin-top:20px;">
+        <h4>📐 ダッシュボードで確認できる5指標</h4>
+        <ul>
+          <li><span class="icon" style="color:#6366F1;">①</span><div><strong>エンゲージメントスコア</strong>：5軸（業務・対人・心理・リスク・定着）の総合平均　推奨 3.5以上</div></li>
+          <li><span class="icon" style="color:#10B981;">②</span><div><strong>オンボーディング定着率</strong>：定着意思スコア3.5以上の従業員の割合　推奨 80%以上</div></li>
+          <li><span class="icon" style="color:#F59E0B;">③</span><div><strong>マネジメントアクション実施率</strong>：推奨アクションの平均実施率　推奨 70%以上</div></li>
+          <li><span class="icon" style="color:#EF4444;">④</span><div><strong>早期離職リスク検知率</strong>：いずれかのスコアが低い従業員の割合（低いほど良好）　推奨 20%以下</div></li>
+          <li><span class="icon" style="color:#3B82F6;">⑤</span><div><strong>職場環境スコア</strong>：対人関係・心理エナジーの平均スコア　推奨 3.5以上</div></li>
+        </ul>
+      </div>
+
+      <div class="warn" style="margin-top:16px;">
+        <p>💡 <strong>有価証券報告書への記載について</strong>：ダッシュボード下部に各指標の定義・計算式を掲載しています。「リミーAI診断システムにより計測」と記載することで開示の根拠として使用できます。詳しくはリミー事務局にご相談ください。</p>
+      </div>
+    </div>
+  </div>
 
   <!-- FAQ -->
   <div class="section">
