@@ -38,6 +38,62 @@
       <div class="result-actions no-print">
         <button class="action-btn action-pdf" onclick="window.print()">📄 PDFで保存</button>
       </div>
+
+      <!-- フィードバック -->
+      <div class="no-print" id="fb-section" style="margin:32px 0 48px;background:#F9FAFB;border-radius:16px;padding:24px;border:1px solid #E5E7EB;">
+        <p style="font-size:14px;font-weight:800;color:#1F2937;margin:0 0 4px;">📝 この診断はいかがでしたか？</p>
+        <p style="font-size:12px;color:#6B7280;margin:0 0 16px;">ご感想をお聞かせください（任意・1分）</p>
+
+        <div style="display:flex;gap:8px;margin-bottom:14px;" id="fb-stars">
+          <button onclick="fbRate(1)" class="fb-star" id="fs1">😞</button>
+          <button onclick="fbRate(2)" class="fb-star" id="fs2">😐</button>
+          <button onclick="fbRate(3)" class="fb-star" id="fs3">🙂</button>
+          <button onclick="fbRate(4)" class="fb-star" id="fs4">😊</button>
+          <button onclick="fbRate(5)" class="fb-star" id="fs5">🤩</button>
+        </div>
+
+        <textarea id="fb-comment" rows="3" placeholder="感想・気になった点など（任意）" style="width:100%;padding:10px;border-radius:8px;border:1.5px solid #E5E7EB;font-size:13px;font-family:inherit;resize:vertical;outline:none;margin-bottom:12px;"></textarea>
+
+        <button onclick="fbSubmit()" id="fb-btn" style="background:#4F46E5;color:#fff;border:none;padding:10px 24px;border-radius:8px;font-size:13px;font-weight:700;cursor:pointer;">送信する</button>
+        <p id="fb-done" style="display:none;font-size:13px;color:#10B981;margin-top:10px;font-weight:700;">ありがとうございました！</p>
+      </div>
+
+      <style>
+        .fb-star { background:none;border:2px solid #E5E7EB;border-radius:8px;font-size:22px;width:48px;height:48px;cursor:pointer;transition:all 0.15s; }
+        .fb-star.on { border-color:#4F46E5;background:#EEF2FF; }
+      </style>
+      <script>
+        var fbRating = 0;
+        function fbRate(n) {
+          fbRating = n;
+          for (var i=1;i<=5;i++) document.getElementById('fs'+i).classList.toggle('on', i===n);
+        }
+        function fbSubmit() {
+          var btn = document.getElementById('fb-btn');
+          var comment = document.getElementById('fb-comment').value.trim();
+          if (!fbRating && !comment) { alert('評価またはコメントを入力してください'); return; }
+          btn.disabled = true; btn.textContent = '送信中...';
+          var params = new URLSearchParams(location.search);
+          fetch(APPS_SCRIPT_URL, {
+            method:'POST', headers:{'Content-Type':'application/json'},
+            body: JSON.stringify({
+              action:'record_feedback',
+              companyCode: params.get('code') || '',
+              email: params.get('id') || '',
+              rating: fbRating,
+              comments: comment,
+              type: 'employee'
+            })
+          }).then(function(){
+            document.getElementById('fb-stars').style.display='none';
+            document.getElementById('fb-comment').style.display='none';
+            btn.style.display='none';
+            document.getElementById('fb-done').style.display='block';
+          }).catch(function(){
+            btn.disabled=false; btn.textContent='送信する';
+          });
+        }
+      </script>
     </div>
   </div>
 
