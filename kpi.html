@@ -1,0 +1,473 @@
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>人的資本KPIダッシュボード | リミー</title>
+<script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.0/dist/chart.umd.min.js"></script>
+<style>
+  * { box-sizing: border-box; margin: 0; padding: 0; }
+  body { font-family: 'Helvetica Neue', Arial, 'Hiragino Kaku Gothic ProN', sans-serif; background: #F8F9FB; color: #1F2937; font-size: 14px; }
+
+  /* ヘッダー */
+  .header { background: #fff; border-bottom: 1px solid #E5E7EB; padding: 16px 24px; display: flex; align-items: center; justify-content: space-between; }
+  .header-left { display: flex; align-items: center; gap: 12px; }
+  .logo { font-size: 18px; font-weight: 800; color: #4F46E5; letter-spacing: -0.5px; }
+  .logo span { color: #6366F1; }
+  .company-name { font-size: 15px; font-weight: 700; color: #374151; }
+  .header-badge { background: #EEF2FF; color: #4F46E5; font-size: 10px; font-weight: 700; padding: 2px 8px; border-radius: 20px; }
+  .header-actions { display: flex; gap: 8px; }
+  .btn { padding: 8px 16px; border-radius: 8px; font-size: 13px; font-weight: 600; cursor: pointer; border: none; transition: opacity .15s; }
+  .btn:hover { opacity: .85; }
+  .btn-outline { background: #fff; border: 1.5px solid #D1D5DB; color: #374151; }
+  .btn-primary { background: #4F46E5; color: #fff; }
+  .btn-success { background: #10B981; color: #fff; }
+
+  /* フィルター */
+  .filter-bar { background: #fff; border-bottom: 1px solid #E5E7EB; padding: 12px 24px; display: flex; align-items: center; gap: 16px; flex-wrap: wrap; }
+  .filter-label { font-size: 12px; font-weight: 700; color: #6B7280; }
+  .filter-group { display: flex; align-items: center; gap: 8px; }
+  .filter-input { border: 1.5px solid #D1D5DB; border-radius: 6px; padding: 6px 10px; font-size: 13px; color: #1F2937; }
+  .filter-sep { color: #9CA3AF; font-size: 13px; }
+  .filter-shortcuts { display: flex; gap: 6px; }
+  .shortcut-btn { background: #F3F4F6; border: none; border-radius: 6px; padding: 6px 12px; font-size: 12px; font-weight: 600; color: #6B7280; cursor: pointer; transition: all .15s; }
+  .shortcut-btn:hover, .shortcut-btn.active { background: #EEF2FF; color: #4F46E5; }
+  .apply-btn { background: #4F46E5; color: #fff; border: none; border-radius: 6px; padding: 6px 14px; font-size: 13px; font-weight: 600; cursor: pointer; }
+
+  /* メインコンテンツ */
+  .main { max-width: 1100px; margin: 0 auto; padding: 24px; }
+  .section-title { font-size: 12px; font-weight: 700; color: #6B7280; text-transform: uppercase; letter-spacing: 0.5px; margin-bottom: 12px; }
+
+  /* KPIカード */
+  .kpi-grid { display: grid; grid-template-columns: repeat(5, 1fr); gap: 12px; margin-bottom: 28px; }
+  .kpi-card { background: #fff; border: 1px solid #E5E7EB; border-radius: 12px; padding: 18px; position: relative; overflow: hidden; }
+  .kpi-card::before { content: ''; position: absolute; top: 0; left: 0; right: 0; height: 3px; }
+  .kpi-card.c1::before { background: #6366F1; }
+  .kpi-card.c2::before { background: #10B981; }
+  .kpi-card.c3::before { background: #F59E0B; }
+  .kpi-card.c4::before { background: #EF4444; }
+  .kpi-card.c5::before { background: #3B82F6; }
+  .kpi-num { font-size: 12px; font-weight: 700; color: #9CA3AF; margin-bottom: 6px; }
+  .kpi-label { font-size: 12px; font-weight: 700; color: #374151; margin-bottom: 10px; line-height: 1.4; }
+  .kpi-value { font-size: 32px; font-weight: 800; line-height: 1; }
+  .kpi-card.c1 .kpi-value { color: #4F46E5; }
+  .kpi-card.c2 .kpi-value { color: #10B981; }
+  .kpi-card.c3 .kpi-value { color: #D97706; }
+  .kpi-card.c4 .kpi-value { color: #DC2626; }
+  .kpi-card.c5 .kpi-value { color: #2563EB; }
+  .kpi-unit { font-size: 14px; font-weight: 600; margin-left: 2px; }
+  .kpi-desc { font-size: 10px; color: #9CA3AF; margin-top: 6px; line-height: 1.4; }
+  .kpi-meta { font-size: 11px; color: #6B7280; margin-top: 8px; }
+
+  /* チャートエリア */
+  .charts-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 16px; margin-bottom: 28px; }
+  .chart-card { background: #fff; border: 1px solid #E5E7EB; border-radius: 12px; padding: 20px; }
+  .chart-title { font-size: 13px; font-weight: 700; color: #374151; margin-bottom: 16px; }
+  .chart-wrap { position: relative; height: 200px; }
+  .no-data { display: flex; align-items: center; justify-content: center; height: 200px; color: #9CA3AF; font-size: 13px; }
+
+  /* ローデータテーブル */
+  .table-section { background: #fff; border: 1px solid #E5E7EB; border-radius: 12px; padding: 20px; margin-bottom: 28px; }
+  .table-header { display: flex; align-items: center; justify-content: space-between; margin-bottom: 16px; }
+  .table-wrap { overflow-x: auto; }
+  table { width: 100%; border-collapse: collapse; font-size: 12px; }
+  th { background: #F9FAFB; font-weight: 700; color: #6B7280; text-align: left; padding: 8px 12px; border-bottom: 1px solid #E5E7EB; white-space: nowrap; }
+  td { padding: 8px 12px; border-bottom: 1px solid #F3F4F6; color: #374151; white-space: nowrap; }
+  tr:last-child td { border-bottom: none; }
+  .risk-yes { color: #DC2626; font-weight: 700; }
+  .risk-no { color: #10B981; }
+
+  /* 有報定義 */
+  .def-section { background: #fff; border: 1px solid #E5E7EB; border-radius: 12px; padding: 20px; margin-bottom: 28px; }
+  .def-grid { display: grid; grid-template-columns: repeat(2, 1fr); gap: 12px; margin-top: 12px; }
+  .def-item { background: #F9FAFB; border-radius: 8px; padding: 12px; }
+  .def-name { font-size: 12px; font-weight: 700; color: #374151; margin-bottom: 4px; }
+  .def-body { font-size: 11px; color: #6B7280; line-height: 1.5; }
+
+  /* フッター */
+  .footer { text-align: center; color: #9CA3AF; font-size: 11px; padding: 16px; }
+
+  /* ローディング */
+  .loading { display: flex; align-items: center; justify-content: center; min-height: 300px; flex-direction: column; gap: 12px; color: #6B7280; }
+  .spinner { width: 32px; height: 32px; border: 3px solid #E5E7EB; border-top-color: #4F46E5; border-radius: 50%; animation: spin .8s linear infinite; }
+  @keyframes spin { to { transform: rotate(360deg); } }
+
+  /* 印刷 */
+  @media print {
+    body { background: #fff; }
+    .header-actions, .filter-bar, .table-section, .btn, .shortcut-btn, .apply-btn { display: none !important; }
+    .kpi-grid { grid-template-columns: repeat(5, 1fr); }
+    .charts-grid { grid-template-columns: 1fr 1fr; }
+    .main { padding: 12px; max-width: 100%; }
+    .chart-wrap { height: 160px; }
+    .print-header { display: block !important; }
+  }
+  .print-header { display: none; text-align: center; margin-bottom: 20px; }
+  .print-header h1 { font-size: 18px; font-weight: 800; color: #1F2937; }
+  .print-header p { font-size: 12px; color: #6B7280; margin-top: 4px; }
+
+  /* レスポンシブ */
+  @media (max-width: 900px) {
+    .kpi-grid { grid-template-columns: repeat(3, 1fr); }
+    .charts-grid { grid-template-columns: 1fr; }
+  }
+  @media (max-width: 580px) {
+    .kpi-grid { grid-template-columns: repeat(2, 1fr); }
+    .header { flex-direction: column; align-items: flex-start; gap: 10px; }
+  }
+</style>
+</head>
+<body>
+
+<div id="loading" class="loading">
+  <div class="spinner"></div>
+  <p>データを読み込んでいます…</p>
+</div>
+
+<div id="app" style="display:none;">
+
+  <!-- 印刷用ヘッダー -->
+  <div class="print-header">
+    <h1 id="print-company">人的資本KPIレポート</h1>
+    <p id="print-period">計測期間：全期間</p>
+    <p>出力日：<span id="print-date"></span>　提供：リミー（RE:Me）</p>
+  </div>
+
+  <!-- ヘッダー -->
+  <div class="header">
+    <div class="header-left">
+      <div class="logo">RE<span>:</span>Me</div>
+      <div class="company-name" id="company-name-header">—</div>
+      <div class="header-badge">人的資本KPIダッシュボード</div>
+    </div>
+    <div class="header-actions">
+      <button class="btn btn-outline" onclick="downloadCSV()">📊 CSVダウンロード</button>
+      <button class="btn btn-primary" onclick="window.print()">📄 PDFで保存</button>
+    </div>
+  </div>
+
+  <!-- 期間フィルター -->
+  <div class="filter-bar">
+    <span class="filter-label">計測期間</span>
+    <div class="filter-group">
+      <input type="date" id="start-date" class="filter-input">
+      <span class="filter-sep">〜</span>
+      <input type="date" id="end-date" class="filter-input">
+      <button class="apply-btn" onclick="applyFilter()">更新</button>
+    </div>
+    <div class="filter-shortcuts">
+      <button class="shortcut-btn" onclick="setRange(3)">3ヶ月</button>
+      <button class="shortcut-btn" onclick="setRange(6)">6ヶ月</button>
+      <button class="shortcut-btn" onclick="setRange(12)">1年</button>
+      <button class="shortcut-btn active" onclick="setRange(0)">全期間</button>
+    </div>
+    <span id="period-label" style="font-size:12px;color:#6B7280;"></span>
+  </div>
+
+  <div class="main">
+
+    <!-- KPI 5指標 -->
+    <div class="section-title">有価証券報告書 掲載KPI 5指標</div>
+    <div class="kpi-grid">
+      <div class="kpi-card c1">
+        <div class="kpi-num">指標①</div>
+        <div class="kpi-label">エンゲージメントスコア</div>
+        <div class="kpi-value"><span id="kpi1-val">—</span><span class="kpi-unit">/5</span></div>
+        <div class="kpi-desc">5軸スコア（業務・対人・心理・リスク・定着）の総合平均</div>
+        <div class="kpi-meta" id="kpi1-meta"></div>
+      </div>
+      <div class="kpi-card c2">
+        <div class="kpi-num">指標②</div>
+        <div class="kpi-label">オンボーディング定着率</div>
+        <div class="kpi-value"><span id="kpi2-val">—</span><span class="kpi-unit">%</span></div>
+        <div class="kpi-desc">定着意思スコア3.5以上の従業員の割合</div>
+        <div class="kpi-meta" id="kpi2-meta"></div>
+      </div>
+      <div class="kpi-card c3">
+        <div class="kpi-num">指標③</div>
+        <div class="kpi-label">マネジメントアクション実施率</div>
+        <div class="kpi-value"><span id="kpi3-val">—</span><span class="kpi-unit">%</span></div>
+        <div class="kpi-desc">月次レポート推奨アクションの平均実施率</div>
+        <div class="kpi-meta" id="kpi3-meta"></div>
+      </div>
+      <div class="kpi-card c4">
+        <div class="kpi-num">指標④</div>
+        <div class="kpi-label">早期離職リスク検知率</div>
+        <div class="kpi-value"><span id="kpi4-val">—</span><span class="kpi-unit">%</span></div>
+        <div class="kpi-desc">心理エナジー・行動・定着いずれかが低い従業員の割合（低いほど良好）</div>
+        <div class="kpi-meta" id="kpi4-meta"></div>
+      </div>
+      <div class="kpi-card c5">
+        <div class="kpi-num">指標⑤</div>
+        <div class="kpi-label">職場環境スコア</div>
+        <div class="kpi-value"><span id="kpi5-val">—</span><span class="kpi-unit">/5</span></div>
+        <div class="kpi-desc">対人関係・心理エナジー2軸の平均スコア</div>
+        <div class="kpi-meta" id="kpi5-meta"></div>
+      </div>
+    </div>
+
+    <!-- チャート -->
+    <div class="section-title">トレンド推移</div>
+    <div class="charts-grid">
+      <div class="chart-card">
+        <div class="chart-title">スコア推移（指標①・⑤）</div>
+        <div class="chart-wrap"><canvas id="chart-scores"></canvas></div>
+        <div class="no-data" id="no-scores" style="display:none;">データがありません</div>
+      </div>
+      <div class="chart-card">
+        <div class="chart-title">定着率・リスク率・アクション率（%）</div>
+        <div class="chart-wrap"><canvas id="chart-rates"></canvas></div>
+        <div class="no-data" id="no-rates" style="display:none;">データがありません</div>
+      </div>
+    </div>
+
+    <!-- ローデータテーブル -->
+    <div class="table-section">
+      <div class="table-header">
+        <div class="chart-title" style="margin:0;">診断データ一覧（<span id="row-count">0</span>件）</div>
+      </div>
+      <div class="table-wrap">
+        <table>
+          <thead>
+            <tr>
+              <th>診断日</th>
+              <th>氏名</th>
+              <th>職種</th>
+              <th>業務適応</th>
+              <th>対人関係</th>
+              <th>心理エナジー</th>
+              <th>行動リスク</th>
+              <th>定着意思</th>
+              <th>総合</th>
+              <th>職場環境</th>
+              <th>離職リスク</th>
+            </tr>
+          </thead>
+          <tbody id="raw-table-body"></tbody>
+        </table>
+        <div class="no-data" id="no-raw" style="display:none;">データがありません</div>
+      </div>
+    </div>
+
+    <!-- 指標定義 -->
+    <div class="def-section">
+      <div class="section-title">KPI定義（有価証券報告書 記載用）</div>
+      <div class="def-grid">
+        <div class="def-item">
+          <div class="def-name">① エンゲージメントスコア推移</div>
+          <div class="def-body">入社後90日以内の従業員を対象に、業務適応・対人関係・心理エナジー・行動リスク・定着意思の5軸で測定した総合スコア（5点満点）の月次平均値。リミーAI診断システムにより計測。</div>
+        </div>
+        <div class="def-item">
+          <div class="def-name">② オンボーディング定着率</div>
+          <div class="def-body">定着意思スコア（5点満点）が3.5以上の従業員の割合（%）。スコア3.5以上を「定着傾向あり」と定義。計測対象は入社後90日以内に診断を実施した全従業員。</div>
+        </div>
+        <div class="def-item">
+          <div class="def-name">③ マネジメントアクション実施率</div>
+          <div class="def-body">月次AIレポートで提示した推奨アクションの実施状況をマネージャーが自己評価した実施率（%）の平均値。アクションチェックシートへの回答を集計。</div>
+        </div>
+        <div class="def-item">
+          <div class="def-name">④ 早期離職リスク検知率</div>
+          <div class="def-body">心理エナジー・行動リスク・定着意思のいずれかが2.5未満（5点満点中）の従業員が占める割合（%）。値が低いほど組織の健全性が高い状態を示す。</div>
+        </div>
+        <div class="def-item" style="grid-column: span 2;">
+          <div class="def-name">⑤ 職場環境スコア</div>
+          <div class="def-body">対人関係スコアと心理エナジースコアの2軸平均値（5点満点）。職場の心理的安全性・人間関係の質を定量的に示す指標。月次平均値の推移で管理。</div>
+        </div>
+      </div>
+    </div>
+
+    <div class="footer">リミー（RE:Me）提供 | 入社後90日に特化したオンボーディングAI診断 | remenow.tokyo</div>
+  </div>
+</div>
+
+<script>
+var GAS_URL = 'https://script.google.com/macros/s/AKfycbyGceshWFX-_kepVh5KHTvNwsrNAh7hW22U48KSp4DVvohXurOsAa6BDW7MFrsbKJ0n/exec';
+var companyCode = new URLSearchParams(location.search).get('code') || '';
+var rawRows = [];
+var chartScores = null, chartRates = null;
+
+function fmt(v, digits) { return v != null ? Number(v).toFixed(digits || 1) : '—'; }
+
+function setRange(months) {
+  document.querySelectorAll('.shortcut-btn').forEach(b => b.classList.remove('active'));
+  event.target.classList.add('active');
+  var end = new Date();
+  document.getElementById('end-date').value = end.toISOString().slice(0,10);
+  if (months === 0) {
+    document.getElementById('start-date').value = '';
+  } else {
+    var start = new Date();
+    start.setMonth(start.getMonth() - months);
+    document.getElementById('start-date').value = start.toISOString().slice(0,10);
+  }
+  applyFilter();
+}
+
+function applyFilter() {
+  var start = document.getElementById('start-date').value;
+  var end = document.getElementById('end-date').value;
+  var label = start && end ? start + ' 〜 ' + end : start ? start + ' 〜' : '全期間';
+  document.getElementById('period-label').textContent = label;
+  document.getElementById('print-period').textContent = '計測期間：' + label;
+  loadKpi(start, end);
+  loadRaw(start, end);
+}
+
+function loadKpi(start, end) {
+  var url = GAS_URL + '?action=get_kpi_company&code=' + encodeURIComponent(companyCode);
+  if (start) url += '&startDate=' + start;
+  if (end) url += '&endDate=' + end;
+  fetch(url)
+    .then(r => r.json())
+    .then(d => {
+      if (!d.success || !d.kpi) { renderEmpty(); return; }
+      renderKpi(d.kpi);
+    })
+    .catch(() => renderEmpty());
+}
+
+function loadRaw(start, end) {
+  var url = GAS_URL + '?action=get_raw_data&code=' + encodeURIComponent(companyCode);
+  if (start) url += '&startDate=' + start;
+  if (end) url += '&endDate=' + end;
+  fetch(url)
+    .then(r => r.json())
+    .then(d => {
+      rawRows = d.rows || [];
+      renderTable(rawRows);
+    });
+}
+
+function renderKpi(kpi) {
+  document.getElementById('company-name-header').textContent = kpi.companyName || '';
+  document.getElementById('print-company').textContent = (kpi.companyName || '') + '　人的資本KPIレポート';
+  var n = kpi.totalRespondents;
+
+  document.getElementById('kpi1-val').textContent = fmt(kpi.avgScores.overall);
+  document.getElementById('kpi1-meta').textContent = '診断人数：' + n + '名';
+  document.getElementById('kpi2-val').textContent = kpi.retentionRate != null ? kpi.retentionRate : '—';
+  document.getElementById('kpi2-meta').textContent = n + '名中 ' + Math.round((kpi.retentionRate||0)*n/100) + '名';
+  document.getElementById('kpi3-val').textContent = kpi.avgActionRate != null ? kpi.avgActionRate : '—';
+  document.getElementById('kpi3-meta').textContent = kpi.actionRates.length + '回分のデータ';
+  document.getElementById('kpi4-val').textContent = kpi.riskRate != null ? kpi.riskRate : '—';
+  document.getElementById('kpi4-meta').textContent = 'リスク検知：' + kpi.atRiskCount + '名';
+  document.getElementById('kpi5-val').textContent = fmt(kpi.workEnvScore);
+  document.getElementById('kpi5-meta').textContent = '対人・心理エナジー平均';
+
+  renderCharts(kpi.trend, kpi.actionRates);
+}
+
+function renderEmpty() {
+  ['kpi1','kpi2','kpi3','kpi4','kpi5'].forEach(k => { document.getElementById(k+'-val').textContent = '—'; });
+  document.getElementById('no-scores').style.display = 'flex';
+  document.getElementById('no-rates').style.display = 'flex';
+  document.getElementById('chart-scores').style.display = 'none';
+  document.getElementById('chart-rates').style.display = 'none';
+}
+
+function renderCharts(trend, actionRates) {
+  if (chartScores) chartScores.destroy();
+  if (chartRates) chartRates.destroy();
+
+  if (!trend || trend.length === 0) {
+    document.getElementById('no-scores').style.display = 'flex';
+    document.getElementById('no-rates').style.display = 'flex';
+    document.getElementById('chart-scores').style.display = 'none';
+    document.getElementById('chart-rates').style.display = 'none';
+    return;
+  }
+
+  document.getElementById('no-scores').style.display = 'none';
+  document.getElementById('chart-scores').style.display = 'block';
+  document.getElementById('no-rates').style.display = 'none';
+  document.getElementById('chart-rates').style.display = 'block';
+
+  var labels = trend.map(t => t.month.replace('-', '/'));
+  var opts = { responsive: true, maintainAspectRatio: false, plugins: { legend: { position: 'bottom', labels: { font: { size: 11 }, boxWidth: 12 } } }, scales: { y: { min: 1, max: 5, ticks: { font: { size: 11 } } }, x: { ticks: { font: { size: 11 } } } } };
+
+  chartScores = new Chart(document.getElementById('chart-scores'), {
+    type: 'line',
+    data: {
+      labels: labels,
+      datasets: [
+        { label: 'エンゲージメント(①)', data: trend.map(t => t.overall), borderColor: '#6366F1', backgroundColor: 'rgba(99,102,241,.1)', tension: .3, pointRadius: 4, fill: true },
+        { label: '職場環境(⑤)', data: trend.map(t => t.workEnvScore), borderColor: '#3B82F6', backgroundColor: 'transparent', tension: .3, pointRadius: 4, borderDash: [4,3] },
+      ]
+    },
+    options: opts
+  });
+
+  // 月次アクション率をtrendと合わせる
+  var rateByPeriod = {};
+  (actionRates || []).forEach(a => { rateByPeriod[a.period] = a.rate; });
+
+  var optsRate = { responsive: true, maintainAspectRatio: false, plugins: { legend: { position: 'bottom', labels: { font: { size: 11 }, boxWidth: 12 } } }, scales: { y: { min: 0, max: 100, ticks: { font: { size: 11 }, callback: v => v + '%' } }, x: { ticks: { font: { size: 11 } } } } };
+
+  chartRates = new Chart(document.getElementById('chart-rates'), {
+    type: 'line',
+    data: {
+      labels: labels,
+      datasets: [
+        { label: '定着率(②)', data: trend.map(t => t.retentionRate), borderColor: '#10B981', backgroundColor: 'rgba(16,185,129,.1)', tension: .3, pointRadius: 4, fill: true },
+        { label: '離職リスク率(④)', data: trend.map(t => t.riskRate), borderColor: '#EF4444', backgroundColor: 'transparent', tension: .3, pointRadius: 4, borderDash: [4,3] },
+        { label: 'アクション実施率(③)', data: labels.map(l => { var k = l.replace('/', '-'); return rateByPeriod[k] != null ? rateByPeriod[k] : null; }), borderColor: '#F59E0B', backgroundColor: 'transparent', tension: .3, pointRadius: 4, spanGaps: true },
+      ]
+    },
+    options: optsRate
+  });
+}
+
+function renderTable(rows) {
+  var tbody = document.getElementById('raw-table-body');
+  document.getElementById('row-count').textContent = rows.length;
+  if (rows.length === 0) {
+    tbody.innerHTML = '';
+    document.getElementById('no-raw').style.display = 'flex';
+    return;
+  }
+  document.getElementById('no-raw').style.display = 'none';
+  tbody.innerHTML = rows.map(r =>
+    '<tr>' +
+    '<td>' + r.date + '</td>' +
+    '<td>' + r.name + '</td>' +
+    '<td>' + (r.job || '—') + '</td>' +
+    '<td>' + r.A + '</td>' +
+    '<td>' + r.B + '</td>' +
+    '<td>' + r.C + '</td>' +
+    '<td>' + r.D + '</td>' +
+    '<td>' + r.E + '</td>' +
+    '<td><strong>' + r.overall + '</strong></td>' +
+    '<td>' + r.workEnv + '</td>' +
+    '<td class="' + (r.atRisk === 'あり' ? 'risk-yes' : 'risk-no') + '">' + r.atRisk + '</td>' +
+    '</tr>'
+  ).join('');
+}
+
+function downloadCSV() {
+  if (rawRows.length === 0) { alert('ダウンロードするデータがありません'); return; }
+  var headers = ['診断日','氏名','メール','職種','業務適応(A)','対人関係(B)','心理エナジー(C)','行動リスク(D)','定着意思(E)','総合スコア','職場環境スコア','離職リスク'];
+  var rows = rawRows.map(r => [r.date, r.name, r.email, r.job, r.A, r.B, r.C, r.D, r.E, r.overall, r.workEnv, r.atRisk]);
+  var csv = '﻿' + [headers, ...rows].map(r => r.map(v => '"' + String(v||'').replace(/"/g,'""') + '"').join(',')).join('\r\n');
+  var blob = new Blob([csv], { type: 'text/csv;charset=utf-8;' });
+  var a = document.createElement('a');
+  a.href = URL.createObjectURL(blob);
+  a.download = 'limee_kpi_' + new Date().toISOString().slice(0,10) + '.csv';
+  a.click();
+}
+
+// 初期化
+window.addEventListener('DOMContentLoaded', function() {
+  if (!companyCode) {
+    document.getElementById('loading').innerHTML = '<p style="color:#EF4444;font-size:14px;">URLに会社コード（?code=LIMEE_XXXXXX）が必要です</p>';
+    return;
+  }
+  document.getElementById('print-date').textContent = new Date().toLocaleDateString('ja-JP');
+  document.getElementById('period-label').textContent = '全期間';
+  document.getElementById('loading').style.display = 'none';
+  document.getElementById('app').style.display = 'block';
+  loadKpi('', '');
+  loadRaw('', '');
+});
+</script>
+</body>
+</html>

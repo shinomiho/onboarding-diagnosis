@@ -121,6 +121,8 @@ function doGet(e) {
     if (action === 'get_responses')        { if (!validateAdmin(e.parameter.adminSecret, config)) return err('認証エラー'); return getResponses(e.parameter.companyCode, config); }
     if (action === 'get_result')           return getResultById(e.parameter.id, config);
     if (action === 'get_kpi_data')         { if (!validateAdmin(e.parameter.adminSecret, config)) return err('認証エラー'); return getKpiData(e.parameter.companyCode || '', config); }
+    if (action === 'get_kpi_company')      return getKpiCompany(e.parameter, config);
+    if (action === 'get_raw_data')         return getRawDataCompany(e.parameter, config);
     if (action === 'get_action_check_info') return getActionCheckInfo(e.parameter.company, config);
     if (action === 'get_company_dashboard') return getCompanyDashboard(e.parameter, config);
     return err('不明なアクション');
@@ -955,13 +957,15 @@ function getPrevActionRate(ss, companyCode) {
 
 // ===== KPI データ =====
 
-function getKpiData(companyCode, config) {
+function getKpiData(companyCode, config, startDate, endDate) {
   const ss = SpreadsheetApp.openById(config.spreadsheetId);
   const responsesSheet = ss.getSheetByName('responses');
   if (!responsesSheet) return ok({ kpi: null });
 
   let allRows = responsesSheet.getDataRange().getValues().slice(1).filter(r => r[0] && r[1]);
   if (companyCode) allRows = allRows.filter(r => r[1] === companyCode);
+  if (startDate) { const sd = new Date(startDate); allRows = allRows.filter(r => new Date(r[0]) >= sd); }
+  if (endDate) { const ed = new Date(endDate); ed.setHours(23,59,59); allRows = allRows.filter(r => new Date(r[0]) <= ed); }
   if (allRows.length === 0) return ok({ kpi: null });
 
   const totalRespondents = allRows.length;
@@ -970,6 +974,10 @@ function getKpiData(companyCode, config) {
   const avgOf = idx => (allRows.reduce((s, r) => s + Number(r[idx]), 0) / allRows.length).toFixed(1);
   const avgScores = { A: avgOf(9), B: avgOf(10), C: avgOf(11), D: avgOf(12), E: avgOf(13) };
   avgScores.overall = ((+avgScores.A + +avgScores.B + +avgScores.C + +avgScores.D + +avgScores.E) / 5).toFixed(1);
+
+  // 有報KPI 5指標
+  const retentionRate = Math.round(allRows.filter(r => Number(r[13]) >= 3.5).length / totalRespondents * 100);
+  const workEnvScore = ((allRows.reduce((s,r) => s+Number(r[10]),0) + allRows.reduce((s,r) => s+Number(r[11]),0)) / (allRows.length * 2)).toFixed(1);
 
   const groups = {};
   allRows.forEach(r => {
@@ -981,10 +989,15 @@ function getKpiData(companyCode, config) {
     .sort(([a], [b]) => a.localeCompare(b))
     .map(([month, rows]) => {
       const a = k => (rows.reduce((s, r) => s + Number(r[k]), 0) / rows.length).toFixed(1);
+      const riskCount = rows.filter(r => Number(r[11]) < 2.5 || Number(r[12]) < 2.5 || Number(r[13]) < 2.5).length;
       return {
         month, count: rows.length,
         A: a(9), B: a(10), C: a(11), D: a(12), E: a(13),
-        riskCount: rows.filter(r => Number(r[11]) < 2.5 || Number(r[12]) < 2.5 || Number(r[13]) < 2.5).length,
+        riskCount,
+        riskRate: Math.round(riskCount / rows.length * 100),
+        retentionRate: Math.round(rows.filter(r => Number(r[13]) >= 3.5).length / rows.length * 100),
+        workEnvScore: ((rows.reduce((s,r) => s+Number(r[10]),0) + rows.reduce((s,r) => s+Number(r[11]),0)) / (rows.length*2)).toFixed(1),
+        overall: (rows.reduce((s,r) => s+Number(r[9])+Number(r[10])+Number(r[11])+Number(r[12])+Number(r[13]),0) / (rows.length*5)).toFixed(1),
       };
     });
 
@@ -1043,12 +1056,52 @@ function getKpiData(companyCode, config) {
       totalRespondents,
       atRiskCount: atRiskRows.length,
       riskRate: Math.round(atRiskRows.length / totalRespondents * 100),
+      retentionRate,
+      workEnvScore,
       avgScores, trend, actionRates, companiesBreakdown, managerRates,
       avgActionRate: actionRates.length > 0
         ? Math.round(actionRates.reduce((s, r) => s + r.rate, 0) / actionRates.length)
         : null,
     }
   });
+}
+
+function getKpiCompany(params, config) {
+  const company = getCompanyByCodeInternal(params.code, config);
+  if (!company) return err('無効な会社コードです');
+  const result = getKpiData(params.code, config, params.startDate, params.endDate);
+  const parsed = JSON.parse(result.getContent());
+  if (parsed.kpi) parsed.kpi.companyName = company.name;
+  return ContentService.createTextOutput(JSON.stringify(parsed)).setMimeType(ContentService.MimeType.JSON);
+}
+
+function getRawDataCompany(params, config) {
+  const company = getCompanyByCodeInternal(params.code, config);
+  if (!company) return err('無効な会社コードです');
+  const ss = SpreadsheetApp.openById(config.spreadsheetId);
+  const sheet = ss.getSheetByName('responses');
+  if (!sheet) return ok({ company: company.name, rows: [] });
+
+  let rows = sheet.getDataRange().getValues().slice(1).filter(r => r[0] && r[1] === params.code);
+  if (params.startDate) { const sd = new Date(params.startDate); rows = rows.filter(r => new Date(r[0]) >= sd); }
+  if (params.endDate) { const ed = new Date(params.endDate); ed.setHours(23,59,59); rows = rows.filter(r => new Date(r[0]) <= ed); }
+
+  const data = rows.map(r => ({
+    date: Utilities.formatDate(new Date(r[0]), 'Asia/Tokyo', 'yyyy/MM/dd'),
+    name: r[3],
+    email: r[4],
+    job: r[7] || '',
+    A: Number(r[9]).toFixed(1),
+    B: Number(r[10]).toFixed(1),
+    C: Number(r[11]).toFixed(1),
+    D: Number(r[12]).toFixed(1),
+    E: Number(r[13]).toFixed(1),
+    overall: ((Number(r[9])+Number(r[10])+Number(r[11])+Number(r[12])+Number(r[13]))/5).toFixed(1),
+    workEnv: ((Number(r[10])+Number(r[11]))/2).toFixed(1),
+    atRisk: (Number(r[11]) < 2.5 || Number(r[12]) < 2.5 || Number(r[13]) < 2.5) ? 'あり' : 'なし',
+  }));
+
+  return ok({ company: company.name, rows: data });
 }
 
 // ===== 企業自己登録（register.html から） =====
@@ -1129,10 +1182,20 @@ function sendWelcomeEmail(data, diagUrl, config) {
     </div>
 
     <!-- 導入ガイド -->
-    <div style="background:#FEF3C7;border-radius:12px;padding:20px 24px;margin-bottom:28px;">
+    <div style="background:#FEF3C7;border-radius:12px;padding:20px 24px;margin-bottom:16px;">
       <p style="margin:0 0 4px;font-size:12px;font-weight:700;color:#D97706;">③ 導入・操作ガイド</p>
       <p style="margin:0 0 12px;font-size:12px;color:#6B7280;">操作方法・全体フローを確認できます。迷ったらここを見てください。</p>
       <a href="${guideUrl}" style="font-size:12px;color:#D97706;font-weight:700;">${guideUrl}</a>
+    </div>
+
+    <!-- KPIダッシュボード -->
+    <div style="background:#EFF6FF;border-radius:12px;padding:20px 24px;margin-bottom:28px;">
+      <p style="margin:0 0 4px;font-size:12px;font-weight:700;color:#2563EB;">④ 人的資本KPIダッシュボード</p>
+      <p style="margin:0 0 12px;font-size:12px;color:#6B7280;">有報5指標の推移・ローデータをいつでも確認・ダウンロードできます。</p>
+      <p style="margin:0 0 12px;font-size:11px;font-family:monospace;color:#374151;word-break:break-all;">${config.siteUrl}/kpi.html?code=${code}</p>
+      <a href="${config.siteUrl}/kpi.html?code=${code}" style="display:inline-block;background:#2563EB;color:#fff;font-size:13px;font-weight:700;padding:10px 24px;border-radius:8px;text-decoration:none;">
+        KPIを確認する →
+      </a>
     </div>
 
     <p style="font-size:14px;font-weight:700;color:#1F2937;margin:0 0 12px;">📋 次にやること（3ステップ）</p>
