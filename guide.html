@@ -580,18 +580,82 @@
         現在リミーはテスト導入期間中です。<strong>実際に使ってみた率直なご感想</strong>をぜひ教えてください。<br>
         いただいたフィードバックはサービス改善に直接反映します。所要時間は2〜3分です。
       </div>
-      <ul class="feedback-items">
-        <li>登録や操作でわかりにくかった箇所はありましたか？</li>
-        <li>診断フォームの質問はお答えしやすかったですか？</li>
-        <li>届いたレポートの内容はわかりやすかったですか？</li>
-        <li>「これはいらない」「こんな機能が欲しい」などのご意見</li>
-        <li>全体的な使いやすさについて（5段階など）</li>
-      </ul>
-      <a class="feedback-btn" href="mailto:miho.shinohe@remenow.com?subject=リミー テストフィードバック&body=【登録・操作について】%0A%0A【診断フォームについて】%0A%0A【レポートについて】%0A%0A【改善してほしい点・欲しい機能】%0A%0A【全体的な使いやすさ（5段階）】%0A">
-        📩 フィードバックを送る
-      </a>
-      <p style="font-size:12px;color:#B45309;text-align:center;margin-top:10px;">上のボタンを押すとメールアプリが開きます</p>
+
+      <div id="fb-form">
+        <div style="margin-bottom:14px;">
+          <label style="font-size:13px;font-weight:700;color:#78350F;display:block;margin-bottom:6px;">メールアドレス（任意）</label>
+          <input id="fb-email" type="email" placeholder="your@email.com" style="width:100%;padding:10px 12px;border-radius:8px;border:1.5px solid #FCD34D;font-size:13px;outline:none;">
+        </div>
+        <div style="margin-bottom:14px;">
+          <label style="font-size:13px;font-weight:700;color:#78350F;display:block;margin-bottom:8px;">全体的な使いやすさ</label>
+          <div style="display:flex;gap:8px;">
+            <button onclick="setRating(1)" class="rating-btn" id="r1">1</button>
+            <button onclick="setRating(2)" class="rating-btn" id="r2">2</button>
+            <button onclick="setRating(3)" class="rating-btn" id="r3">3</button>
+            <button onclick="setRating(4)" class="rating-btn" id="r4">4</button>
+            <button onclick="setRating(5)" class="rating-btn" id="r5">5 ⭐</button>
+          </div>
+          <p style="font-size:11px;color:#B45309;margin-top:4px;">1=改善が必要　5=とても使いやすい</p>
+        </div>
+        <div style="margin-bottom:18px;">
+          <label style="font-size:13px;font-weight:700;color:#78350F;display:block;margin-bottom:6px;">ご感想・改善点など（自由記入）</label>
+          <textarea id="fb-comments" rows="4" placeholder="・わかりにくかった箇所&#10;・良かった点&#10;・あったら嬉しい機能　など" style="width:100%;padding:10px 12px;border-radius:8px;border:1.5px solid #FCD34D;font-size:13px;outline:none;resize:vertical;"></textarea>
+        </div>
+        <button onclick="submitFeedback()" class="feedback-btn" id="fb-submit-btn">📩 フィードバックを送る</button>
+        <p id="fb-msg" style="font-size:13px;text-align:center;margin-top:10px;display:none;"></p>
+      </div>
     </div>
+
+    <style>
+      .rating-btn {
+        width:44px;height:44px;border-radius:8px;border:2px solid #FCD34D;
+        background:#fff;font-size:14px;font-weight:700;color:#92400E;cursor:pointer;transition:all 0.15s;
+      }
+      .rating-btn.selected { background:#F59E0B;color:#fff;border-color:#F59E0B; }
+    </style>
+    <script>
+      var selectedRating = 0;
+      var GAS_URL = 'https://script.google.com/macros/s/AKfycbyGceshWFX-_kepVh5KHTvNwsrNAh7hW22U48KSp4DVvohXurOsAa6BDW7MFrsbKJ0n/exec';
+      var companyCode = new URLSearchParams(location.search).get('code') || '';
+
+      function setRating(n) {
+        selectedRating = n;
+        for (var i = 1; i <= 5; i++) {
+          document.getElementById('r' + i).classList.toggle('selected', i === n);
+        }
+      }
+
+      function submitFeedback() {
+        var btn = document.getElementById('fb-submit-btn');
+        var msg = document.getElementById('fb-msg');
+        var comments = document.getElementById('fb-comments').value.trim();
+        if (!selectedRating && !comments) { alert('評価またはコメントを入力してください'); return; }
+        btn.disabled = true;
+        btn.textContent = '送信中...';
+        fetch(GAS_URL, {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({
+            action: 'record_feedback',
+            companyCode: companyCode,
+            email: document.getElementById('fb-email').value,
+            rating: selectedRating,
+            comments: comments,
+          })
+        })
+        .then(function() {
+          document.getElementById('fb-form').innerHTML =
+            '<div style="text-align:center;padding:20px 0;"><p style="font-size:20px;margin-bottom:8px;">🎉</p><p style="font-size:15px;font-weight:800;color:#065F46;">フィードバックを送信しました！</p><p style="font-size:13px;color:#B45309;margin-top:8px;">ご協力ありがとうございます。<br>いただいたご意見はサービス改善に活用します。</p></div>';
+        })
+        .catch(function() {
+          btn.disabled = false;
+          btn.textContent = '📩 フィードバックを送る';
+          msg.style.display = 'block';
+          msg.style.color = '#B91C1C';
+          msg.textContent = '送信に失敗しました。再度お試しください。';
+        });
+      }
+    </script>
   </div>
 
 

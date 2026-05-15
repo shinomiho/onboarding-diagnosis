@@ -106,6 +106,8 @@ function doPost(e) {
     if (data.action === 'add_employee')        return addEmployee(data, config);
     if (data.action === 'remove_employee')     return removeEmployee(data, config);
     if (data.action === 'resend_invitation')   return resendInvitation(data, config);
+    if (data.action === 'subscribe_email')     return subscribeEmail(data, config);
+    if (data.action === 'record_feedback')     return recordFeedback(data, config);
     return err('不明なアクション');
   } catch(e) { return err(e.message); }
 }
@@ -1087,6 +1089,9 @@ function registerCompany(data, config) {
 function sendWelcomeEmail(data, diagUrl, config) {
   const displayName = data.companyName + (data.teamName ? ` ／ ${data.teamName}` : '');
   const managerLabel = data.managerName ? `${data.managerName} 様` : '管理者 様';
+  const code = diagUrl.match(/code=([^&]+)/)?.[1] || '';
+  const adminUrl = `${config.siteUrl}/company-admin.html?code=${code}`;
+  const guideUrl = `${config.siteUrl}/guide.html`;
 
   const html = `<!DOCTYPE html><html lang="ja"><head><meta charset="UTF-8"></head>
 <body style="margin:0;padding:0;background:#F9FAFB;font-family:'Hiragino Sans',sans-serif;">
@@ -1096,37 +1101,52 @@ function sendWelcomeEmail(data, diagUrl, config) {
   <tr><td style="background:linear-gradient(135deg,#4F46E5,#7C3AED);padding:36px;text-align:center;">
     <p style="margin:0 0 6px;font-size:11px;color:rgba(255,255,255,0.6);letter-spacing:3px;">WELCOME TO LIMEE</p>
     <h1 style="margin:0 0 8px;font-size:22px;color:#fff;font-weight:800;">${displayName}</h1>
-    <p style="margin:0;font-size:13px;color:rgba(255,255,255,0.8);">診断URL発行のお知らせ</p>
+    <p style="margin:0;font-size:13px;color:rgba(255,255,255,0.8);">ご登録ありがとうございます</p>
   </td></tr>
 
   <tr><td style="padding:32px;">
     <p style="font-size:15px;color:#1F2937;margin:0 0 20px;">${managerLabel}</p>
     <p style="font-size:14px;color:#374151;line-height:1.9;margin:0 0 24px;">
       この度はリミーをご導入いただきありがとうございます。<br>
-      貴社専用の診断URLが発行されました。
+      以下の3つのURLが貴社専用に発行されました。このメールを大切に保存してください。
     </p>
 
-    <div style="background:#EEF2FF;border-radius:12px;padding:24px;margin-bottom:28px;text-align:center;">
-      <p style="margin:0 0 8px;font-size:12px;font-weight:700;color:#4F46E5;">貴社専用 診断URL</p>
-      <p style="margin:0 0 16px;font-size:12px;font-family:monospace;color:#374151;word-break:break-all;">${diagUrl}</p>
-      <a href="${diagUrl}" style="display:inline-block;background:#4F46E5;color:#fff;font-size:14px;font-weight:700;padding:12px 28px;border-radius:10px;text-decoration:none;">
-        診断URLを開く →
+    <!-- 従業員管理画面（最優先） -->
+    <div style="background:#EEF2FF;border-radius:12px;padding:20px 24px;margin-bottom:16px;">
+      <p style="margin:0 0 4px;font-size:12px;font-weight:700;color:#4F46E5;">① 従業員管理画面（まずここから）</p>
+      <p style="margin:0 0 12px;font-size:12px;color:#6B7280;">従業員の招待・回答状況の確認はこちらから</p>
+      <p style="margin:0 0 12px;font-size:11px;font-family:monospace;color:#374151;word-break:break-all;">${adminUrl}</p>
+      <a href="${adminUrl}" style="display:inline-block;background:#4F46E5;color:#fff;font-size:13px;font-weight:700;padding:10px 24px;border-radius:8px;text-decoration:none;">
+        従業員を招待する →
       </a>
     </div>
 
-    <p style="font-size:14px;font-weight:700;color:#1F2937;margin:0 0 12px;">📋 ご利用の流れ</p>
-    <ol style="font-size:14px;color:#374151;line-height:2;margin:0 0 24px;padding-left:20px;">
-      <li>上記URLを新入社員へ共有する（メール・LINE等）</li>
-      <li>新入社員が25問の診断に回答（約10〜15分）</li>
-      <li>回答後すぐに、管理者様へ診断レポートが自動送信される</li>
-      <li>毎月の月次レポートで、チーム全体の状態を把握できる</li>
+    <!-- 診断URL -->
+    <div style="background:#F0FDF4;border-radius:12px;padding:20px 24px;margin-bottom:16px;">
+      <p style="margin:0 0 4px;font-size:12px;font-weight:700;color:#059669;">② 貴社専用 診断URL</p>
+      <p style="margin:0 0 12px;font-size:12px;color:#6B7280;">管理画面から招待すると自動送信されます。直接共有も可能です。</p>
+      <p style="margin:0;font-size:11px;font-family:monospace;color:#374151;word-break:break-all;">${diagUrl}</p>
+    </div>
+
+    <!-- 導入ガイド -->
+    <div style="background:#FEF3C7;border-radius:12px;padding:20px 24px;margin-bottom:28px;">
+      <p style="margin:0 0 4px;font-size:12px;font-weight:700;color:#D97706;">③ 導入・操作ガイド</p>
+      <p style="margin:0 0 12px;font-size:12px;color:#6B7280;">操作方法・全体フローを確認できます。迷ったらここを見てください。</p>
+      <a href="${guideUrl}" style="font-size:12px;color:#D97706;font-weight:700;">${guideUrl}</a>
+    </div>
+
+    <p style="font-size:14px;font-weight:700;color:#1F2937;margin:0 0 12px;">📋 次にやること（3ステップ）</p>
+    <ol style="font-size:14px;color:#374151;line-height:2.2;margin:0 0 24px;padding-left:20px;">
+      <li>①の<strong>従業員管理画面</strong>を開き、従業員を追加する</li>
+      <li>従業員が診断に回答する（招待メールが自動送信されます）</li>
+      <li>管理者様へ診断レポートが自動送信される</li>
     </ol>
 
-    <div style="background:#F0FDF4;border-radius:10px;padding:16px;">
-      <p style="margin:0;font-size:13px;color:#166534;line-height:1.8;">
-        ✅ 診断レポート・月次レポートは管理者様のメールアドレスへ自動送信されます<br>
-        ✅ データはすべて安全に管理・蓄積されます<br>
-        ✅ ご不明な点はリミー事務局までお気軽にご連絡ください
+    <div style="background:#F9FAFB;border-radius:10px;padding:16px;border:1px solid #E5E7EB;">
+      <p style="margin:0;font-size:13px;color:#6B7280;line-height:1.8;">
+        ✅ 月次レポートは毎月1日・15日に自動送信されます<br>
+        ✅ 操作方法は導入ガイドに詳しく掲載しています<br>
+        ✅ ご不明な点は <a href="mailto:${config.limeeEmail}" style="color:#4F46E5;">${config.limeeEmail}</a> までご連絡ください
       </p>
     </div>
   </td></tr>
@@ -1143,9 +1163,149 @@ function sendWelcomeEmail(data, diagUrl, config) {
   const recipients = [data.managerEmail, data.hrEmail].filter(Boolean).join(',');
   MailApp.sendEmail({
     to: recipients,
-    subject: `【リミー】${displayName}様の診断URLが発行されました`,
+    subject: `【リミー】${displayName}様のご登録が完了しました`,
     htmlBody: html,
   });
+}
+
+// ===== 進捗トラッキング（毎日トリガー） =====
+function checkOnboardingProgress() {
+  const config = getConfig();
+  const ss = SpreadsheetApp.openById(config.spreadsheetId);
+  const companiesSheet = ss.getSheetByName('companies');
+  if (!companiesSheet || companiesSheet.getLastRow() < 2) return;
+
+  const employeesSheet = ss.getSheetByName('employees');
+  const responsesSheet = ss.getSheetByName('responses');
+  const feedbackSheet  = ss.getSheetByName('feedback');
+
+  const companies = companiesSheet.getDataRange().getValues();
+  const headers   = companies[0];
+  const codeIdx   = headers.indexOf('code');
+  const nameIdx   = headers.indexOf('name');
+  const mEmailIdx = headers.indexOf('manager_email');
+  const hrEmailIdx= headers.indexOf('hr_email');
+  const createdIdx= headers.indexOf('created_at');
+
+  const empCodes = _getCodes(employeesSheet, 'company_code');
+  const resCodes = _getCodes(responsesSheet, 'company');
+  const fbCodes  = _getCodes(feedbackSheet,  'company_code');
+
+  const now = new Date();
+
+  companies.slice(1).forEach(row => {
+    const code        = row[codeIdx];
+    const name        = row[nameIdx];
+    const mEmail      = row[mEmailIdx];
+    const hrEmail     = row[hrEmailIdx];
+    const createdAt   = new Date(row[createdIdx]);
+    const daysSince   = Math.floor((now - createdAt) / 86400000);
+    const hasEmp      = empCodes.includes(code);
+    const hasRes      = resCodes.includes(code);
+    const hasFb       = fbCodes.includes(code);
+    const recipients  = [mEmail, hrEmail].filter(Boolean).join(',');
+    const adminUrl    = `${config.siteUrl}/company-admin.html?code=${code}`;
+    const guideUrl    = `${config.siteUrl}/guide.html`;
+
+    // 3日後: 従業員未登録
+    if (daysSince === 3 && !hasEmp) {
+      MailApp.sendEmail({
+        to: recipients,
+        subject: `【リミー】従業員の招待がまだ完了していません`,
+        htmlBody: _buildReminderHtml(name, '従業員の招待がまだです', `従業員管理画面から従業員を追加するだけで、招待メールが自動送信されます。特別な操作は必要ありません。`, adminUrl, '従業員を招待する →', config),
+      });
+    }
+
+    // 7日後: 従業員登録済みだが未回答
+    if (daysSince === 7 && hasEmp && !hasRes) {
+      MailApp.sendEmail({
+        to: recipients,
+        subject: `【リミー】従業員の診断回答がまだです`,
+        htmlBody: _buildReminderHtml(name, '診断の回答をご確認ください', `招待済みの従業員がまだ診断に回答していません。管理画面から招待メールを再送することができます。`, adminUrl, '管理画面で確認する →', config),
+      });
+    }
+
+    // 14日後: 回答済みだがフィードバックなし
+    if (daysSince === 14 && hasRes && !hasFb) {
+      MailApp.sendEmail({
+        to: recipients,
+        subject: `【リミー】ご感想をお聞かせください`,
+        htmlBody: _buildReminderHtml(name, '使ってみた感想を教えてください', `リミーをご利用いただきありがとうございます。2〜3分でお答えいただけるフィードバックをお願いします。`, guideUrl, 'フィードバックを送る →', config),
+      });
+    }
+
+    // Mihoへの進捗サマリー（3・7・14日目）
+    if ([3, 7, 14].includes(daysSince)) {
+      const status = [
+        `登録: ✅`,
+        `従業員招待: ${hasEmp ? '✅' : '❌ 未完了'}`,
+        `診断回答: ${hasRes ? '✅' : '❌ 未完了'}`,
+        `フィードバック: ${hasFb ? '✅' : '❌ 未完了'}`,
+      ].join('\n');
+      MailApp.sendEmail({
+        to: config.limeeEmail,
+        subject: `【リミー進捗】${name}（登録${daysSince}日目）`,
+        body: `${name}\n\n${status}\n\n管理画面: ${adminUrl}`,
+      });
+    }
+  });
+}
+
+function _getCodes(sheet, colName) {
+  if (!sheet || sheet.getLastRow() < 2) return [];
+  const data    = sheet.getDataRange().getValues();
+  const headers = data[0];
+  const idx     = headers.indexOf(colName);
+  if (idx < 0) return [];
+  return data.slice(1).map(r => r[idx]).filter(Boolean);
+}
+
+function _buildReminderHtml(name, title, body, btnUrl, btnLabel, config) {
+  return `<!DOCTYPE html><html lang="ja"><head><meta charset="UTF-8"></head>
+<body style="margin:0;padding:0;background:#F9FAFB;font-family:'Hiragino Sans',sans-serif;">
+<table width="100%" cellpadding="0" cellspacing="0" style="padding:32px 16px;">
+<tr><td><table width="600" align="center" cellpadding="0" cellspacing="0" style="background:#fff;border-radius:16px;overflow:hidden;box-shadow:0 2px 12px rgba(0,0,0,0.08);">
+  <tr><td style="background:linear-gradient(135deg,#4F46E5,#7C3AED);padding:28px 36px;text-align:center;">
+    <h2 style="margin:0;font-size:18px;color:#fff;font-weight:800;">リミー</h2>
+  </td></tr>
+  <tr><td style="padding:32px;">
+    <p style="font-size:15px;font-weight:700;color:#1F2937;margin:0 0 16px;">${name} 様</p>
+    <p style="font-size:16px;font-weight:800;color:#4F46E5;margin:0 0 12px;">${title}</p>
+    <p style="font-size:14px;color:#374151;line-height:1.9;margin:0 0 24px;">${body}</p>
+    <div style="text-align:center;">
+      <a href="${btnUrl}" style="display:inline-block;background:#4F46E5;color:#fff;font-size:14px;font-weight:700;padding:14px 32px;border-radius:10px;text-decoration:none;">${btnLabel}</a>
+    </div>
+    <p style="font-size:12px;color:#9CA3AF;margin-top:24px;text-align:center;">ご不明な点は <a href="mailto:${config.limeeEmail}" style="color:#4F46E5;">${config.limeeEmail}</a> までご連絡ください</p>
+  </td></tr>
+</table></td></tr></table>
+</body></html>`;
+}
+
+// ===== フィードバック記録 =====
+function recordFeedback(data, config) {
+  if (!data.companyCode && !data.email) return err('情報が不足しています');
+  const ss = SpreadsheetApp.openById(config.spreadsheetId);
+  let sheet = ss.getSheetByName('feedback');
+  if (!sheet) {
+    sheet = ss.insertSheet('feedback');
+    sheet.appendRow(['company_code', 'company_name', 'email', 'rating', 'comments', 'submitted_at']);
+    sheet.setFrozenRows(1);
+  }
+  sheet.appendRow([
+    data.companyCode || '',
+    data.companyName || '',
+    data.email || '',
+    data.rating || '',
+    data.comments || '',
+    new Date().toISOString(),
+  ]);
+  // Mihoに通知
+  MailApp.sendEmail({
+    to: config.limeeEmail,
+    subject: `【リミー FB受信】${data.companyName || data.email}`,
+    body: `評価: ${data.rating}/5\n\nコメント:\n${data.comments}\n\n企業コード: ${data.companyCode}`,
+  });
+  return ok({ message: 'フィードバックを受け付けました' });
 }
 
 function sendRegistrationNotify(data, diagUrl, code, config) {
@@ -1304,6 +1464,30 @@ function sendInvitationEmail(employee, company, diagUrl, config) {
     subject: `【リミー】${company.name}からオンボーディング診断のご案内`,
     htmlBody: html,
   });
+}
+
+// ===== メール登録（remenow.tokyoポップアップ） =====
+function subscribeEmail(data, config) {
+  const email = (data.email || '').trim().toLowerCase();
+  if (!/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(email)) return err('メールアドレスが無効です');
+
+  const ss = SpreadsheetApp.openById(config.spreadsheetId);
+  let sheet = ss.getSheetByName('subscribers');
+  if (!sheet) {
+    sheet = ss.insertSheet('subscribers');
+    sheet.appendRow(['email', 'source', 'registered_at']);
+    sheet.getRange(1, 1, 1, 3).setFontWeight('bold');
+  }
+
+  // 重複チェック
+  const lastRow = sheet.getLastRow();
+  if (lastRow > 1) {
+    const existing = sheet.getRange(2, 1, lastRow - 1, 1).getValues().flat().map(e => String(e).toLowerCase());
+    if (existing.includes(email)) return ok({ message: 'already_registered' });
+  }
+
+  sheet.appendRow([email, data.source || 'remenow.tokyo', new Date().toLocaleString('ja-JP')]);
+  return ok({ message: 'registered' });
 }
 
 // ===== ヘルパー =====
