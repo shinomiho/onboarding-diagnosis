@@ -160,9 +160,18 @@
     .feedback-btn {
       display: block; text-align: center; background: #F59E0B; color: #fff;
       font-size: 15px; font-weight: 800; padding: 16px 28px; border-radius: 12px;
-      text-decoration: none; transition: background 0.2s;
+      text-decoration: none; transition: background 0.2s; border: none; cursor: pointer; width: 100%;
     }
     .feedback-btn:hover { background: #D97706; }
+    .fb-q { margin-bottom: 20px; }
+    .fb-q-num { font-size: 10px; font-weight: 800; color: #F59E0B; letter-spacing: 1px; margin-bottom: 4px; }
+    .fb-q-label { font-size: 13px; font-weight: 700; color: #78350F; margin-bottom: 10px; }
+    .fb-options { display: flex; flex-direction: column; gap: 6px; }
+    .fb-options-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 6px; }
+    .fb-opt { display: flex; align-items: center; gap: 8px; font-size: 13px; color: #92400E; cursor: pointer; padding: 9px 12px; border-radius: 8px; border: 1.5px solid #FDE68A; background: #fff; transition: all 0.15s; }
+    .fb-opt:hover { background: #FFFBEB; border-color: #F59E0B; }
+    .fb-opt input { accent-color: #F59E0B; flex-shrink: 0; }
+    .fb-divider { border: none; border-top: 1px solid #FDE68A; margin: 18px 0; }
 
     .contact-card {
       background: linear-gradient(135deg, #4F46E5, #7C3AED);
@@ -621,25 +630,104 @@
       </div>
 
       <div id="fb-form">
-        <div style="margin-bottom:14px;">
-          <label style="font-size:13px;font-weight:700;color:#78350F;display:block;margin-bottom:6px;">メールアドレス（任意）</label>
-          <input id="fb-email" type="email" placeholder="your@email.com" style="width:100%;padding:10px 12px;border-radius:8px;border:1.5px solid #FCD34D;font-size:13px;outline:none;">
-        </div>
-        <div style="margin-bottom:14px;">
-          <label style="font-size:13px;font-weight:700;color:#78350F;display:block;margin-bottom:8px;">全体的な使いやすさ</label>
-          <div style="display:flex;gap:8px;">
+
+        <!-- Q1: 全体満足度 -->
+        <div class="fb-q">
+          <div class="fb-q-num">Q1</div>
+          <div class="fb-q-label">リミーを導入してみた、全体的な満足度を教えてください</div>
+          <div style="display:flex;gap:8px;margin-bottom:6px;">
             <button onclick="setRating(1)" class="rating-btn" id="r1">1</button>
             <button onclick="setRating(2)" class="rating-btn" id="r2">2</button>
             <button onclick="setRating(3)" class="rating-btn" id="r3">3</button>
             <button onclick="setRating(4)" class="rating-btn" id="r4">4</button>
             <button onclick="setRating(5)" class="rating-btn" id="r5">5 ⭐</button>
           </div>
-          <p style="font-size:11px;color:#B45309;margin-top:4px;">1=改善が必要　5=とても使いやすい</p>
+          <p style="font-size:11px;color:#B45309;">1＝不満　〜　5＝とても満足</p>
         </div>
-        <div style="margin-bottom:18px;">
-          <label style="font-size:13px;font-weight:700;color:#78350F;display:block;margin-bottom:6px;">ご感想・改善点など（自由記入）</label>
-          <textarea id="fb-comments" rows="4" placeholder="・わかりにくかった箇所&#10;・良かった点&#10;・あったら嬉しい機能　など" style="width:100%;padding:10px 12px;border-radius:8px;border:1.5px solid #FCD34D;font-size:13px;outline:none;resize:vertical;"></textarea>
+        <hr class="fb-divider">
+
+        <!-- Q2: 導入・設定のしやすさ -->
+        <div class="fb-q">
+          <div class="fb-q-num">Q2</div>
+          <div class="fb-q-label">導入・初期設定はスムーズにできましたか？</div>
+          <div class="fb-options">
+            <label class="fb-opt"><input type="radio" name="q2" value="とても簡単だった">とても簡単だった</label>
+            <label class="fb-opt"><input type="radio" name="q2" value="だいたい問題なかった">だいたい問題なかった</label>
+            <label class="fb-opt"><input type="radio" name="q2" value="少し戸惑う箇所があった">少し戸惑う箇所があった</label>
+            <label class="fb-opt"><input type="radio" name="q2" value="難しかった">難しかった・サポートが必要だった</label>
+          </div>
         </div>
+        <hr class="fb-divider">
+
+        <!-- Q3: AIレポートの有用性 -->
+        <div class="fb-q">
+          <div class="fb-q-num">Q3</div>
+          <div class="fb-q-label">AIが生成したレポートの内容は、マネジメントに役立ちそうですか？</div>
+          <div class="fb-options">
+            <label class="fb-opt"><input type="radio" name="q3" value="とても役立ちそう">とても役立ちそう</label>
+            <label class="fb-opt"><input type="radio" name="q3" value="役立ちそう">役立ちそう</label>
+            <label class="fb-opt"><input type="radio" name="q3" value="あまり役立たなそう">あまり役立たなそう</label>
+            <label class="fb-opt"><input type="radio" name="q3" value="まだわからない">まだわからない・レポートを未確認</label>
+          </div>
+        </div>
+        <hr class="fb-divider">
+
+        <!-- Q4: 従業員の反応 -->
+        <div class="fb-q">
+          <div class="fb-q-num">Q4</div>
+          <div class="fb-q-label">従業員の診断への反応はいかがでしたか？</div>
+          <div class="fb-options">
+            <label class="fb-opt"><input type="radio" name="q4" value="好反応だった">好反応だった・積極的に取り組んでくれた</label>
+            <label class="fb-opt"><input type="radio" name="q4" value="普通だった">特に問題なく回答してくれた</label>
+            <label class="fb-opt"><input type="radio" name="q4" value="戸惑いがあった">戸惑いや疑問の声があった</label>
+            <label class="fb-opt"><input type="radio" name="q4" value="まだ回答していない">まだ従業員が回答していない</label>
+          </div>
+        </div>
+        <hr class="fb-divider">
+
+        <!-- Q5: 本番導入の意向 -->
+        <div class="fb-q">
+          <div class="fb-q-num">Q5</div>
+          <div class="fb-q-label">テスト後、本番導入を検討したいですか？</div>
+          <div class="fb-options">
+            <label class="fb-opt"><input type="radio" name="q5" value="ぜひ導入したい">ぜひ導入したい</label>
+            <label class="fb-opt"><input type="radio" name="q5" value="前向きに検討したい">前向きに検討したい</label>
+            <label class="fb-opt"><input type="radio" name="q5" value="もう少し様子を見たい">もう少し様子を見たい</label>
+            <label class="fb-opt"><input type="radio" name="q5" value="現時点では難しい">現時点では難しい</label>
+          </div>
+        </div>
+        <hr class="fb-divider">
+
+        <!-- Q6: 良かった点（複数選択） -->
+        <div class="fb-q">
+          <div class="fb-q-num">Q6</div>
+          <div class="fb-q-label">特に良いと感じた点を教えてください（複数選択可）</div>
+          <div class="fb-options-grid">
+            <label class="fb-opt"><input type="checkbox" name="q6" value="設定が簡単">設定が簡単</label>
+            <label class="fb-opt"><input type="checkbox" name="q6" value="AIレポートの質">AIレポートの質</label>
+            <label class="fb-opt"><input type="checkbox" name="q6" value="自動化されている">自動化されている</label>
+            <label class="fb-opt"><input type="checkbox" name="q6" value="従業員への案内がスムーズ">従業員への案内がスムーズ</label>
+            <label class="fb-opt"><input type="checkbox" name="q6" value="KPIデータが蓄積される">KPIデータが蓄積される</label>
+            <label class="fb-opt"><input type="checkbox" name="q6" value="コストパフォーマンス">コストパフォーマンス</label>
+          </div>
+        </div>
+        <hr class="fb-divider">
+
+        <!-- Q7: 改善してほしい点 -->
+        <div class="fb-q">
+          <div class="fb-q-num">Q7</div>
+          <div class="fb-q-label">改善してほしい点・あったら嬉しい機能はありますか？（自由記入）</div>
+          <textarea id="fb-comments" rows="3" placeholder="例：設問数を調整したい、レポートの表示をもっと簡潔にしてほしい　など" style="width:100%;padding:10px 12px;border-radius:8px;border:1.5px solid #FCD34D;font-size:13px;outline:none;resize:vertical;font-family:inherit;"></textarea>
+        </div>
+        <hr class="fb-divider">
+
+        <!-- Q8: メール -->
+        <div class="fb-q" style="margin-bottom:20px;">
+          <div class="fb-q-num">Q8</div>
+          <div class="fb-q-label">メールアドレス（任意・個別にご連絡を希望する場合）</div>
+          <input id="fb-email" type="email" placeholder="your@email.com" style="width:100%;padding:10px 12px;border-radius:8px;border:1.5px solid #FCD34D;font-size:13px;outline:none;">
+        </div>
+
         <button onclick="submitFeedback()" class="feedback-btn" id="fb-submit-btn">📩 フィードバックを送る</button>
         <p id="fb-msg" style="font-size:13px;text-align:center;margin-top:10px;display:none;"></p>
       </div>
@@ -664,13 +752,27 @@
         }
       }
 
+      function getRadio(name) {
+        var el = document.querySelector('input[name="' + name + '"]:checked');
+        return el ? el.value : '未回答';
+      }
+      function getChecks(name) {
+        var els = document.querySelectorAll('input[name="' + name + '"]:checked');
+        return els.length ? Array.from(els).map(function(e){return e.value;}).join('、') : '未選択';
+      }
+
       function submitFeedback() {
         var btn = document.getElementById('fb-submit-btn');
-        var msg = document.getElementById('fb-msg');
-        var comments = document.getElementById('fb-comments').value.trim();
-        if (!selectedRating && !comments) { alert('評価またはコメントを入力してください'); return; }
+        if (!selectedRating) { alert('Q1の満足度を選択してください'); return; }
         btn.disabled = true;
         btn.textContent = '送信中...';
+        var structured =
+          '【Q2 導入のしやすさ】' + getRadio('q2') + '\n' +
+          '【Q3 AIレポートの有用性】' + getRadio('q3') + '\n' +
+          '【Q4 従業員の反応】' + getRadio('q4') + '\n' +
+          '【Q5 本番導入の意向】' + getRadio('q5') + '\n' +
+          '【Q6 良かった点】' + getChecks('q6') + '\n' +
+          '【Q7 改善点・自由記入】' + (document.getElementById('fb-comments').value.trim() || 'なし');
         fetch(GAS_URL, {
           method: 'POST',
           headers: { 'Content-Type': 'application/json' },
@@ -679,7 +781,8 @@
             companyCode: companyCode,
             email: document.getElementById('fb-email').value,
             rating: selectedRating,
-            comments: comments,
+            comments: structured,
+            type: 'manager',
           })
         })
         .then(function() {

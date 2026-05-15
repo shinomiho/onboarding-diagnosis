@@ -42,25 +42,81 @@
       <!-- フィードバック -->
       <div class="no-print" id="fb-section" style="margin:32px 0 48px;background:#F9FAFB;border-radius:16px;padding:24px;border:1px solid #E5E7EB;">
         <p style="font-size:14px;font-weight:800;color:#1F2937;margin:0 0 4px;">📝 この診断はいかがでしたか？</p>
-        <p style="font-size:12px;color:#6B7280;margin:0 0 16px;">ご感想をお聞かせください（任意・1分）</p>
+        <p style="font-size:12px;color:#6B7280;margin:0 0 20px;">所要時間：約2分（任意）。ご意見はサービス改善に活用します。</p>
 
-        <div style="display:flex;gap:8px;margin-bottom:14px;" id="fb-stars">
-          <button onclick="fbRate(1)" class="fb-star" id="fs1">😞</button>
-          <button onclick="fbRate(2)" class="fb-star" id="fs2">😐</button>
-          <button onclick="fbRate(3)" class="fb-star" id="fs3">🙂</button>
-          <button onclick="fbRate(4)" class="fb-star" id="fs4">😊</button>
-          <button onclick="fbRate(5)" class="fb-star" id="fs5">🤩</button>
+        <div id="fb-form-emp">
+
+          <!-- Q1: 全体満足度（絵文字） -->
+          <div style="margin-bottom:18px;">
+            <p style="font-size:12px;font-weight:700;color:#374151;margin:0 0 8px;">Q1. 全体的な満足度</p>
+            <div style="display:flex;gap:8px;" id="fb-stars">
+              <button onclick="fbRate(1)" class="fb-star" id="fs1">😞</button>
+              <button onclick="fbRate(2)" class="fb-star" id="fs2">😐</button>
+              <button onclick="fbRate(3)" class="fb-star" id="fs3">🙂</button>
+              <button onclick="fbRate(4)" class="fb-star" id="fs4">😊</button>
+              <button onclick="fbRate(5)" class="fb-star" id="fs5">🤩</button>
+            </div>
+          </div>
+
+          <!-- Q2: 診断結果の正確さ -->
+          <div style="margin-bottom:14px;">
+            <p style="font-size:12px;font-weight:700;color:#374151;margin:0 0 8px;">Q2. 診断結果はあなたの実際の状況に合っていましたか？</p>
+            <div style="display:flex;flex-direction:column;gap:6px;">
+              <label class="emp-opt"><input type="radio" name="eq2" value="よく合っていた">よく合っていた</label>
+              <label class="emp-opt"><input type="radio" name="eq2" value="まあまあ合っていた">まあまあ合っていた</label>
+              <label class="emp-opt"><input type="radio" name="eq2" value="あまり合っていなかった">あまり合っていなかった</label>
+              <label class="emp-opt"><input type="radio" name="eq2" value="わからない">わからない</label>
+            </div>
+          </div>
+
+          <!-- Q3: 設問の量 -->
+          <div style="margin-bottom:14px;">
+            <p style="font-size:12px;font-weight:700;color:#374151;margin:0 0 8px;">Q3. 設問の数はいかがでしたか？</p>
+            <div style="display:flex;gap:8px;flex-wrap:wrap;">
+              <label class="emp-opt"><input type="radio" name="eq3" value="少なすぎた">少なすぎた</label>
+              <label class="emp-opt"><input type="radio" name="eq3" value="ちょうどよかった">ちょうどよかった</label>
+              <label class="emp-opt"><input type="radio" name="eq3" value="多すぎた">多すぎた</label>
+            </div>
+          </div>
+
+          <!-- Q4: AIレポートのわかりやすさ -->
+          <div style="margin-bottom:14px;">
+            <p style="font-size:12px;font-weight:700;color:#374151;margin:0 0 8px;">Q4. AIレポートの内容はわかりやすかったですか？</p>
+            <div style="display:flex;flex-direction:column;gap:6px;">
+              <label class="emp-opt"><input type="radio" name="eq4" value="とてもわかりやすかった">とてもわかりやすかった</label>
+              <label class="emp-opt"><input type="radio" name="eq4" value="わかりやすかった">わかりやすかった</label>
+              <label class="emp-opt"><input type="radio" name="eq4" value="少しわかりにくかった">少しわかりにくかった</label>
+              <label class="emp-opt"><input type="radio" name="eq4" value="わかりにくかった">わかりにくかった</label>
+            </div>
+          </div>
+
+          <!-- Q5: 推薦意向 -->
+          <div style="margin-bottom:14px;">
+            <p style="font-size:12px;font-weight:700;color:#374151;margin:0 0 8px;">Q5. この診断を同僚や知人に勧めたいと思いますか？</p>
+            <div style="display:flex;gap:8px;flex-wrap:wrap;">
+              <label class="emp-opt"><input type="radio" name="eq5" value="ぜひ勧めたい">ぜひ勧めたい</label>
+              <label class="emp-opt"><input type="radio" name="eq5" value="内容次第で">内容次第で</label>
+              <label class="emp-opt"><input type="radio" name="eq5" value="あまり勧めたくない">あまり勧めたくない</label>
+            </div>
+          </div>
+
+          <!-- Q6: 自由コメント -->
+          <div style="margin-bottom:16px;">
+            <p style="font-size:12px;font-weight:700;color:#374151;margin:0 0 8px;">Q6. ご感想・気になった点など（任意）</p>
+            <textarea id="fb-comment" rows="3" placeholder="良かった点、改善してほしい点など、何でもどうぞ" style="width:100%;padding:10px;border-radius:8px;border:1.5px solid #E5E7EB;font-size:13px;font-family:inherit;resize:vertical;outline:none;"></textarea>
+          </div>
+
+          <button onclick="fbSubmit()" id="fb-btn" style="background:#4F46E5;color:#fff;border:none;padding:12px 24px;border-radius:8px;font-size:13px;font-weight:700;cursor:pointer;width:100%;">送信する</button>
+          <p id="fb-done" style="display:none;font-size:13px;color:#10B981;margin-top:10px;font-weight:700;text-align:center;">ありがとうございました！</p>
         </div>
-
-        <textarea id="fb-comment" rows="3" placeholder="感想・気になった点など（任意）" style="width:100%;padding:10px;border-radius:8px;border:1.5px solid #E5E7EB;font-size:13px;font-family:inherit;resize:vertical;outline:none;margin-bottom:12px;"></textarea>
-
-        <button onclick="fbSubmit()" id="fb-btn" style="background:#4F46E5;color:#fff;border:none;padding:10px 24px;border-radius:8px;font-size:13px;font-weight:700;cursor:pointer;">送信する</button>
-        <p id="fb-done" style="display:none;font-size:13px;color:#10B981;margin-top:10px;font-weight:700;">ありがとうございました！</p>
       </div>
 
       <style>
         .fb-star { background:none;border:2px solid #E5E7EB;border-radius:8px;font-size:22px;width:48px;height:48px;cursor:pointer;transition:all 0.15s; }
         .fb-star.on { border-color:#4F46E5;background:#EEF2FF; }
+        .emp-opt { display:flex;align-items:center;gap:8px;font-size:13px;color:#374151;cursor:pointer;padding:8px 12px;border-radius:8px;border:1.5px solid #E5E7EB;background:#fff;transition:all 0.15s; }
+        .emp-opt:hover { background:#EEF2FF;border-color:#4F46E5; }
+        .emp-opt input { accent-color:#4F46E5;flex-shrink:0; }
       </style>
       <script>
         var fbRating = 0;
@@ -68,12 +124,21 @@
           fbRating = n;
           for (var i=1;i<=5;i++) document.getElementById('fs'+i).classList.toggle('on', i===n);
         }
+        function empRadio(name) {
+          var el = document.querySelector('input[name="'+name+'"]:checked');
+          return el ? el.value : '未回答';
+        }
         function fbSubmit() {
           var btn = document.getElementById('fb-btn');
-          var comment = document.getElementById('fb-comment').value.trim();
-          if (!fbRating && !comment) { alert('評価またはコメントを入力してください'); return; }
+          if (!fbRating) { alert('Q1の満足度を選択してください'); return; }
           btn.disabled = true; btn.textContent = '送信中...';
           var params = new URLSearchParams(location.search);
+          var structured =
+            '【Q2 診断の正確さ】' + empRadio('eq2') + '\n' +
+            '【Q3 設問の量】' + empRadio('eq3') + '\n' +
+            '【Q4 レポートのわかりやすさ】' + empRadio('eq4') + '\n' +
+            '【Q5 推薦意向】' + empRadio('eq5') + '\n' +
+            '【Q6 自由コメント】' + (document.getElementById('fb-comment').value.trim() || 'なし');
           fetch(APPS_SCRIPT_URL, {
             method:'POST', headers:{'Content-Type':'application/json'},
             body: JSON.stringify({
@@ -81,14 +146,12 @@
               companyCode: params.get('code') || '',
               email: params.get('id') || '',
               rating: fbRating,
-              comments: comment,
+              comments: structured,
               type: 'employee'
             })
           }).then(function(){
-            document.getElementById('fb-stars').style.display='none';
-            document.getElementById('fb-comment').style.display='none';
-            btn.style.display='none';
-            document.getElementById('fb-done').style.display='block';
+            document.getElementById('fb-form-emp').innerHTML =
+              '<div style="text-align:center;padding:16px 0;"><p style="font-size:28px;margin-bottom:8px;">🎉</p><p style="font-size:15px;font-weight:800;color:#10B981;">ありがとうございました！</p><p style="font-size:12px;color:#6B7280;margin-top:6px;">いただいたご意見はサービス改善に活用します。</p></div>';
           }).catch(function(){
             btn.disabled=false; btn.textContent='送信する';
           });
