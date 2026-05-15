@@ -13,82 +13,66 @@
       line-height: 1.8;
     }
 
-    /* Hero */
     .hero {
       background: linear-gradient(135deg, #4F46E5, #7C3AED);
       padding: 56px 24px 48px;
       text-align: center;
       color: #fff;
     }
-    .hero-label {
-      font-size: 11px; letter-spacing: 4px; color: rgba(255,255,255,0.6);
-      margin-bottom: 14px; text-transform: uppercase;
-    }
-    .hero-title {
-      font-size: 28px; font-weight: 800; margin-bottom: 10px; line-height: 1.3;
-    }
-    .hero-sub {
-      font-size: 14px; color: rgba(255,255,255,0.8); max-width: 480px; margin: 0 auto;
-    }
+    .hero-label { font-size: 11px; letter-spacing: 4px; color: rgba(255,255,255,0.6); margin-bottom: 14px; text-transform: uppercase; }
+    .hero-title { font-size: 28px; font-weight: 800; margin-bottom: 10px; line-height: 1.3; }
+    .hero-sub { font-size: 14px; color: rgba(255,255,255,0.8); max-width: 480px; margin: 0 auto; line-height: 1.8; }
+    .hero-time { display: inline-block; margin-top: 16px; background: rgba(255,255,255,0.15); border-radius: 99px; padding: 6px 18px; font-size: 13px; font-weight: 700; }
 
-    /* Container */
     .container { max-width: 720px; margin: 0 auto; padding: 32px 20px 80px; }
 
-    /* Overview */
+    .intro-card {
+      background: #fff; border-radius: 16px; padding: 24px; margin-bottom: 28px;
+      box-shadow: 0 1px 6px rgba(0,0,0,0.07);
+      border-left: 4px solid #4F46E5;
+    }
+    .intro-card p { font-size: 14px; color: #374151; line-height: 1.9; }
+    .intro-card strong { color: #4F46E5; }
+
     .overview {
       background: #fff; border-radius: 16px; padding: 28px 24px; margin-bottom: 32px;
       box-shadow: 0 1px 6px rgba(0,0,0,0.07);
     }
-    .overview-title {
-      font-size: 15px; font-weight: 800; color: #4F46E5; margin-bottom: 20px;
-      display: flex; align-items: center; gap: 8px;
-    }
-    .flow-steps {
-      display: grid; grid-template-columns: repeat(3, 1fr); gap: 12px;
-    }
-    .flow-step {
-      background: #F3F4F6; border-radius: 12px; padding: 16px 12px; text-align: center;
-    }
-    .flow-step-icon { font-size: 24px; margin-bottom: 6px; }
-    .flow-step-num {
-      font-size: 10px; font-weight: 700; color: #9CA3AF; letter-spacing: 2px; margin-bottom: 4px;
-    }
+    .overview-title { font-size: 15px; font-weight: 800; color: #4F46E5; margin-bottom: 20px; display: flex; align-items: center; gap: 8px; }
+    .flow-steps { display: grid; grid-template-columns: repeat(3, 1fr); gap: 12px; }
+    .flow-step { background: #F3F4F6; border-radius: 12px; padding: 16px 12px; text-align: center; }
+    .flow-step-icon { font-size: 28px; margin-bottom: 6px; }
+    .flow-step-num { font-size: 10px; font-weight: 700; color: #9CA3AF; letter-spacing: 2px; margin-bottom: 4px; }
     .flow-step-label { font-size: 13px; font-weight: 700; color: #1F2937; }
-    .flow-arrow {
-      display: none;
-    }
+    .flow-step-time { font-size: 11px; color: #6B7280; margin-top: 4px; }
+    .flow-arrow { display: none; }
     @media (min-width: 480px) {
       .flow-steps { display: flex; align-items: center; }
       .flow-step { flex: 1; }
       .flow-arrow { display: block; font-size: 20px; color: #C7D2FE; flex-shrink: 0; padding: 0 4px; }
     }
 
-    /* Section */
     .section { margin-bottom: 28px; }
-    .step-header {
-      display: flex; align-items: center; gap: 14px; margin-bottom: 16px;
-    }
+    .step-header { display: flex; align-items: center; gap: 14px; margin-bottom: 16px; }
     .step-badge {
       background: linear-gradient(135deg, #4F46E5, #7C3AED);
       color: #fff; font-size: 12px; font-weight: 800; padding: 6px 14px;
       border-radius: 99px; white-space: nowrap; letter-spacing: 1px;
     }
+    .step-badge.faq { background: linear-gradient(135deg, #10B981, #059669); }
+    .step-badge.feedback { background: linear-gradient(135deg, #F59E0B, #D97706); }
     .step-title { font-size: 18px; font-weight: 800; color: #1F2937; }
+    .step-time { font-size: 12px; color: #9CA3AF; margin-left: auto; }
 
     .card {
       background: #fff; border-radius: 14px; padding: 24px;
       box-shadow: 0 1px 6px rgba(0,0,0,0.07); margin-bottom: 12px;
     }
 
-    .step-desc {
-      font-size: 14px; color: #374151; margin-bottom: 18px; line-height: 1.9;
-    }
+    .step-desc { font-size: 14px; color: #374151; margin-bottom: 18px; line-height: 1.9; }
 
-    /* Numbered list */
     .steps-list { list-style: none; }
-    .steps-list li {
-      display: flex; gap: 14px; align-items: flex-start; margin-bottom: 14px;
-    }
+    .steps-list li { display: flex; gap: 14px; align-items: flex-start; margin-bottom: 16px; }
     .steps-list li:last-child { margin-bottom: 0; }
     .step-num-circle {
       width: 28px; height: 28px; background: #EEF2FF; color: #4F46E5;
@@ -96,37 +80,35 @@
       display: flex; align-items: center; justify-content: center; flex-shrink: 0; margin-top: 2px;
     }
     .step-text { font-size: 14px; color: #374151; line-height: 1.8; }
-    .step-text strong { color: #1F2937; }
-    .step-text .sub { font-size: 12px; color: #9CA3AF; display: block; margin-top: 2px; }
+    .step-text strong { color: #1F2937; font-size: 15px; display: block; margin-bottom: 2px; }
+    .step-text .sub { font-size: 13px; color: #6B7280; display: block; margin-top: 3px; line-height: 1.7; }
+    .step-text .result { font-size: 13px; color: #065F46; background: #F0FDF4; border-radius: 6px; padding: 6px 10px; display: block; margin-top: 8px; }
 
-    /* URL box */
     .url-box {
       background: #EEF2FF; border: 1.5px solid #C7D2FE; border-radius: 10px;
-      padding: 12px 16px; margin: 14px 0; display: flex; align-items: center; gap: 10px;
+      padding: 12px 16px; margin: 14px 0;
     }
-    .url-box-label { font-size: 11px; font-weight: 700; color: #6366F1; white-space: nowrap; }
+    .url-box-label { font-size: 11px; font-weight: 700; color: #6366F1; margin-bottom: 4px; }
     .url-box-url { font-size: 12px; color: #4338CA; font-family: monospace; word-break: break-all; }
 
-    /* Tip box */
     .tip {
       background: #F0FDF4; border: 1.5px solid #86EFAC; border-radius: 10px;
       padding: 14px 16px; margin-top: 14px;
     }
-    .tip p { font-size: 13px; color: #166534; line-height: 1.8; }
-    .tip p + p { margin-top: 6px; }
+    .tip p { font-size: 13px; color: #166534; line-height: 1.9; }
+    .tip p + p { margin-top: 4px; }
 
-    /* Warning box */
     .warn {
       background: #FEF3C7; border: 1.5px solid #FCD34D; border-radius: 10px;
       padding: 14px 16px; margin-top: 14px;
     }
     .warn p { font-size: 13px; color: #92400E; line-height: 1.8; }
 
-    /* Screen mockup */
     .screen {
       background: #F9FAFB; border: 1.5px solid #E5E7EB; border-radius: 12px;
-      padding: 16px; margin: 16px 0; font-size: 13px; color: #6B7280;
+      padding: 16px; margin: 16px 0;
     }
+    .screen-label { font-size: 11px; font-weight: 700; color: #9CA3AF; text-align: center; margin-bottom: 10px; letter-spacing: 1px; text-transform: uppercase; }
     .screen-header {
       background: linear-gradient(135deg, #4F46E5, #7C3AED);
       border-radius: 8px; padding: 12px 16px; text-align: center;
@@ -137,45 +119,65 @@
       display: flex; justify-content: space-between; align-items: center;
       font-size: 13px; color: #374151; border: 1px solid #E5E7EB;
     }
-    .screen-badge-done { background: #D1FAE5; color: #065F46; font-size: 11px; padding: 2px 8px; border-radius: 99px; font-weight: 700; }
-    .screen-badge-pend { background: #FEF3C7; color: #92400E; font-size: 11px; padding: 2px 8px; border-radius: 99px; font-weight: 700; }
+    .screen-row:last-child { margin-bottom: 0; }
+    .screen-badge-done { background: #D1FAE5; color: #065F46; font-size: 11px; padding: 3px 10px; border-radius: 99px; font-weight: 700; }
+    .screen-badge-pend { background: #FEF3C7; color: #92400E; font-size: 11px; padding: 3px 10px; border-radius: 99px; font-weight: 700; }
+    .screen-add-btn {
+      display: block; text-align: center; background: #4F46E5; color: #fff;
+      border-radius: 8px; padding: 10px; font-size: 13px; font-weight: 700; margin-top: 10px;
+    }
 
-    /* Report card */
     .report-card {
       background: linear-gradient(135deg, #EEF2FF, #F5F3FF);
-      border: 1.5px solid #C7D2FE; border-radius: 12px; padding: 20px 20px;
+      border: 1.5px solid #C7D2FE; border-radius: 12px; padding: 20px;
     }
     .report-card h4 { font-size: 14px; font-weight: 800; color: #4F46E5; margin-bottom: 10px; }
     .report-card ul { list-style: none; }
-    .report-card ul li { font-size: 13px; color: #374151; padding: 5px 0; border-bottom: 1px solid #E0E7FF; }
+    .report-card ul li { font-size: 13px; color: #374151; padding: 8px 0; border-bottom: 1px solid #E0E7FF; display: flex; align-items: flex-start; gap: 8px; }
     .report-card ul li:last-child { border-bottom: none; }
-    .report-card ul li::before { content: "✅ "; }
+    .report-card .icon { font-size: 16px; flex-shrink: 0; }
 
-    /* FAQ */
-    .faq-item { margin-bottom: 14px; }
-    .faq-q { font-size: 14px; font-weight: 700; color: #1F2937; margin-bottom: 6px; }
-    .faq-q::before { content: "Q. "; color: #4F46E5; }
-    .faq-a { font-size: 14px; color: #374151; padding-left: 20px; }
-    .faq-a::before { content: "A. "; color: #10B981; font-weight: 700; }
+    .faq-item { margin-bottom: 18px; padding-bottom: 18px; border-bottom: 1px solid #F3F4F6; }
+    .faq-item:last-child { margin-bottom: 0; padding-bottom: 0; border-bottom: none; }
+    .faq-q { font-size: 14px; font-weight: 700; color: #1F2937; margin-bottom: 8px; display: flex; gap: 8px; }
+    .faq-q::before { content: "Q"; background: #4F46E5; color: white; font-size: 11px; font-weight: 800; padding: 2px 7px; border-radius: 4px; flex-shrink: 0; margin-top: 1px; }
+    .faq-a { font-size: 14px; color: #374151; padding-left: 28px; line-height: 1.8; }
 
-    /* Contact */
+    .feedback-card {
+      background: linear-gradient(135deg, #FFFBEB, #FEF3C7);
+      border: 2px solid #FCD34D; border-radius: 16px; padding: 28px 24px;
+    }
+    .feedback-title { font-size: 16px; font-weight: 800; color: #92400E; margin-bottom: 8px; }
+    .feedback-sub { font-size: 13px; color: #B45309; margin-bottom: 20px; line-height: 1.8; }
+    .feedback-items { list-style: none; margin-bottom: 20px; }
+    .feedback-items li {
+      display: flex; align-items: flex-start; gap: 10px;
+      font-size: 13px; color: #78350F; padding: 10px 0;
+      border-bottom: 1px solid #FDE68A; line-height: 1.7;
+    }
+    .feedback-items li:last-child { border-bottom: none; }
+    .feedback-items li::before { content: "▶"; color: #F59E0B; font-size: 10px; margin-top: 4px; flex-shrink: 0; }
+    .feedback-btn {
+      display: block; text-align: center; background: #F59E0B; color: #fff;
+      font-size: 15px; font-weight: 800; padding: 16px 28px; border-radius: 12px;
+      text-decoration: none; transition: background 0.2s;
+    }
+    .feedback-btn:hover { background: #D97706; }
+
     .contact-card {
       background: linear-gradient(135deg, #4F46E5, #7C3AED);
-      border-radius: 16px; padding: 28px 24px; text-align: center; color: #fff;
+      border-radius: 16px; padding: 28px 24px; text-align: center; color: #fff; margin-top: 16px;
     }
     .contact-card h3 { font-size: 16px; font-weight: 800; margin-bottom: 8px; }
     .contact-card p { font-size: 13px; color: rgba(255,255,255,0.85); margin-bottom: 16px; line-height: 1.8; }
     .contact-card a {
       display: inline-block; background: #fff; color: #4F46E5;
-      font-size: 14px; font-weight: 700; padding: 12px 28px; border-radius: 10px;
-      text-decoration: none;
+      font-size: 14px; font-weight: 700; padding: 12px 28px; border-radius: 10px; text-decoration: none;
     }
 
-    /* Footer */
     .footer { text-align: center; margin-top: 40px; font-size: 12px; color: #9CA3AF; }
     .footer img { width: 120px; height: auto; margin-bottom: 8px; display: block; margin-left: auto; margin-right: auto; }
 
-    /* PDF button */
     .pdf-bar {
       position: sticky; top: 0; z-index: 50;
       background: rgba(255,255,255,0.95); backdrop-filter: blur(8px);
@@ -188,9 +190,7 @@
       font-size: 13px; font-weight: 700; cursor: pointer;
       display: flex; align-items: center; gap: 7px;
     }
-    .pdf-btn:active { background: #3730A3; }
 
-    /* Print */
     @media print {
       .pdf-bar { display: none; }
       body { background: #fff; }
@@ -198,10 +198,7 @@
       .container { padding: 0 20px 40px; }
       .card { box-shadow: none; border: 1px solid #E5E7EB; break-inside: avoid; }
       .section { break-inside: avoid; }
-      .contact-card { -webkit-print-color-adjust: exact; print-color-adjust: exact; }
-      .step-badge { -webkit-print-color-adjust: exact; print-color-adjust: exact; }
-      .report-card { -webkit-print-color-adjust: exact; print-color-adjust: exact; }
-      .screen-header { -webkit-print-color-adjust: exact; print-color-adjust: exact; }
+      .contact-card, .feedback-card, .step-badge, .report-card, .screen-header { -webkit-print-color-adjust: exact; print-color-adjust: exact; }
     }
   </style>
 </head>
@@ -215,33 +212,44 @@
 </div>
 
 <div class="hero">
-  <div class="hero-label">LIMEE ONBOARDING</div>
-  <div class="hero-title">リミー 導入・操作ガイド</div>
-  <div class="hero-sub">企業登録から従業員の診断完了まで、3ステップでスタートできます</div>
+  <div class="hero-label">LIMEE ONBOARDING GUIDE</div>
+  <div class="hero-title">リミー 導入ガイド</div>
+  <div class="hero-sub">はじめてご利用の方へ。登録から最初のレポート受け取りまで、順番に進めるだけでOKです。</div>
+  <div class="hero-time">⏱ 全部で約10〜15分で完了します</div>
 </div>
 
 <div class="container">
 
-  <!-- Overview -->
+  <!-- はじめに -->
+  <div class="intro-card">
+    <p>このガイドでは、リミーを初めて使う方向けに<strong>登録から最初のレポート受け取りまでの手順</strong>を丁寧に説明します。<br>
+    特別な知識は必要ありません。画面の案内に沿って進めるだけで、すべて自動で動きます。<br>
+    わからない点があればいつでも下記の連絡先にご相談ください。</p>
+  </div>
+
+  <!-- 全体の流れ -->
   <div class="overview">
-    <div class="overview-title">📋 全体の流れ</div>
+    <div class="overview-title">📋 全体の流れ（3ステップ）</div>
     <div class="flow-steps">
       <div class="flow-step">
         <div class="flow-step-icon">🏢</div>
         <div class="flow-step-num">STEP 1</div>
         <div class="flow-step-label">企業登録</div>
+        <div class="flow-step-time">約2分</div>
       </div>
       <div class="flow-arrow">→</div>
       <div class="flow-step">
         <div class="flow-step-icon">👥</div>
         <div class="flow-step-num">STEP 2</div>
         <div class="flow-step-label">従業員を招待</div>
+        <div class="flow-step-time">1人あたり1分</div>
       </div>
       <div class="flow-arrow">→</div>
       <div class="flow-step">
         <div class="flow-step-icon">📊</div>
         <div class="flow-step-num">STEP 3</div>
-        <div class="flow-step-label">診断・レポート</div>
+        <div class="flow-step-label">診断・レポート確認</div>
+        <div class="flow-step-time">自動で届きます</div>
       </div>
     </div>
   </div>
@@ -252,38 +260,40 @@
     <div class="step-header">
       <div class="step-badge">STEP 1</div>
       <div class="step-title">企業登録をする</div>
+      <div class="step-time">⏱ 約2分</div>
     </div>
     <div class="card">
       <p class="step-desc">
-        はじめに、リミーへの企業登録を行います。登録は1〜2分で完了します。<br>
-        登録後、管理者のメールアドレスに<strong>企業コード・診断URLが自動送信</strong>されます。
+        まずはリミーへの企業登録を行います。<strong>入力項目は4つだけ</strong>で、1〜2分で完了します。<br>
+        登録が完了すると、管理者のメールアドレスに<strong>企業コードと診断URLが自動で届きます。</strong>
       </p>
+
       <ul class="steps-list">
         <li>
           <div class="step-num-circle">1</div>
           <div class="step-text">
-            <strong>企業登録フォームを開く</strong>
-            <span class="sub">リミー事務局から共有された登録URLにアクセスしてください</span>
+            <strong>リミーから届いた「登録URL」を開く</strong>
+            <span class="sub">メールに記載のリンクをクリックするか、URLをコピーしてブラウザに貼り付けてください。スマホでも操作できます。</span>
           </div>
         </li>
         <li>
           <div class="step-num-circle">2</div>
           <div class="step-text">
-            <strong>会社名・チーム名・管理者メールを入力する</strong>
-            <span class="sub">人事担当者がいる場合は人事メールも入力いただくと、レポートが両名に届きます</span>
+            <strong>必要事項を入力する</strong>
+            <span class="sub">① 会社名（例：株式会社〇〇）<br>② チーム名・部署名（例：営業1部）<br>③ 管理者のメールアドレス（レポートが届きます）<br>④ 人事担当者のメールアドレス（任意。いる場合は入力ください）</span>
           </div>
         </li>
         <li>
           <div class="step-num-circle">3</div>
           <div class="step-text">
             <strong>「登録する」ボタンを押す</strong>
-            <span class="sub">自動でウェルカムメールが届きます。企業コードは大切に保管してください</span>
+            <span class="result">✅ 登録完了メールが届いたら成功です。メールに「企業コード（LIMEE_XXXXXX）」と「従業員管理画面URL」が記載されています。大切に保管してください。</span>
           </div>
         </li>
       </ul>
-      <div class="tip">
-        <p>✅ 登録完了メールに<strong>企業コード（LIMEE_XXXXXX形式）</strong>と診断URLが記載されています</p>
-        <p>✅ 企業コードは従業員管理画面へのアクセスにも使用します</p>
+
+      <div class="warn" style="margin-top:16px;">
+        <p>📧 <strong>メールが届かない場合は</strong>、迷惑メールフォルダをご確認ください。それでも届かない場合はリミー事務局までご連絡ください。</p>
       </div>
     </div>
   </div>
@@ -294,64 +304,72 @@
     <div class="step-header">
       <div class="step-badge">STEP 2</div>
       <div class="step-title">従業員を招待する</div>
+      <div class="step-time">⏱ 1人あたり約1分</div>
     </div>
     <div class="card">
       <p class="step-desc">
-        従業員管理画面から、診断を受けてほしい従業員を登録します。<br>
-        登録すると<strong>招待メールが自動送信</strong>されるので、共有の手間がありません。
+        登録完了メールに記載されている<strong>「従業員管理画面URL」</strong>を開いて、診断を受けてほしい従業員を追加します。<br>
+        追加すると<strong>招待メールが自動で送られる</strong>ので、URLを個別に共有する必要はありません。
       </p>
 
-      <p style="font-size:13px;font-weight:700;color:#4F46E5;margin-bottom:10px;">従業員管理画面へのアクセス方法</p>
+      <p style="font-size:13px;font-weight:700;color:#4F46E5;margin-bottom:6px;">① 従業員管理画面を開く</p>
       <div class="url-box">
-        <div class="url-box-label">管理URL</div>
+        <div class="url-box-label">管理画面URL（登録完了メールに記載）</div>
         <div class="url-box-url">https://shinomiho.github.io/onboarding-diagnosis/company-admin.html?code=<strong>企業コード</strong></div>
       </div>
-      <p style="font-size:12px;color:#9CA3AF;margin-bottom:18px;">※「企業コード」の部分をご自身のコードに置き換えてください（例：LIMEE_UL5WHN）</p>
+      <p style="font-size:12px;color:#9CA3AF;margin-bottom:20px;">「企業コード」の部分は、登録完了メールに記載されているコード（例：LIMEE_UL5WHN）に置き換えてください。</p>
 
+      <p style="font-size:13px;font-weight:700;color:#4F46E5;margin-bottom:10px;">② 従業員を追加する</p>
       <ul class="steps-list">
         <li>
           <div class="step-num-circle">1</div>
           <div class="step-text">
-            <strong>「＋ 追加」ボタンをタップ</strong>
+            <strong>画面の「＋ 従業員を追加」ボタンを押す</strong>
+            <span class="sub">下のような画面が表示されます。</span>
           </div>
         </li>
+      </ul>
+
+      <div class="screen">
+        <div class="screen-label">従業員管理画面（イメージ）</div>
+        <div class="screen-header">従業員一覧 | 株式会社〇〇</div>
+        <div class="screen-row">
+          <span>田中 太郎　営業部</span>
+          <span class="screen-badge-done">回答済み ✓</span>
+        </div>
+        <div class="screen-row">
+          <span>山田 花子　総務部</span>
+          <span class="screen-badge-pend">招待済み・未回答</span>
+        </div>
+        <div class="screen-row">
+          <span>鈴木 次郎　開発部</span>
+          <span class="screen-badge-pend">招待済み・未回答</span>
+        </div>
+        <div class="screen-add-btn">＋ 従業員を追加</div>
+      </div>
+
+      <ul class="steps-list" style="margin-top:16px;">
         <li>
           <div class="step-num-circle">2</div>
           <div class="step-text">
-            <strong>氏名・メールアドレス・部署を入力</strong>
-            <span class="sub">部署は任意です。メールアドレスは従業員本人のものを入力してください</span>
+            <strong>氏名・メールアドレス・部署を入力する</strong>
+            <span class="sub">メールアドレスは従業員本人のものを入力してください。部署は任意です。</span>
           </div>
         </li>
         <li>
           <div class="step-num-circle">3</div>
           <div class="step-text">
-            <strong>「追加して案内メール送信」を押す</strong>
-            <span class="sub">従業員のメールアドレスに診断案内が自動送信されます</span>
+            <strong>「追加して招待メールを送信」を押す</strong>
+            <span class="result">✅ 従業員のメールアドレスに診断の案内が自動で届きます。一覧に追加されたら完了です。</span>
           </div>
         </li>
       </ul>
 
-      <!-- Screen mockup -->
-      <div class="screen">
-        <div class="screen-header">従業員管理ダッシュボード（イメージ）</div>
-        <div class="screen-row">
-          <span>田中 太郎 ／ 営業部</span>
-          <span class="screen-badge-done">回答済み</span>
-        </div>
-        <div class="screen-row">
-          <span>山田 花子 ／ 総務部</span>
-          <span class="screen-badge-pend">未回答</span>
-        </div>
-        <div class="screen-row">
-          <span>鈴木 次郎 ／ 開発部</span>
-          <span class="screen-badge-pend">未回答</span>
-        </div>
-      </div>
-
-      <div class="tip">
+      <div class="tip" style="margin-top:20px;">
         <p>✅ 回答状況（回答済み・未回答）がリアルタイムで確認できます</p>
-        <p>✅ 未回答の方には「再送信」ボタンから招待メールを再送できます</p>
-        <p>✅ 退職・異動があった場合は「削除」で一覧から外せます</p>
+        <p>✅ 招待メールが届いていない場合は「再送信」ボタンから再送できます</p>
+        <p>✅ 退職・異動の場合は「削除」ボタンで一覧から外せます</p>
+        <p>✅ 複数の従業員を追加する場合は、1人ずつ繰り返してください</p>
       </div>
     </div>
   </div>
@@ -361,42 +379,46 @@
   <div class="section">
     <div class="step-header">
       <div class="step-badge">STEP 3</div>
-      <div class="step-title">診断・レポートを確認する</div>
+      <div class="step-title">診断・レポートを受け取る</div>
+      <div class="step-time">⏱ 自動で届きます</div>
     </div>
     <div class="card">
       <p class="step-desc">
-        従業員が招待メールのリンクから診断に回答すると、すぐにレポートが届きます。
+        従業員が招待メールのリンクから診断に回答すると、<strong>自動でレポートが生成・送信</strong>されます。<br>
+        管理者側で特別な操作は必要ありません。
       </p>
+
       <ul class="steps-list">
         <li>
           <div class="step-num-circle">1</div>
           <div class="step-text">
-            <strong>従業員が診断を回答する</strong>
-            <span class="sub">所要時間は約10〜15分。スマホでも回答できます</span>
+            <strong>従業員が診断に回答する（約10〜15分）</strong>
+            <span class="sub">招待メールのリンクをクリックして診断フォームに回答します。スマホ・PCどちらでも対応しています。</span>
           </div>
         </li>
         <li>
           <div class="step-num-circle">2</div>
           <div class="step-text">
-            <strong>管理者にマネジメントレポートが届く</strong>
-            <span class="sub">回答完了と同時に、管理者メールへ自動送信されます</span>
+            <strong>管理者にマネジメントレポートが自動で届く</strong>
+            <span class="sub">従業員が回答を送信した直後に、管理者のメールへ自動送信されます。</span>
           </div>
         </li>
         <li>
           <div class="step-num-circle">3</div>
           <div class="step-text">
-            <strong>月次レポートで全体像を把握する</strong>
-            <span class="sub">毎月1日・15日に、チーム全体のAI分析レポートが自動送信されます</span>
+            <strong>月次レポートでチーム全体の状況を把握する</strong>
+            <span class="sub">毎月1日・15日に、チーム全体のAI分析レポートが自動送信されます。特別な操作は不要です。</span>
+            <span class="result">✅ あとは自動で動きます。管理者は届くレポートを確認するだけでOKです。</span>
           </div>
         </li>
       </ul>
 
-      <div class="report-card" style="margin-top:18px;">
-        <h4>📬 届くレポートの種類</h4>
+      <div class="report-card" style="margin-top:20px;">
+        <h4>📬 自動で届くレポートの種類</h4>
         <ul>
-          <li>本人向けレポート（従業員のメールへ）</li>
-          <li>マネジメントレポート（管理者のメールへ）</li>
-          <li>月次チーム分析レポート（管理者のメールへ）</li>
+          <li><span class="icon">👤</span><div><strong>本人向けレポート</strong>：回答直後に従業員本人のメールへ。自分の状態・強み・改善ポイントが確認できます。</div></li>
+          <li><span class="icon">👔</span><div><strong>マネジメントレポート</strong>：回答直後に管理者のメールへ。対応が必要な場合はアラートが届きます。</div></li>
+          <li><span class="icon">📈</span><div><strong>月次チーム分析レポート</strong>：毎月1日・15日に管理者のメールへ。チーム全体のKPI推移が確認できます。</div></li>
         </ul>
       </div>
     </div>
@@ -406,30 +428,61 @@
   <!-- FAQ -->
   <div class="section">
     <div class="step-header">
-      <div class="step-badge">FAQ</div>
+      <div class="step-badge faq">FAQ</div>
       <div class="step-title">よくある質問</div>
     </div>
     <div class="card">
       <div class="faq-item">
-        <div class="faq-q">従業員管理画面のURLはどこから確認できますか？</div>
-        <div class="faq-a">企業登録完了メールに記載されています。また、管理画面内の「診断URL」欄からも確認・コピーできます。</div>
+        <div class="faq-q">登録完了メールが届きません</div>
+        <div class="faq-a">まず迷惑メールフォルダをご確認ください。送信元は <strong>noreply@gmail.com</strong> になります。それでも届かない場合はリミー事務局までご連絡ください。</div>
       </div>
       <div class="faq-item">
-        <div class="faq-q">診断URLは何度でも使えますか？</div>
-        <div class="faq-a">はい。同じURLを複数の従業員に共有できます。ただし従業員管理画面から追加した場合は、個別に招待メールが送られます。</div>
+        <div class="faq-q">従業員管理画面のURLがわからなくなりました</div>
+        <div class="faq-a">登録完了メールに記載されています。メールを検索する場合は「リミー」または「LIMEE」で検索してください。見つからない場合はリミー事務局にお問い合わせください。</div>
       </div>
       <div class="faq-item">
-        <div class="faq-q">回答データは会社に共有されますか？</div>
-        <div class="faq-a">個人の詳細回答は本人のみに届くレポートに含まれます。管理者には集計スコアと傾向のみが共有されます。</div>
+        <div class="faq-q">従業員が招待メールを受け取っていないと言っています</div>
+        <div class="faq-a">まず従業員本人に迷惑メールフォルダを確認してもらってください。それでも見つからない場合は、管理画面の「再送信」ボタンから再送できます。</div>
       </div>
       <div class="faq-item">
-        <div class="faq-q">招待メールが届かない場合は？</div>
-        <div class="faq-a">迷惑メールフォルダをご確認ください。それでも届かない場合は、管理画面の「再送信」ボタンをお試しください。</div>
+        <div class="faq-q">回答データは会社（上司）に全部見られますか？</div>
+        <div class="faq-a">いいえ。従業員の詳細な回答内容は本人のみに届くレポートに含まれます。管理者には<strong>集計スコアと傾向のみ</strong>が共有されます。個人が特定されるような詳細は共有されません。</div>
       </div>
       <div class="faq-item">
-        <div class="faq-q">従業員が退職した場合は？</div>
-        <div class="faq-a">管理画面の従業員一覧から「削除」を押すと、一覧から外れます。</div>
+        <div class="faq-q">従業員が退職・異動しました</div>
+        <div class="faq-a">管理画面の従業員一覧から該当の方の「削除」ボタンを押してください。それ以降のレポートには含まれなくなります。</div>
       </div>
+      <div class="faq-item">
+        <div class="faq-q">何人まで登録できますか？</div>
+        <div class="faq-a">現在制限はありません。追加したい人数分、1人ずつ登録してください。</div>
+      </div>
+    </div>
+  </div>
+
+
+  <!-- フィードバック（テスト期間） -->
+  <div class="section">
+    <div class="step-header">
+      <div class="step-badge feedback">テスト期間限定</div>
+      <div class="step-title">使ってみた感想を教えてください</div>
+    </div>
+    <div class="feedback-card">
+      <div class="feedback-title">🙏 ご協力のお願い</div>
+      <div class="feedback-sub">
+        現在リミーはテスト導入期間中です。<strong>実際に使ってみた率直なご感想</strong>をぜひ教えてください。<br>
+        いただいたフィードバックはサービス改善に直接反映します。所要時間は2〜3分です。
+      </div>
+      <ul class="feedback-items">
+        <li>登録や操作でわかりにくかった箇所はありましたか？</li>
+        <li>診断フォームの質問はお答えしやすかったですか？</li>
+        <li>届いたレポートの内容はわかりやすかったですか？</li>
+        <li>「これはいらない」「こんな機能が欲しい」などのご意見</li>
+        <li>全体的な使いやすさについて（5段階など）</li>
+      </ul>
+      <a class="feedback-btn" href="mailto:miho.shinohe@remenow.com?subject=リミー テストフィードバック&body=【登録・操作について】%0A%0A【診断フォームについて】%0A%0A【レポートについて】%0A%0A【改善してほしい点・欲しい機能】%0A%0A【全体的な使いやすさ（5段階）】%0A">
+        📩 フィードバックを送る
+      </a>
+      <p style="font-size:12px;color:#B45309;text-align:center;margin-top:10px;">上のボタンを押すとメールアプリが開きます</p>
     </div>
   </div>
 
@@ -437,10 +490,7 @@
   <!-- Contact -->
   <div class="contact-card">
     <h3>ご不明な点はお気軽にご連絡ください</h3>
-    <p>
-      操作方法・機能についてのご質問は<br>
-      リミー事務局までメールでお問い合わせください
-    </p>
+    <p>操作方法・機能についてのご質問は<br>リミー事務局までメールでお問い合わせください</p>
     <a href="mailto:miho.shinohe@remenow.com">miho.shinohe@remenow.com</a>
   </div>
 
