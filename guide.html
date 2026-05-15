@@ -210,6 +210,11 @@
     .org-node-split { display:flex; gap:6px; }
     .org-node-half { flex:1; border-radius:8px; padding:10px 6px; text-align:center; }
     .org-footer { background:#EEF2FF; border-radius:10px; padding:12px 16px; margin-top:18px; font-size:13px; color:#4338CA; font-weight:700; text-align:center; }
+    .org-badge { display:inline-flex; align-items:center; gap:3px; font-size:9px; font-weight:800; padding:2px 8px; border-radius:99px; margin-bottom:6px; letter-spacing:0.3px; }
+    .org-badge-auto { background:#D1FAE5; color:#065F46; }
+    .org-badge-mgr { background:#FEF3C7; color:#92400E; }
+    .org-badge-emp { background:#DBEAFE; color:#1E40AF; }
+    .org-legend { display:flex; justify-content:center; gap:8px; flex-wrap:wrap; margin:10px 0 6px; }
     @media (max-width:580px) {
       .org-branches { flex-direction:column; gap:12px; }
       .org-branches::before { display:none; }
@@ -262,6 +267,13 @@
     </div>
     <div class="org-stem"></div>
 
+    <!-- 凡例 -->
+    <div class="org-legend">
+      <span class="org-badge org-badge-auto">🤖 自動（システム）</span>
+      <span class="org-badge org-badge-mgr">✋ 手動｜管理者</span>
+      <span class="org-badge org-badge-emp">✋ 手動｜従業員</span>
+    </div>
+
     <!-- 3フェーズ ブランチ -->
     <div class="org-branches">
 
@@ -274,12 +286,14 @@
           </div>
           <div class="org-phase-body">
             <div class="org-node" style="background:#EEF2FF;">
+              <span class="org-badge org-badge-mgr">✋ 手動｜管理者</span>
               <div class="org-node-icon">🏢</div>
               <div class="org-node-title" style="color:#3730A3;">企業登録</div>
               <div class="org-node-sub">会社名・メールを入力<br>→ 企業コード自動発行</div>
             </div>
             <div class="org-arrow" style="color:#4F46E5;">↓</div>
             <div class="org-node" style="background:#EEF2FF;">
+              <span class="org-badge org-badge-mgr">✋ 手動｜管理者</span>
               <div class="org-node-icon">👥</div>
               <div class="org-node-title" style="color:#3730A3;">従業員を招待</div>
               <div class="org-node-sub">管理画面から氏名・メールを入力<br>→ 招待メール自動送信</div>
@@ -297,6 +311,7 @@
           </div>
           <div class="org-phase-body">
             <div class="org-node" style="background:#F0FDF4;">
+              <span class="org-badge org-badge-emp">✋ 手動｜従業員</span>
               <div class="org-node-icon">📝</div>
               <div class="org-node-title" style="color:#065F46;">診断フォームに回答</div>
               <div class="org-node-sub">約10〜15分<br>スマホ・PCどちらでもOK</div>
@@ -304,11 +319,13 @@
             <div class="org-arrow" style="color:#10B981;">↓</div>
             <div class="org-node-split">
               <div class="org-node-half" style="background:#F0FDF4;border:1.5px solid #6EE7B7;">
+                <span class="org-badge org-badge-auto">🤖 自動</span>
                 <div style="font-size:18px;margin-bottom:4px;">👤</div>
                 <div style="font-size:11px;font-weight:800;color:#065F46;">本人へ<br>AIレポート</div>
                 <div class="org-node-sub">状態・強み・<br>改善ポイント</div>
               </div>
               <div class="org-node-half" style="background:#F0FDF4;border:1.5px solid #6EE7B7;">
+                <span class="org-badge org-badge-auto">🤖 自動</span>
                 <div style="font-size:18px;margin-bottom:4px;">📊</div>
                 <div style="font-size:11px;font-weight:800;color:#065F46;">管理者へ<br>マネジメントレポート</div>
                 <div class="org-node-sub">要介入時は<br>アラート付き</div>
@@ -327,18 +344,21 @@
           </div>
           <div class="org-phase-body">
             <div class="org-node" style="background:#FFFBEB;">
+              <span class="org-badge org-badge-auto">🤖 自動</span>
               <div class="org-node-icon">📅</div>
               <div class="org-node-title" style="color:#92400E;">月次レポート</div>
               <div class="org-node-sub">毎月1日・15日<br>チーム全体のAI分析を自動配信</div>
             </div>
             <div class="org-arrow" style="color:#F59E0B;">↓</div>
             <div class="org-node" style="background:#FFFBEB;">
+              <span class="org-badge org-badge-auto" style="margin-right:3px;">🤖 リマインド自動</span><span class="org-badge org-badge-mgr">✋ 管理者が回答</span>
               <div class="org-node-icon">✅</div>
               <div class="org-node-title" style="color:#92400E;">アクションチェック</div>
               <div class="org-node-sub">毎月5日・20日<br>マネジメントKPIを5問で記録</div>
             </div>
             <div class="org-arrow" style="color:#F59E0B;">↓</div>
             <div class="org-node" style="background:#FEF3C7;border:1.5px solid #FCD34D;">
+              <span class="org-badge org-badge-auto">🤖 自動</span>
               <div class="org-node-icon">📈</div>
               <div class="org-node-title" style="color:#92400E;">KPI自動蓄積</div>
               <div class="org-node-sub">→ 人的資本開示の<br>根拠データへ</div>
