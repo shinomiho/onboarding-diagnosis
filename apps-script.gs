@@ -139,7 +139,7 @@ function handleDiagnosis(data, config) {
 
   const resultId = saveResponse(data, company, employeeReport, managerReport, config);
   sendEmployeeEmail(data.profile, employeeReport, resultId, config);
-  sendManagerEmail(company.managerEmail, data.profile, managerReport, config);
+  sendManagerEmail(company.managerEmail, data.profile, managerReport, data.scores, config);
   sendAdminEmail(data.profile, company, employeeReport, managerReport, data.scores, config);
 
   return ok({ employeeReport, resultId });
@@ -406,11 +406,64 @@ function sendEmployeeEmail(profile, report, resultId, config) {
   });
 }
 
-function sendManagerEmail(managerEmail, profile, report, config) {
+function buildRadarChartUrl(scores) {
+  const cfg = {
+    type: 'radar',
+    data: {
+      labels: ['業務適応','対人関係','心理エナジー','行動リスク','定着意思'],
+      datasets: [{
+        label: 'スコア',
+        data: [scores.A, scores.B, scores.C, scores.D, scores.E],
+        backgroundColor: 'rgba(79,70,229,0.15)',
+        borderColor: '#4F46E5',
+        borderWidth: 2,
+        pointBackgroundColor: '#4F46E5',
+        pointRadius: 4,
+      }]
+    },
+    options: {
+      scale: { ticks: { min: 0, max: 5, stepSize: 1, fontSize: 10 }, pointLabels: { fontSize: 12 } },
+      legend: { display: false }
+    }
+  };
+  return 'https://quickchart.io/chart?w=380&h=280&bkg=white&c=' + encodeURIComponent(JSON.stringify(cfg));
+}
+
+function buildManagerScoreHtml(scores) {
+  const axes = [['業務適応',scores.A],['対人関係',scores.B],['心理エナジー',scores.C],['行動リスク',scores.D],['定着意思',scores.E]];
+  const overall = (Object.values(scores).reduce((s,v)=>s+v,0)/5).toFixed(1);
+  const atRisk = scores.C < 2.5 || scores.D < 2.5 || scores.E < 2.5;
+  const bars = axes.map(([label, val]) => {
+    const pct = Math.round(val / 5 * 100);
+    const color = val >= 3.5 ? '#10B981' : val >= 2.5 ? '#F59E0B' : '#EF4444';
+    return `<tr>
+      <td style="padding:5px 0;font-size:12px;color:#374151;width:90px;white-space:nowrap;">${label}</td>
+      <td style="padding:5px 8px;">
+        <div style="background:#E5E7EB;border-radius:4px;height:12px;">
+          <div style="background:${color};border-radius:4px;height:12px;width:${pct}%;"></div>
+        </div>
+      </td>
+      <td style="padding:5px 0;font-size:13px;font-weight:800;color:${color};text-align:right;width:36px;">${val}</td>
+    </tr>`;
+  }).join('');
+  const alertBox = atRisk
+    ? `<div style="margin-top:12px;background:#FEF2F2;border-radius:8px;padding:12px;font-size:12px;color:#DC2626;font-weight:700;">⚠️ 低スコア軸があります。早めのフォローを推奨します。</div>`
+    : `<div style="margin-top:12px;background:#F0FDF4;border-radius:8px;padding:12px;font-size:12px;color:#166534;">✅ 全軸安定しています。</div>`;
+  return `
+    <div style="background:#F5F3FF;border-radius:12px;padding:20px;margin-bottom:16px;">
+      <p style="margin:0 0 4px;font-size:13px;font-weight:800;color:#3730A3;">📊 5軸スコアサマリー</p>
+      <p style="margin:0 0 16px;font-size:12px;color:#6B7280;">総合エンゲージメント：<strong style="font-size:20px;color:#4F46E5;">${overall}</strong> / 5.0</p>
+      <img src="${buildRadarChartUrl(scores)}" alt="レーダーチャート" width="340" style="display:block;margin:0 auto 16px;border-radius:8px;">
+      <table style="width:100%;border-collapse:collapse;">${bars}</table>
+      ${alertBox}
+    </div>`;
+}
+
+function sendManagerEmail(managerEmail, profile, report, scores, config) {
   MailApp.sendEmail({
     to: managerEmail,
     subject: `【リミー】${profile.name}さんのマネジメントレポート`,
-    htmlBody: buildEmailHTML('マネージャー向け処方箋', `${profile.name} さんの診断結果`, report, config),
+    htmlBody: buildEmailHTML('マネージャー向け処方箋', `${profile.name} さんの診断結果`, report, config, buildManagerScoreHtml(scores)),
   });
 }
 
@@ -1508,10 +1561,18 @@ function sendInvitationEmail(employee, company, diagUrl, config) {
         診断を受ける →
       </a>
     </div>
-    <div style="background:#F0FDF4;border-radius:10px;padding:16px;">
+    <div style="background:#F0FDF4;border-radius:10px;padding:16px;margin-bottom:12px;">
       <p style="margin:0;font-size:13px;color:#166534;line-height:1.8;">
         ✅ 回答後、あなた専用のレポートがメールで届きます<br>
-        ✅ 個人の回答データは会社に共有されません
+        ✅ 各設問への個別回答は上司・会社には届きません
+      </p>
+    </div>
+    <div style="background:#EEF2FF;border-radius:10px;padding:16px;">
+      <p style="margin:0 0 6px;font-size:12px;font-weight:800;color:#3730A3;">🔒 プライバシーについて</p>
+      <p style="margin:0;font-size:12px;color:#3730A3;line-height:1.9;">
+        上司に共有されるのは「業務適応・対人関係・心理エナジー・行動リスク・定着意思」の<strong>5つの軸スコア（1〜5）のみ</strong>です。<br>
+        「Q1にどう答えたか」などの設問ごとの回答内容は、上司・会社に一切共有されません。<br>
+        安心して率直にお答えください。
       </p>
     </div>
   </td></tr>
