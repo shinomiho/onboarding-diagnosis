@@ -259,6 +259,7 @@
 </div>
 
 <div class="hero">
+  <img src="logo.jpg" alt="リミー" style="height:48px;object-fit:contain;margin-bottom:18px;border-radius:8px;">
   <div class="hero-label">LIMEE ONBOARDING GUIDE</div>
   <div class="hero-title">リミー 導入ガイド</div>
   <div class="hero-sub">はじめてご利用の方へ。登録から最初のレポート受け取りまで、順番に進めるだけでOKです。</div>
@@ -796,69 +797,63 @@
         </div>
         <hr class="fb-divider">
 
-        <!-- Q2: 導入・設定のしやすさ -->
+        <!-- Q2: 手間を感じたSTEP -->
         <div class="fb-q">
           <div class="fb-q-num">Q2</div>
-          <div class="fb-q-label">導入・初期設定はスムーズにできましたか？</div>
+          <div class="fb-q-label">手間がかかった・わかりにくいと感じたSTEPはどれですか？（複数選択可）</div>
           <div class="fb-options">
-            <label class="fb-opt"><input type="radio" name="q2" value="とても簡単だった">とても簡単だった</label>
-            <label class="fb-opt"><input type="radio" name="q2" value="だいたい問題なかった">だいたい問題なかった</label>
-            <label class="fb-opt"><input type="radio" name="q2" value="少し戸惑う箇所があった">少し戸惑う箇所があった</label>
-            <label class="fb-opt"><input type="radio" name="q2" value="難しかった">難しかった・サポートが必要だった</label>
+            <label class="fb-opt"><input type="checkbox" name="q2" value="STEP1：企業登録">STEP 1：企業登録</label>
+            <label class="fb-opt"><input type="checkbox" name="q2" value="STEP2：従業員の招待">STEP 2：従業員の招待</label>
+            <label class="fb-opt"><input type="checkbox" name="q2" value="STEP3：診断・レポート確認">STEP 3：診断・レポート確認</label>
+            <label class="fb-opt"><input type="checkbox" name="q2" value="STEP4：KPIダッシュボード">STEP 4：人的資本経営開示ダッシュボード</label>
+            <label class="fb-opt"><input type="checkbox" name="q2" value="特に詰まらなかった">特に詰まらなかった・スムーズだった</label>
           </div>
         </div>
         <hr class="fb-divider">
 
-        <!-- Q3: AIレポートの有用性 -->
+        <!-- Q3: 詰まった理由 -->
         <div class="fb-q">
           <div class="fb-q-num">Q3</div>
-          <div class="fb-q-label">AIが生成したレポートの内容は、マネジメントに役立ちそうですか？</div>
-          <div class="fb-options">
-            <label class="fb-opt"><input type="radio" name="q3" value="とても役立ちそう">とても役立ちそう</label>
-            <label class="fb-opt"><input type="radio" name="q3" value="役立ちそう">役立ちそう</label>
-            <label class="fb-opt"><input type="radio" name="q3" value="あまり役立たなそう">あまり役立たなそう</label>
-            <label class="fb-opt"><input type="radio" name="q3" value="まだわからない">まだわからない・レポートを未確認</label>
-          </div>
+          <div class="fb-q-label">Q2で選んだSTEPについて、どこで詰まりましたか？（自由記入）</div>
+          <textarea id="fb-step-detail" rows="3" placeholder="例：従業員への招待メールが届かなかった、管理画面のURLがわかりにくかった　など" style="width:100%;padding:10px 12px;border-radius:8px;border:1.5px solid #FCD34D;font-size:13px;outline:none;resize:vertical;font-family:inherit;"></textarea>
         </div>
         <hr class="fb-divider">
 
-        <!-- Q4: 従業員の反応 -->
+        <!-- Q4: AIレポートの有用性 -->
         <div class="fb-q">
           <div class="fb-q-num">Q4</div>
-          <div class="fb-q-label">従業員の診断への反応はいかがでしたか？</div>
+          <div class="fb-q-label">AIが生成したレポートの内容は、マネジメントに役立ちそうですか？</div>
           <div class="fb-options">
-            <label class="fb-opt"><input type="radio" name="q4" value="好反応だった">好反応だった・積極的に取り組んでくれた</label>
-            <label class="fb-opt"><input type="radio" name="q4" value="普通だった">特に問題なく回答してくれた</label>
-            <label class="fb-opt"><input type="radio" name="q4" value="戸惑いがあった">戸惑いや疑問の声があった</label>
-            <label class="fb-opt"><input type="radio" name="q4" value="まだ回答していない">まだ従業員が回答していない</label>
+            <label class="fb-opt"><input type="radio" name="q4" value="とても役立ちそう">とても役立ちそう</label>
+            <label class="fb-opt"><input type="radio" name="q4" value="役立ちそう">役立ちそう</label>
+            <label class="fb-opt"><input type="radio" name="q4" value="あまり役立たなそう">あまり役立たなそう</label>
+            <label class="fb-opt"><input type="radio" name="q4" value="まだわからない">まだわからない・レポートを未確認</label>
           </div>
         </div>
         <hr class="fb-divider">
 
-        <!-- Q5: 本番導入の意向 -->
+        <!-- Q5: 従業員の反応 -->
         <div class="fb-q">
           <div class="fb-q-num">Q5</div>
-          <div class="fb-q-label">テスト後、本番導入を検討したいですか？</div>
+          <div class="fb-q-label">従業員の診断への反応はいかがでしたか？</div>
           <div class="fb-options">
-            <label class="fb-opt"><input type="radio" name="q5" value="ぜひ導入したい">ぜひ導入したい</label>
-            <label class="fb-opt"><input type="radio" name="q5" value="前向きに検討したい">前向きに検討したい</label>
-            <label class="fb-opt"><input type="radio" name="q5" value="もう少し様子を見たい">もう少し様子を見たい</label>
-            <label class="fb-opt"><input type="radio" name="q5" value="現時点では難しい">現時点では難しい</label>
+            <label class="fb-opt"><input type="radio" name="q5" value="好反応だった">好反応だった・積極的に取り組んでくれた</label>
+            <label class="fb-opt"><input type="radio" name="q5" value="普通だった">特に問題なく回答してくれた</label>
+            <label class="fb-opt"><input type="radio" name="q5" value="戸惑いがあった">戸惑いや疑問の声があった</label>
+            <label class="fb-opt"><input type="radio" name="q5" value="まだ回答していない">まだ従業員が回答していない</label>
           </div>
         </div>
         <hr class="fb-divider">
 
-        <!-- Q6: 良かった点（複数選択） -->
+        <!-- Q6: 本番導入の意向 -->
         <div class="fb-q">
           <div class="fb-q-num">Q6</div>
-          <div class="fb-q-label">特に良いと感じた点を教えてください（複数選択可）</div>
-          <div class="fb-options-grid">
-            <label class="fb-opt"><input type="checkbox" name="q6" value="設定が簡単">設定が簡単</label>
-            <label class="fb-opt"><input type="checkbox" name="q6" value="AIレポートの質">AIレポートの質</label>
-            <label class="fb-opt"><input type="checkbox" name="q6" value="自動化されている">自動化されている</label>
-            <label class="fb-opt"><input type="checkbox" name="q6" value="従業員への案内がスムーズ">従業員への案内がスムーズ</label>
-            <label class="fb-opt"><input type="checkbox" name="q6" value="KPIデータが蓄積される">KPIデータが蓄積される</label>
-            <label class="fb-opt"><input type="checkbox" name="q6" value="コストパフォーマンス">コストパフォーマンス</label>
+          <div class="fb-q-label">テスト後、本番導入を検討したいですか？</div>
+          <div class="fb-options">
+            <label class="fb-opt"><input type="radio" name="q6" value="ぜひ導入したい">ぜひ導入したい</label>
+            <label class="fb-opt"><input type="radio" name="q6" value="前向きに検討したい">前向きに検討したい</label>
+            <label class="fb-opt"><input type="radio" name="q6" value="もう少し様子を見たい">もう少し様子を見たい</label>
+            <label class="fb-opt"><input type="radio" name="q6" value="現時点では難しい">現時点では難しい</label>
           </div>
         </div>
         <hr class="fb-divider">
@@ -866,8 +861,8 @@
         <!-- Q7: 改善してほしい点 -->
         <div class="fb-q">
           <div class="fb-q-num">Q7</div>
-          <div class="fb-q-label">改善してほしい点・あったら嬉しい機能はありますか？（自由記入）</div>
-          <textarea id="fb-comments" rows="3" placeholder="例：設問数を調整したい、レポートの表示をもっと簡潔にしてほしい　など" style="width:100%;padding:10px 12px;border-radius:8px;border:1.5px solid #FCD34D;font-size:13px;outline:none;resize:vertical;font-family:inherit;"></textarea>
+          <div class="fb-q-label">その他、改善してほしい点・あったら嬉しい機能はありますか？（自由記入）</div>
+          <textarea id="fb-comments" rows="3" placeholder="例：レポートをもっと簡潔にしてほしい、〇〇の機能がほしい　など" style="width:100%;padding:10px 12px;border-radius:8px;border:1.5px solid #FCD34D;font-size:13px;outline:none;resize:vertical;font-family:inherit;"></textarea>
         </div>
         <hr class="fb-divider">
 
@@ -917,11 +912,11 @@
         btn.disabled = true;
         btn.textContent = '送信中...';
         var structured =
-          '【Q2 導入のしやすさ】' + getRadio('q2') + '\n' +
-          '【Q3 AIレポートの有用性】' + getRadio('q3') + '\n' +
-          '【Q4 従業員の反応】' + getRadio('q4') + '\n' +
-          '【Q5 本番導入の意向】' + getRadio('q5') + '\n' +
-          '【Q6 良かった点】' + getChecks('q6') + '\n' +
+          '【Q2 手間を感じたSTEP】' + getChecks('q2') + '\n' +
+          '【Q3 詰まった内容】' + (document.getElementById('fb-step-detail').value.trim() || 'なし') + '\n' +
+          '【Q4 AIレポートの有用性】' + getRadio('q4') + '\n' +
+          '【Q5 従業員の反応】' + getRadio('q5') + '\n' +
+          '【Q6 本番導入の意向】' + getRadio('q6') + '\n' +
           '【Q7 改善点・自由記入】' + (document.getElementById('fb-comments').value.trim() || 'なし');
         fetch(GAS_URL, {
           method: 'POST',
