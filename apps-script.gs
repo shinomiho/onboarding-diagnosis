@@ -1650,6 +1650,66 @@ function subscribeEmail(data, config) {
   return ok({ message: 'registered' });
 }
 
+// ===== 自動バックアップ =====
+function backupAllSheets() {
+  const config = getConfig();
+  const ss = SpreadsheetApp.openById(config.spreadsheetId);
+  const p = PropertiesService.getScriptProperties();
+
+  // バックアップ先スプレッドシートを取得 or 新規作成
+  let backupSs;
+  const backupId = p.getProperty('BACKUP_SPREADSHEET_ID');
+  if (backupId) {
+    try { backupSs = SpreadsheetApp.openById(backupId); } catch(e) { backupSs = null; }
+  }
+  if (!backupSs) {
+    backupSs = SpreadsheetApp.create('【リミー バックアップ】診断・顧客データ');
+    p.setProperty('BACKUP_SPREADSHEET_ID', backupSs.getId());
+    // Mihoと共有
+    backupSs.addEditor(config.limeeEmail);
+  }
+
+  const timestamp = Utilities.formatDate(new Date(), 'Asia/Tokyo', 'yyyy-MM-dd HH:mm');
+  const sheets = ss.getSheets();
+  let backedUp = [];
+
+  sheets.forEach(sheet => {
+    const name = sheet.getName();
+    const data = sheet.getDataRange().getValues();
+    if (data.length === 0) return;
+
+    // バックアップ先に同名シートがあれば上書き、なければ新規作成
+    let dest = backupSs.getSheetByName(name);
+    if (!dest) {
+      dest = backupSs.insertSheet(name);
+    } else {
+      dest.clearContents();
+    }
+    dest.getRange(1, 1, data.length, data[0].length).setValues(data);
+    backedUp.push(`${name}（${data.length - 1}件）`);
+  });
+
+  // バックアップログシートに記録
+  let logSheet = backupSs.getSheetByName('_backup_log');
+  if (!logSheet) {
+    logSheet = backupSs.insertSheet('_backup_log');
+    logSheet.appendRow(['実行日時', 'バックアップシート一覧']);
+  }
+  logSheet.appendRow([timestamp, backedUp.join(' / ')]);
+
+  // 完了メールをMihoに送信
+  MailApp.sendEmail({
+    to: config.limeeEmail,
+    subject: `✅【リミー】データバックアップ完了（${timestamp}）`,
+    body: `リミーのスプレッドシートデータのバックアップが完了しました。\n\n` +
+          `■ バックアップ日時：${timestamp}\n` +
+          `■ バックアップ内容：\n${backedUp.map(s => `  ・${s}`).join('\n')}\n\n` +
+          `■ バックアップ先スプレッドシート：\n` +
+          `https://docs.google.com/spreadsheets/d/${backupSs.getId()}/edit\n\n` +
+          `リミー自動バックアップシステム`,
+  });
+}
+
 // ===== ヘルパー =====
 function validateAdmin(secret, config) { return secret === config.adminSecret; }
 function ok(data)  { return ContentService.createTextOutput(JSON.stringify({ success: true, ...data })).setMimeType(ContentService.MimeType.JSON); }
