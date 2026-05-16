@@ -84,6 +84,16 @@
                 <option value="転籍・異動">転籍・異動</option>
               </select>
             </div>
+            <div class="profile-item">
+              <label for="employee-milestone">診断タイミング</label>
+              <select id="employee-milestone" required>
+                <option value="">選択してください</option>
+                <option value="15日">入社15日頃</option>
+                <option value="30日">入社30日頃</option>
+                <option value="60日">入社60日頃</option>
+                <option value="90日">入社90日頃</option>
+              </select>
+            </div>
           </div>
         </div>
 
@@ -124,7 +134,7 @@
 
       <!-- レーダーチャート -->
       <div class="chart-section">
-        <h3>6因子スコア</h3>
+        <h3>5軸スコア</h3>
         <canvas id="radar-chart" width="340" height="340"></canvas>
       </div>
 

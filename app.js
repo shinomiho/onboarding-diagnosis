@@ -273,9 +273,10 @@ async function handleSubmit(e) {
   const gender = document.getElementById('employee-gender').value;
   const age    = document.getElementById('employee-age').value;
   const job    = document.getElementById('employee-job').value;
-  const type   = document.getElementById('employee-type').value;
+  const type      = document.getElementById('employee-type').value;
+  const milestone = document.getElementById('employee-milestone').value;
 
-  if (!name || !email || !gender || !age || !job || !type) {
+  if (!name || !email || !gender || !age || !job || !type || !milestone) {
     alert('すべての項目を入力・選択してください');
     return;
   }
@@ -306,7 +307,7 @@ async function handleSubmit(e) {
   }
 
   const scores = calcScores(answers);
-  const profile = { name, email, gender, age, job, type };
+  const profile = { name, email, gender, age, job, type, milestone };
 
   showLoading();
 
