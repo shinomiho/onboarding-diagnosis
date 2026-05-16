@@ -456,6 +456,14 @@ function buildManagerScoreHtml(scores) {
       <img src="${buildRadarChartUrl(scores)}" alt="レーダーチャート" width="340" style="display:block;margin:0 auto 16px;border-radius:8px;">
       <table style="width:100%;border-collapse:collapse;">${bars}</table>
       ${alertBox}
+    </div>
+    <div style="background:#FFF7ED;border:1.5px solid #FED7AA;border-radius:12px;padding:16px 20px;margin-bottom:16px;">
+      <p style="margin:0 0 8px;font-size:13px;font-weight:800;color:#92400E;">📅 ネクストアクション</p>
+      <p style="margin:0 0 10px;font-size:13px;color:#78350F;line-height:1.9;">
+        この後に届く<strong>マネージャー向け処方箋</strong>に基づき、日々のマネジメントアクションを実践してください。<br>
+        毎月<strong>5日・20日</strong>に「アクションチェック」メールが届きます。処方箋に沿って実践できたか、5問で記録する仕組みです。
+      </p>
+      <p style="margin:0;font-size:12px;color:#B45309;font-weight:700;">✅ まずは今回の処方箋を読んで、取り組むアクションを1つ決めておきましょう。</p>
     </div>`;
 }
 
