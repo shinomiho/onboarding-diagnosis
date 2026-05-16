@@ -39,12 +39,19 @@
       box-shadow: 0 1px 6px rgba(0,0,0,0.07);
     }
     .overview-title { font-size: 15px; font-weight: 800; color: #4F46E5; margin-bottom: 20px; display: flex; align-items: center; gap: 8px; }
-    .flow-steps { display: grid; grid-template-columns: repeat(3, 1fr); gap: 12px; }
-    .flow-step { background: #F3F4F6; border-radius: 12px; padding: 16px 12px; text-align: center; }
-    .flow-step-icon { font-size: 28px; margin-bottom: 6px; }
+    .flow-steps { display: grid; grid-template-columns: repeat(4, 1fr); gap: 12px; }
+    .flow-step { background: #F3F4F6; border-radius: 12px; padding: 14px 12px; text-align: center; border: 2px solid transparent; }
+    .flow-step.manual { background: #EEF2FF; border-color: #C7D2FE; }
+    .flow-step.auto-emp { background: #F0FDF4; border-color: #6EE7B7; }
+    .flow-step.auto-kpi { background: #FFFBEB; border-color: #FCD34D; }
+    .flow-step-icon { font-size: 26px; margin-bottom: 4px; }
     .flow-step-num { font-size: 10px; font-weight: 700; color: #9CA3AF; letter-spacing: 2px; margin-bottom: 4px; }
     .flow-step-label { font-size: 13px; font-weight: 700; color: #1F2937; }
     .flow-step-time { font-size: 11px; color: #6B7280; margin-top: 4px; }
+    .flow-step-badge { display: inline-block; font-size: 10px; font-weight: 700; border-radius: 20px; padding: 2px 8px; margin-top: 8px; }
+    .flow-step-badge.m { background: #EEF2FF; color: #4338CA; }
+    .flow-step-badge.a { background: #D1FAE5; color: #065F46; }
+    .flow-step-badge.e { background: #DBEAFE; color: #1E40AF; }
     .flow-arrow { display: none; }
     @media (min-width: 480px) {
       .flow-steps { display: flex; align-items: center; }
@@ -388,34 +395,37 @@
 
   <!-- 全体の流れ -->
   <div class="overview">
-    <div class="overview-title">🖐️ 実際に発生する作業ステップ（全4ステップ）</div>
+    <div class="overview-title">📖 この後、4ステップで詳しく解説します</div>
     <div class="flow-steps">
-      <div class="flow-step">
+      <div class="flow-step manual">
         <div class="flow-step-icon">🏢</div>
         <div class="flow-step-num">STEP 1</div>
         <div class="flow-step-label">企業登録</div>
         <div class="flow-step-time">約2分</div>
+        <div class="flow-step-badge m">✋ 管理者が操作</div>
       </div>
-      <div class="flow-arrow">→</div>
-      <div class="flow-step">
+      <div class="flow-step manual">
         <div class="flow-step-icon">👥</div>
         <div class="flow-step-num">STEP 2</div>
         <div class="flow-step-label">従業員を招待</div>
         <div class="flow-step-time">1人あたり1分</div>
+        <div class="flow-step-badge m">✋ 管理者が操作</div>
       </div>
-      <div class="flow-arrow">→</div>
-      <div class="flow-step">
+      <div class="flow-step auto-emp">
         <div class="flow-step-icon">📊</div>
         <div class="flow-step-num">STEP 3</div>
         <div class="flow-step-label">診断・レポート確認</div>
-        <div class="flow-step-time">自動で届きます</div>
+        <div class="flow-step-time">レポートは自動で届く</div>
+        <div class="flow-step-badge e">✋ 従業員が診断に回答</div>
+        <div class="flow-step-badge a" style="margin-top:4px;">🤖 レポート生成・送信は自動</div>
       </div>
-      <div class="flow-arrow">→</div>
-      <div class="flow-step">
+      <div class="flow-step auto-kpi">
         <div class="flow-step-icon">📈</div>
         <div class="flow-step-num">STEP 4</div>
         <div class="flow-step-label">KPIで開示・報告</div>
         <div class="flow-step-time">いつでも確認可</div>
+        <div class="flow-step-badge a">🤖 データは自動蓄積</div>
+        <div class="flow-step-badge m" style="margin-top:4px;">✋ 確認・PDF出力は任意</div>
       </div>
     </div>
   </div>
