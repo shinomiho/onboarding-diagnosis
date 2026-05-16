@@ -856,43 +856,56 @@
         </div>
         <hr class="fb-divider">
 
-        <!-- Q5: 従業員の反応 -->
+        <!-- Q5: KPIダッシュボード -->
         <div class="fb-q">
           <div class="fb-q-num">Q5</div>
-          <div class="fb-q-label">従業員の診断への反応はいかがでしたか？</div>
+          <div class="fb-q-label">人的資本経営開示ダッシュボードは、有報記載や経営報告に役立ちそうですか？</div>
           <div class="fb-options">
-            <label class="fb-opt"><input type="radio" name="q5" value="好反応だった">好反応だった・積極的に取り組んでくれた</label>
-            <label class="fb-opt"><input type="radio" name="q5" value="普通だった">特に問題なく回答してくれた</label>
-            <label class="fb-opt"><input type="radio" name="q5" value="戸惑いがあった">戸惑いや疑問の声があった</label>
-            <label class="fb-opt"><input type="radio" name="q5" value="まだ回答していない">まだ従業員が回答していない</label>
+            <label class="fb-opt"><input type="radio" name="q5" value="とても役立ちそう">とても役立ちそう</label>
+            <label class="fb-opt"><input type="radio" name="q5" value="役立ちそう">役立ちそう</label>
+            <label class="fb-opt"><input type="radio" name="q5" value="まだ確認していない">まだダッシュボードを確認していない</label>
+            <label class="fb-opt"><input type="radio" name="q5" value="あまり使わなそう">あまり使わなそう・必要性を感じない</label>
           </div>
         </div>
         <hr class="fb-divider">
 
-        <!-- Q6: 本番導入の意向 -->
+        <!-- Q6: 従業員の反応 -->
         <div class="fb-q">
           <div class="fb-q-num">Q6</div>
-          <div class="fb-q-label">テスト後、本番導入を検討したいですか？</div>
+          <div class="fb-q-label">従業員の診断への反応はいかがでしたか？</div>
           <div class="fb-options">
-            <label class="fb-opt"><input type="radio" name="q6" value="ぜひ導入したい">ぜひ導入したい</label>
-            <label class="fb-opt"><input type="radio" name="q6" value="前向きに検討したい">前向きに検討したい</label>
-            <label class="fb-opt"><input type="radio" name="q6" value="もう少し様子を見たい">もう少し様子を見たい</label>
-            <label class="fb-opt"><input type="radio" name="q6" value="現時点では難しい">現時点では難しい</label>
+            <label class="fb-opt"><input type="radio" name="q6" value="好反応だった">好反応だった・積極的に取り組んでくれた</label>
+            <label class="fb-opt"><input type="radio" name="q6" value="普通だった">特に問題なく回答してくれた</label>
+            <label class="fb-opt"><input type="radio" name="q6" value="戸惑いがあった">戸惑いや疑問の声があった</label>
+            <label class="fb-opt"><input type="radio" name="q6" value="まだ回答していない">まだ従業員が回答していない</label>
           </div>
         </div>
         <hr class="fb-divider">
 
-        <!-- Q7: 改善してほしい点 -->
+        <!-- Q7: 本番導入の意向 -->
         <div class="fb-q">
           <div class="fb-q-num">Q7</div>
+          <div class="fb-q-label">テスト後、本番導入を検討したいですか？</div>
+          <div class="fb-options">
+            <label class="fb-opt"><input type="radio" name="q7" value="ぜひ導入したい">ぜひ導入したい</label>
+            <label class="fb-opt"><input type="radio" name="q7" value="前向きに検討したい">前向きに検討したい</label>
+            <label class="fb-opt"><input type="radio" name="q7" value="もう少し様子を見たい">もう少し様子を見たい</label>
+            <label class="fb-opt"><input type="radio" name="q7" value="現時点では難しい">現時点では難しい</label>
+          </div>
+        </div>
+        <hr class="fb-divider">
+
+        <!-- Q8: 改善してほしい点 -->
+        <div class="fb-q">
+          <div class="fb-q-num">Q8</div>
           <div class="fb-q-label">その他、改善してほしい点・あったら嬉しい機能はありますか？（自由記入）</div>
           <textarea id="fb-comments" rows="3" placeholder="例：レポートをもっと簡潔にしてほしい、〇〇の機能がほしい　など" style="width:100%;padding:10px 12px;border-radius:8px;border:1.5px solid #FCD34D;font-size:13px;outline:none;resize:vertical;font-family:inherit;"></textarea>
         </div>
         <hr class="fb-divider">
 
-        <!-- Q8: メール -->
+        <!-- Q9: メール -->
         <div class="fb-q" style="margin-bottom:20px;">
-          <div class="fb-q-num">Q8</div>
+          <div class="fb-q-num">Q9</div>
           <div class="fb-q-label">メールアドレス（任意・個別にご連絡を希望する場合）</div>
           <input id="fb-email" type="email" placeholder="your@email.com" style="width:100%;padding:10px 12px;border-radius:8px;border:1.5px solid #FCD34D;font-size:13px;outline:none;">
         </div>
@@ -939,9 +952,10 @@
           '【Q2 手間を感じたSTEP】' + getChecks('q2') + '\n' +
           '【Q3 詰まった内容】' + (document.getElementById('fb-step-detail').value.trim() || 'なし') + '\n' +
           '【Q4 AIレポートの有用性】' + getRadio('q4') + '\n' +
-          '【Q5 従業員の反応】' + getRadio('q5') + '\n' +
-          '【Q6 本番導入の意向】' + getRadio('q6') + '\n' +
-          '【Q7 改善点・自由記入】' + (document.getElementById('fb-comments').value.trim() || 'なし');
+          '【Q5 KPIダッシュボードの有用性】' + getRadio('q5') + '\n' +
+          '【Q6 従業員の反応】' + getRadio('q6') + '\n' +
+          '【Q7 本番導入の意向】' + getRadio('q7') + '\n' +
+          '【Q8 改善点・自由記入】' + (document.getElementById('fb-comments').value.trim() || 'なし');
         fetch(GAS_URL, {
           method: 'POST',
           headers: { 'Content-Type': 'application/json' },
