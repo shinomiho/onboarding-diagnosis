@@ -1461,20 +1461,21 @@ function recordFeedback(data, config) {
 }
 
 function sendRegistrationNotify(data, diagUrl, code, config) {
-  const displayName = data.companyName + (data.teamName ? ` ／ ${data.teamName}` : '');
+  var displayName = data.companyName + (data.teamName ? ' ／ ' + data.teamName : '');
+  var adminUrl = config.siteUrl + '/admin.html';
   MailApp.sendEmail({
     to: config.limeeEmail,
-    subject: `【リミー】新規登録：${displayName}`,
-    htmlBody: `<p>新規企業登録が完了しました。</p>
-    <ul>
-      <li>会社名：${data.companyName}</li>
-      <li>チーム：${data.teamName || '—'}</li>
-      <li>管理者名：${data.managerName || '—'}</li>
-      <li>管理者メール：${data.managerEmail}</li>
-      <li>人事メール：${data.hrEmail || '—'}</li>
-      <li>コード：${code}</li>
-      <li>URL：<a href="${diagUrl}">${diagUrl}</a></li>
-    </ul>`,
+    subject: '【リミー】新規登録：' + displayName,
+    htmlBody: '<p>新規企業登録が完了しました。</p>' +
+    '<ul>' +
+      '<li>会社名：' + data.companyName + '</li>' +
+      '<li>チーム：' + (data.teamName || '—') + '</li>' +
+      '<li>管理者名：' + (data.managerName || '—') + '</li>' +
+      '<li>管理者メール：' + data.managerEmail + '</li>' +
+      '<li>人事メール：' + (data.hrEmail || '—') + '</li>' +
+      '<li>コード：' + code + '</li>' +
+      '<li>顧客管理一覧：<a href="' + adminUrl + '">' + adminUrl + '</a></li>' +
+    '</ul>',
   });
 }
 
