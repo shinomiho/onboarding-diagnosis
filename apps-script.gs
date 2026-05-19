@@ -1248,60 +1248,47 @@ function sendWelcomeEmail(data, diagUrl, config) {
 
   <tr><td style="padding:32px;">
     <p style="font-size:15px;color:#1F2937;margin:0 0 20px;">${managerLabel}</p>
-    <p style="font-size:14px;color:#374151;line-height:1.9;margin:0 0 24px;">
-      この度はリミーをご導入いただきありがとうございます。<br>
-      以下の3つのURLが貴社専用に発行されました。このメールを大切に保存してください。
+    <p style="font-size:14px;color:#374151;line-height:1.9;margin:0 0 8px;">
+      この度はリミーをご導入いただきありがとうございます。
     </p>
+    <div style="background:#FEF2F2;border-left:4px solid #DC2626;border-radius:8px;padding:14px 18px;margin-bottom:28px;">
+      <p style="margin:0;font-size:13px;font-weight:700;color:#DC2626;">⚠️ このメールに記載のURLは貴社専用です。必ず保存・ブックマークしてください。</p>
+    </div>
 
-    <!-- 従業員管理画面（最優先） -->
-    <div style="background:#EEF2FF;border-radius:12px;padding:20px 24px;margin-bottom:16px;">
-      <p style="margin:0 0 4px;font-size:12px;font-weight:700;color:#4F46E5;">① 従業員管理画面（まずここから）</p>
-      <p style="margin:0 0 8px;font-size:12px;color:#6B7280;">従業員の招待・回答状況の確認はこちらから</p>
+    <!-- STEP 1 -->
+    <div style="border:2px solid #E0E7FF;border-radius:12px;padding:20px 24px;margin-bottom:16px;">
+      <p style="margin:0 0 6px;font-size:11px;font-weight:700;color:#6366F1;letter-spacing:2px;">STEP 1</p>
+      <p style="margin:0 0 4px;font-size:15px;font-weight:800;color:#1F2937;">【管理者】管理者画面を保存する</p>
+      <p style="margin:0 0 14px;font-size:13px;color:#6B7280;line-height:1.8;">下のボタンから管理者画面を開き、ブックマークしてください。今後の従業員管理はすべてこの画面から行います。</p>
       <p style="margin:0 0 10px;font-size:11px;font-family:monospace;color:#374151;word-break:break-all;">${adminUrl}</p>
-      <p style="margin:0 0 12px;font-size:12px;font-weight:700;color:#DC2626;">⚠️ このURLは今後の管理者画面になります。必ず保存・ブックマークしてください。</p>
-      <a href="${adminUrl}" style="display:inline-block;background:#4F46E5;color:#fff;font-size:13px;font-weight:700;padding:10px 24px;border-radius:8px;text-decoration:none;">
-        従業員を招待する →
-      </a>
+      <a href="${adminUrl}" style="display:inline-block;background:#4F46E5;color:#fff;font-size:13px;font-weight:700;padding:10px 24px;border-radius:8px;text-decoration:none;">管理者画面を開く →</a>
     </div>
 
-    <!-- 診断URL -->
-    <div style="background:#F0FDF4;border-radius:12px;padding:20px 24px;margin-bottom:16px;">
-      <p style="margin:0 0 4px;font-size:12px;font-weight:700;color:#059669;">② 貴社専用 従業員登録URL</p>
-      <p style="margin:0 0 12px;font-size:12px;color:#6B7280;">続けて、下のボタンをクリックして従業員登録を行ってください。</p>
-      <p style="margin:0 0 12px;font-size:11px;font-family:monospace;color:#374151;word-break:break-all;">${diagUrl}</p>
-      <a href="${diagUrl}" style="display:inline-block;background:#059669;color:#fff;font-size:13px;font-weight:700;padding:10px 24px;border-radius:8px;text-decoration:none;">
-        従業員登録を続ける →
-      </a>
+    <!-- STEP 2 -->
+    <div style="border:2px solid #D1FAE5;border-radius:12px;padding:20px 24px;margin-bottom:16px;">
+      <p style="margin:0 0 6px;font-size:11px;font-weight:700;color:#059669;letter-spacing:2px;">STEP 2</p>
+      <p style="margin:0 0 4px;font-size:15px;font-weight:800;color:#1F2937;">【管理者】従業員を招待する</p>
+      <p style="margin:0 0 14px;font-size:13px;color:#6B7280;line-height:1.8;">管理者画面から従業員を追加すると、招待メールが自動で送信されます。<br>従業員は受け取った招待メールのリンクから診断を受けることができます。</p>
+      <div style="background:#F0FDF4;border-radius:8px;padding:12px 16px;margin-bottom:14px;">
+        <p style="margin:0 0 4px;font-size:12px;font-weight:700;color:#059669;">📧 従業員への直接共有用URL（任意）</p>
+        <p style="margin:0 0 6px;font-size:12px;color:#6B7280;">管理画面からの招待以外に、このURLを直接従業員に共有することもできます。</p>
+        <p style="margin:0;font-size:11px;font-family:monospace;color:#374151;word-break:break-all;">${diagUrl}</p>
+      </div>
+      <a href="${adminUrl}" style="display:inline-block;background:#059669;color:#fff;font-size:13px;font-weight:700;padding:10px 24px;border-radius:8px;text-decoration:none;">従業員を招待する →</a>
     </div>
 
-    <!-- 導入ガイド -->
-    <div style="background:#FEF3C7;border-radius:12px;padding:20px 24px;margin-bottom:16px;">
-      <p style="margin:0 0 4px;font-size:12px;font-weight:700;color:#D97706;">③ 導入・操作ガイド</p>
-      <p style="margin:0 0 12px;font-size:12px;color:#6B7280;">操作方法・全体フローを確認できます。迷ったらここを見てください。</p>
-      <a href="${guideUrl}" style="font-size:12px;color:#D97706;font-weight:700;">${guideUrl}</a>
+    <!-- STEP 3 -->
+    <div style="border:2px solid #DBEAFE;border-radius:12px;padding:20px 24px;margin-bottom:28px;">
+      <p style="margin:0 0 6px;font-size:11px;font-weight:700;color:#2563EB;letter-spacing:2px;">STEP 3</p>
+      <p style="margin:0 0 4px;font-size:15px;font-weight:800;color:#1F2937;">【自動】診断レポートが届く</p>
+      <p style="margin:0 0 14px;font-size:13px;color:#6B7280;line-height:1.8;">従業員が診断を完了すると、管理者様あてに診断レポートが自動送信されます。<br>KPIダッシュボードでは全従業員の状況をまとめて確認できます。</p>
+      <a href="${config.siteUrl}/kpi.html?code=${code}" style="display:inline-block;background:#2563EB;color:#fff;font-size:13px;font-weight:700;padding:10px 24px;border-radius:8px;text-decoration:none;">KPIダッシュボードを確認する →</a>
     </div>
-
-    <!-- KPIダッシュボード -->
-    <div style="background:#EFF6FF;border-radius:12px;padding:20px 24px;margin-bottom:28px;">
-      <p style="margin:0 0 4px;font-size:12px;font-weight:700;color:#2563EB;">④ 人的資本KPIダッシュボード</p>
-      <p style="margin:0 0 12px;font-size:12px;color:#6B7280;">有報5指標の推移・ローデータをいつでも確認・ダウンロードできます。</p>
-      <p style="margin:0 0 12px;font-size:11px;font-family:monospace;color:#374151;word-break:break-all;">${config.siteUrl}/kpi.html?code=${code}</p>
-      <a href="${config.siteUrl}/kpi.html?code=${code}" style="display:inline-block;background:#2563EB;color:#fff;font-size:13px;font-weight:700;padding:10px 24px;border-radius:8px;text-decoration:none;">
-        KPIを確認する →
-      </a>
-    </div>
-
-    <p style="font-size:14px;font-weight:700;color:#1F2937;margin:0 0 12px;">📋 次にやること（3ステップ）</p>
-    <ol style="font-size:14px;color:#374151;line-height:2.2;margin:0 0 24px;padding-left:20px;">
-      <li>①の<strong>従業員管理画面</strong>を開き、従業員を追加する</li>
-      <li>従業員が診断に回答する（招待メールが自動送信されます）</li>
-      <li>管理者様へ診断レポートが自動送信される</li>
-    </ol>
 
     <div style="background:#F9FAFB;border-radius:10px;padding:16px;border:1px solid #E5E7EB;">
       <p style="margin:0;font-size:13px;color:#6B7280;line-height:1.8;">
+        📖 操作方法・全体フローは <a href="${guideUrl}" style="color:#4F46E5;font-weight:700;">導入ガイド</a> をご確認ください<br>
         ✅ 月次レポートは毎月1日・15日に自動送信されます<br>
-        ✅ 操作方法は導入ガイドに詳しく掲載しています<br>
         ✅ ご不明な点は <a href="mailto:${config.limeeEmail}" style="color:#4F46E5;">${config.limeeEmail}</a> までご連絡ください
       </p>
     </div>
