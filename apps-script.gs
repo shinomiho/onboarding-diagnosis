@@ -1256,8 +1256,9 @@ function sendWelcomeEmail(data, diagUrl, config) {
     <!-- 従業員管理画面（最優先） -->
     <div style="background:#EEF2FF;border-radius:12px;padding:20px 24px;margin-bottom:16px;">
       <p style="margin:0 0 4px;font-size:12px;font-weight:700;color:#4F46E5;">① 従業員管理画面（まずここから）</p>
-      <p style="margin:0 0 12px;font-size:12px;color:#6B7280;">従業員の招待・回答状況の確認はこちらから</p>
-      <p style="margin:0 0 12px;font-size:11px;font-family:monospace;color:#374151;word-break:break-all;">${adminUrl}</p>
+      <p style="margin:0 0 8px;font-size:12px;color:#6B7280;">従業員の招待・回答状況の確認はこちらから</p>
+      <p style="margin:0 0 10px;font-size:11px;font-family:monospace;color:#374151;word-break:break-all;">${adminUrl}</p>
+      <p style="margin:0 0 12px;font-size:12px;font-weight:700;color:#DC2626;">⚠️ このURLは今後の管理者画面になります。必ず保存・ブックマークしてください。</p>
       <a href="${adminUrl}" style="display:inline-block;background:#4F46E5;color:#fff;font-size:13px;font-weight:700;padding:10px 24px;border-radius:8px;text-decoration:none;">
         従業員を招待する →
       </a>
@@ -1265,9 +1266,12 @@ function sendWelcomeEmail(data, diagUrl, config) {
 
     <!-- 診断URL -->
     <div style="background:#F0FDF4;border-radius:12px;padding:20px 24px;margin-bottom:16px;">
-      <p style="margin:0 0 4px;font-size:12px;font-weight:700;color:#059669;">② 貴社専用 診断URL</p>
-      <p style="margin:0 0 12px;font-size:12px;color:#6B7280;">管理画面から招待すると自動送信されます。直接共有も可能です。</p>
-      <p style="margin:0;font-size:11px;font-family:monospace;color:#374151;word-break:break-all;">${diagUrl}</p>
+      <p style="margin:0 0 4px;font-size:12px;font-weight:700;color:#059669;">② 貴社専用 従業員登録URL</p>
+      <p style="margin:0 0 12px;font-size:12px;color:#6B7280;">続けて、下のボタンをクリックして従業員登録を行ってください。</p>
+      <p style="margin:0 0 12px;font-size:11px;font-family:monospace;color:#374151;word-break:break-all;">${diagUrl}</p>
+      <a href="${diagUrl}" style="display:inline-block;background:#059669;color:#fff;font-size:13px;font-weight:700;padding:10px 24px;border-radius:8px;text-decoration:none;">
+        従業員登録を続ける →
+      </a>
     </div>
 
     <!-- 導入ガイド -->
