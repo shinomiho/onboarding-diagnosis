@@ -825,6 +825,14 @@
       <div class="step-title">よくある質問</div>
     </div>
     <div class="card">
+      <div style="margin-bottom:20px;position:relative;">
+        <span style="position:absolute;left:14px;top:50%;transform:translateY(-50%);font-size:16px;pointer-events:none;">🔍</span>
+        <input type="text" id="faq-search" placeholder="キーワードで検索（例：メール届かない、URL、削除）"
+          oninput="filterFaq(this.value)"
+          style="width:100%;padding:11px 14px 11px 40px;border-radius:10px;border:2px solid #E0E7FF;font-size:14px;outline:none;font-family:inherit;transition:border-color 0.2s;"
+          onfocus="this.style.borderColor='#4F46E5'" onblur="this.style.borderColor='#E0E7FF'">
+      </div>
+      <div id="faq-list">
       <div class="faq-item">
         <div class="faq-q">登録完了メールが届きません</div>
         <div class="faq-a">まず迷惑メールフォルダをご確認ください。送信元は <strong>noreply@gmail.com</strong> になります。それでも届かない場合はリミー事務局までご連絡ください。</div>
@@ -849,8 +857,26 @@
         <div class="faq-q">何人まで登録できますか？</div>
         <div class="faq-a">現在制限はありません。追加したい人数分、1人ずつ登録してください。</div>
       </div>
+      </div><!-- /#faq-list -->
+      <div id="faq-no-result" style="display:none;text-align:center;padding:24px 0;color:#9CA3AF;font-size:14px;">
+        該当するFAQが見つかりませんでした。<br>
+        <a href="mailto:miho.shinohe@remenow.com" style="color:#4F46E5;font-weight:700;margin-top:8px;display:inline-block;">リミー事務局に問い合わせる →</a>
+      </div>
     </div>
   </div>
+  <script>
+  function filterFaq(q) {
+    var items = document.querySelectorAll('#faq-list .faq-item');
+    var hit = 0;
+    q = q.trim().toLowerCase();
+    items.forEach(function(item) {
+      var show = !q || item.textContent.toLowerCase().indexOf(q) !== -1;
+      item.style.display = show ? '' : 'none';
+      if (show) hit++;
+    });
+    document.getElementById('faq-no-result').style.display = (q && hit === 0) ? 'block' : 'none';
+  }
+  </script>
 
 
   <!-- フィードバック（テスト期間） -->

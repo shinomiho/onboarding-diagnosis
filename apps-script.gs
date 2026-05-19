@@ -1282,12 +1282,19 @@ function sendWelcomeEmail(data, diagUrl, config) {
       <p style="margin:0 0 6px;font-size:11px;font-weight:700;color:#2563EB;letter-spacing:2px;">STEP 3</p>
       <p style="margin:0 0 4px;font-size:15px;font-weight:800;color:#1F2937;">【自動】診断レポートが届く</p>
       <p style="margin:0 0 14px;font-size:13px;color:#6B7280;line-height:1.8;">従業員が診断を完了すると、管理者様あてに診断レポートが自動送信されます。<br>KPIダッシュボードでは全従業員の状況をまとめて確認できます。</p>
-      <a href="${config.siteUrl}/kpi.html?code=${code}" style="display:inline-block;background:#2563EB;color:#fff;font-size:13px;font-weight:700;padding:10px 24px;border-radius:8px;text-decoration:none;">KPIダッシュボードを確認する →</a>
+      <p style="margin:14px 0 0;font-size:11px;font-family:monospace;color:#374151;word-break:break-all;">${config.siteUrl}/kpi.html?code=${code}</p>
+      <a href="${config.siteUrl}/kpi.html?code=${code}" style="display:inline-block;background:#2563EB;color:#fff;font-size:13px;font-weight:700;padding:10px 24px;border-radius:8px;text-decoration:none;margin-top:10px;">KPIダッシュボードを確認する →</a>
+    </div>
+
+    <!-- 詰まったらガイドへ -->
+    <div style="background:#F0FDF4;border:2px solid #6EE7B7;border-radius:12px;padding:20px 24px;margin-bottom:28px;text-align:center;">
+      <p style="margin:0 0 6px;font-size:13px;font-weight:800;color:#065F46;">📖 操作で詰まったら、リミー導入ガイドへ</p>
+      <p style="margin:0 0 14px;font-size:13px;color:#6B7280;line-height:1.8;">各STEPの詳しい手順・よくある質問をまとめています。<br>まず導入ガイドを確認してみてください。</p>
+      <a href="${guideUrl}" style="display:inline-block;background:#059669;color:#fff;font-size:13px;font-weight:700;padding:10px 24px;border-radius:8px;text-decoration:none;">リミー導入ガイドを見る →</a>
     </div>
 
     <div style="background:#F9FAFB;border-radius:10px;padding:16px;border:1px solid #E5E7EB;">
       <p style="margin:0;font-size:13px;color:#6B7280;line-height:1.8;">
-        📖 操作方法・全体フローは <a href="${guideUrl}" style="color:#4F46E5;font-weight:700;">導入ガイド</a> をご確認ください<br>
         ✅ 月次レポートは毎月1日・15日に自動送信されます<br>
         ✅ ご不明な点は <a href="mailto:${config.limeeEmail}" style="color:#4F46E5;">${config.limeeEmail}</a> までご連絡ください
       </p>
