@@ -189,6 +189,8 @@ window.onload = async () => {
   }
 
   document.getElementById('diagnosis-form').addEventListener('submit', handleSubmit);
+  setupAiGroupTracking();
+  renderAiQuickQs();
 };
 
 function showCodeError(msg) {
@@ -545,3 +547,121 @@ function restart() {
   document.getElementById('progress-bar').style.width = '0%';
   window.scrollTo({ top: 0 });
 }
+
+// ===== AIチャット =====
+let currentGroup = 'general';
+
+const groupQuickQs = {
+  general: [
+    'この診断の目的は何ですか？',
+    '結果は上司に全部見えますか？',
+    '正直に答えていいですか？',
+    '何分くらいかかりますか？'
+  ],
+  work: [
+    '業務量が多くて辛いです',
+    '「指示がなくても動ける」の意味は？',
+    'まだ仕事に慣れていなくて不安です',
+    '全然できていない場合は「1」でいい？'
+  ],
+  relation: [
+    '上司に質問できない環境です',
+    '孤立感は正直に答えていいですか？',
+    '「建設的なフィードバック」の意味は？',
+    '雑談がない職場はおかしいですか？'
+  ],
+  energy: [
+    '気分が落ち込んでいますが大丈夫？',
+    '眠れていない場合はどう答えますか？',
+    '達成感がまったくありません',
+    '不安が強いですが正直に答えていいですか？'
+  ],
+  risk: [
+    '「辞めたい」と正直に答えていいですか？',
+    'ミスが増えているのは自分のせいですか？',
+    '「指示待ち」になるのは良くないこと？',
+    '診断後に会社はどう対応しますか？'
+  ]
+};
+
+function getGroupFromQuestion(qNum) {
+  if (qNum >= 1  && qNum <= 6)  return 'work';
+  if (qNum >= 7  && qNum <= 12) return 'relation';
+  if (qNum >= 13 && qNum <= 18) return 'energy';
+  if (qNum >= 19 && qNum <= 25) return 'risk';
+  return 'general';
+}
+
+function setupAiGroupTracking() {
+  const observer = new IntersectionObserver(entries => {
+    entries.forEach(entry => {
+      if (!entry.isIntersecting) return;
+      const id = entry.target.id;
+      const match = id.match(/card-Q(\d+)/);
+      if (match) {
+        const newGroup = getGroupFromQuestion(parseInt(match[1]));
+        if (newGroup !== currentGroup) {
+          currentGroup = newGroup;
+          renderAiQuickQs();
+        }
+      }
+    });
+  }, { threshold: 0.5 });
+
+  document.querySelectorAll('.question-card').forEach(card => observer.observe(card));
+}
+
+function renderAiQuickQs() {
+  const container = document.getElementById('ai-quick-qs');
+  if (!container) return;
+  const qs = groupQuickQs[currentGroup] || groupQuickQs['general'];
+  container.innerHTML = qs.map(q =>
+    `<button class="ai-quick-btn" onclick="sendAiMsg('${q.replace(/'/g, '\\\'')}')">${q}</button>`
+  ).join('');
+}
+
+function toggleAiPanel() {
+  const panel = document.getElementById('ai-panel');
+  panel.classList.toggle('open');
+  if (panel.classList.contains('open')) {
+    renderAiQuickQs();
+    document.getElementById('ai-input').focus();
+  }
+}
+
+function sendAiMsg(preset) {
+  const input = document.getElementById('ai-input');
+  const msg = preset || input.value.trim();
+  if (!msg) return;
+  input.value = '';
+
+  const body = document.getElementById('ai-chat-body');
+  body.innerHTML += `<div class="ai-msg ai-msg-user">${escHtml(msg)}</div>`;
+  const loading = document.createElement('div');
+  loading.className = 'ai-msg ai-msg-loading';
+  loading.id = 'ai-loading';
+  loading.textContent = '考え中…';
+  body.appendChild(loading);
+  body.scrollTop = body.scrollHeight;
+
+  fetch(APPS_SCRIPT_URL, {
+    method: 'POST',
+    headers: { 'Content-Type': 'text/plain' },
+    body: JSON.stringify({ action: 'chat', group: currentGroup, message: msg })
+  })
+    .then(r => r.json())
+    .then(data => {
+      const el = document.getElementById('ai-loading');
+      if (el) el.remove();
+      const reply = (data.success && data.reply) ? data.reply : 'すみません、うまく応答できませんでした。';
+      body.innerHTML += `<div class="ai-msg ai-msg-bot">${escHtml(reply).replace(/\n/g, '<br>')}</div>`;
+      body.scrollTop = body.scrollHeight;
+    })
+    .catch(() => {
+      const el = document.getElementById('ai-loading');
+      if (el) el.remove();
+      body.innerHTML += `<div class="ai-msg ai-msg-bot">通信エラーが発生しました。しばらくしてからもう一度お試しください。</div>`;
+      body.scrollTop = body.scrollHeight;
+    });
+}
+

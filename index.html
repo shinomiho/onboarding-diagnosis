@@ -161,6 +161,81 @@
   <!-- APIキーモーダル（無効化：Apps Scriptに移行済み） -->
   <div id="api-modal" class="modal-overlay hidden"></div>
 
+  <!-- AIチャット -->
+  <button id="ai-fab" onclick="toggleAiPanel()" aria-label="AIに質問する">
+    <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M21 15a2 2 0 0 1-2 2H7l-4 4V5a2 2 0 0 1 2-2h14a2 2 0 0 1 2 2z"/></svg>
+    <span>AIに聞く</span>
+  </button>
+
+  <div id="ai-panel">
+    <div id="ai-panel-header">
+      <span>🤖 AIサポート</span>
+      <button onclick="toggleAiPanel()" style="background:none;border:none;color:white;font-size:18px;cursor:pointer;line-height:1;">✕</button>
+    </div>
+    <div id="ai-chat-body">
+      <div class="ai-msg ai-msg-bot">こんにちは！診断フォームについて何でも聞いてください。よくある質問から選ぶか、直接入力してください。</div>
+    </div>
+    <div id="ai-quick-qs"></div>
+    <div id="ai-input-row">
+      <input id="ai-input" type="text" placeholder="質問を入力…" onkeydown="if(event.key==='Enter')sendAiMsg()">
+      <button onclick="sendAiMsg()">送信</button>
+    </div>
+  </div>
+
+  <style>
+    #ai-fab {
+      position: fixed; bottom: 24px; right: 24px; z-index: 1000;
+      display: flex; align-items: center; gap: 8px;
+      background: linear-gradient(135deg, #4F46E5, #7C3AED);
+      color: white; border: none; border-radius: 50px;
+      padding: 12px 20px; font-size: 14px; font-weight: 600;
+      cursor: pointer; box-shadow: 0 4px 16px rgba(79,70,229,0.4);
+      transition: transform 0.2s, box-shadow 0.2s;
+    }
+    #ai-fab:hover { transform: translateY(-2px); box-shadow: 0 6px 20px rgba(79,70,229,0.5); }
+    #ai-panel {
+      position: fixed; bottom: 80px; right: 24px; z-index: 999;
+      width: 340px; background: white; border-radius: 16px;
+      box-shadow: 0 8px 32px rgba(0,0,0,0.18); display: none; flex-direction: column;
+      max-height: 480px; overflow: hidden;
+    }
+    #ai-panel.open { display: flex; }
+    #ai-panel-header {
+      background: linear-gradient(135deg, #4F46E5, #7C3AED);
+      color: white; padding: 14px 16px; font-weight: 700; font-size: 14px;
+      display: flex; justify-content: space-between; align-items: center;
+      border-radius: 16px 16px 0 0;
+    }
+    #ai-chat-body {
+      flex: 1; overflow-y: auto; padding: 12px; display: flex;
+      flex-direction: column; gap: 8px; min-height: 140px;
+    }
+    .ai-msg { padding: 10px 14px; border-radius: 12px; font-size: 13px; line-height: 1.6; max-width: 88%; }
+    .ai-msg-bot { background: #EEF2FF; color: #1e1b4b; align-self: flex-start; }
+    .ai-msg-user { background: #4F46E5; color: white; align-self: flex-end; }
+    .ai-msg-loading { background: #EEF2FF; color: #6B7280; font-style: italic; align-self: flex-start; }
+    #ai-quick-qs { padding: 8px 12px; display: flex; flex-wrap: wrap; gap: 6px; border-top: 1px solid #F3F4F6; }
+    .ai-quick-btn {
+      background: #EEF2FF; color: #4338CA; border: 1px solid #C7D2FE;
+      border-radius: 20px; padding: 5px 12px; font-size: 11px;
+      cursor: pointer; white-space: nowrap; transition: background 0.15s;
+    }
+    .ai-quick-btn:hover { background: #C7D2FE; }
+    #ai-input-row { display: flex; gap: 8px; padding: 10px 12px; border-top: 1px solid #F3F4F6; }
+    #ai-input {
+      flex: 1; border: 1px solid #E5E7EB; border-radius: 8px;
+      padding: 8px 12px; font-size: 13px; outline: none;
+    }
+    #ai-input:focus { border-color: #4F46E5; }
+    #ai-input-row button {
+      background: #4F46E5; color: white; border: none; border-radius: 8px;
+      padding: 8px 14px; font-size: 13px; font-weight: 600; cursor: pointer;
+    }
+    @media (max-width: 400px) {
+      #ai-panel { width: calc(100vw - 32px); right: 16px; bottom: 76px; }
+    }
+  </style>
+
   <script src="app.js"></script>
 </body>
 </html>

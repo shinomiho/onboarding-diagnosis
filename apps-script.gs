@@ -98,6 +98,7 @@ function doPost(e) {
   try {
     const data = JSON.parse(e.postData.contents);
     const config = getConfig();
+    if (data.action === 'chat')                return handleChat(data, config);
     if (data.action === 'submit_diagnosis')    return handleDiagnosis(data, config);
     if (data.action === 'add_company')         { if (!validateAdmin(data.adminSecret, config)) return err('認証エラー'); return addCompany(data, config); }
     if (data.action === 'delete_company')      { if (!validateAdmin(data.adminSecret, config)) return err('認証エラー'); return deleteCompany(data, config); }
@@ -110,6 +111,69 @@ function doPost(e) {
     if (data.action === 'record_feedback')     return recordFeedback(data, config);
     return err('不明なアクション');
   } catch(e) { return err(e.message); }
+}
+
+function handleChat(data, config) {
+  try {
+    const apiKey = config.claudeApiKey;
+    if (!apiKey) return err('CLAUDE_API_KEY が未設定');
+
+    const group = String(data.group || 'general');
+    const userMessage = String(data.message || '');
+    if (!userMessage) return err('メッセージが空です');
+
+    const groupContexts = {
+      general: 'ユーザーは今、リミーの「入社オンボーディング診断」フォームのプロフィール入力（氏名・メール・性別・年齢・職種・入社形態・診断タイミング）を行っています。この診断は25問・約5分で完了します。目的は従業員の職場適応状況をAIが分析し、マネージャーが早期にサポートできるようにすることです。',
+      work: 'ユーザーは今、診断のQ01〜Q06「業務適応・業務量」に関する設問（業務内容の理解、優先順位の整理、主体的な行動、ミスからの立て直し、業務量、詰まり感）に回答中です。入社直後の適応状況を測る設問です。',
+      relation: 'ユーザーは今、診断のQ07〜Q12「対人関係」に関する設問（上司への質問のしやすさ、相談できる人の有無、職場での受容感、フィードバックの質、雑談の有無、孤立感）に回答中です。職場の人間関係・心理的安全性を測る設問です。',
+      energy: 'ユーザーは今、診断のQ13〜Q18「心理エナジー・ウェルビーイング」に関する設問（憂うつ感、仕事後の余裕、睡眠の質、前向きな気持ち、達成感、不安・焦り）に回答中です。メンタルヘルス・エネルギー状態を測る設問です。',
+      risk: 'ユーザーは今、診断のQ19〜Q25「行動リスク・定着意思」に関する設問（遅刻・寝坊、報連相の減少、ミスの増加、指示待ち、感情の抑制疲弊、職場での継続意欲、離職意思）に回答中です。離職リスクや行動変容を測る最終設問です。'
+    };
+
+    const systemPrompt = `あなたはリミー（RE:Me）の入社オンボーディング診断の日本語サポートAIです。
+診断フォームに回答中の従業員が安心して正直に回答できるよう、親切・簡潔にサポートしてください。
+
+【現在の回答箇所】
+${groupContexts[group] || groupContexts['general']}
+
+【診断について】
+- 25問・5段階評価（1=全く当てはまらない〜5=非常に当てはまる）
+- 結果はAIが分析し、本人と担当マネージャーにメールで送付される
+- 診断データは従業員サポートのみに使用され、人事評価や解雇には使用されない
+- 正直に答えることで、より適切なサポートを受けられる
+
+回答ルール：
+- 必ず日本語で回答する
+- 200字以内で簡潔に答える
+- 従業員が不安や迷いを感じている場合は、まず共感してから説明する
+- 「正直に答えても大丈夫」という安心感を必ず伝える
+- 人事評価・解雇には使われないことを明確に伝える
+- 解決できない深刻な問題（ハラスメント等）は「担当のMiho（miho.shinohe@remenow.com）にご連絡ください」と案内する`;
+
+    const payload = {
+      model: config.claudeModel,
+      max_tokens: 512,
+      system: systemPrompt,
+      messages: [{ role: 'user', content: userMessage }]
+    };
+
+    const res = UrlFetchApp.fetch('https://api.anthropic.com/v1/messages', {
+      method: 'post',
+      contentType: 'application/json',
+      headers: {
+        'x-api-key': apiKey,
+        'anthropic-version': '2023-06-01'
+      },
+      payload: JSON.stringify(payload),
+      muteHttpExceptions: true
+    });
+
+    const json = JSON.parse(res.getContentText());
+    if (json.error) return err('Claude API error: ' + json.error.message);
+    return ok({ success: true, reply: json.content[0].text });
+  } catch(ex) {
+    return err('handleChat error: ' + ex.message);
+  }
 }
 
 function doGet(e) {
