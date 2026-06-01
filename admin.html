@@ -111,18 +111,40 @@
 
       <!-- KPIタブ -->
       <div id="tab-kpi" class="tab">
-        <div class="card" style="margin-bottom:12px;display:flex;gap:16px;align-items:flex-end;flex-wrap:wrap;">
-          <div class="profile-item" style="flex:1;min-width:240px;margin:0;">
+        <div class="card" style="margin-bottom:12px;">
+          <div class="profile-item">
             <label>会社で絞り込み（未選択 = 全社合算）</label>
             <select id="kpi-filter-company" onchange="loadKpi()" style="width:100%;border:1px solid var(--border);border-radius:8px;padding:10px 12px;font-size:14px;background:white;">
               <option value="">全社合算</option>
             </select>
           </div>
-          <a href="#" id="kpi-detail-link" target="_blank" style="display:inline-flex;flex-direction:column;align-items:flex-start;justify-content:center;background:linear-gradient(135deg,#2563EB,#4F46E5);color:#fff;text-decoration:none;padding:10px 20px;border-radius:10px;font-size:13px;font-weight:700;box-shadow:0 2px 8px rgba(37,99,235,0.25);min-width:240px;">
-            <span style="font-size:10px;font-weight:600;opacity:0.85;letter-spacing:1px;">📊 有価証券報告書対応</span>
-            <span id="kpi-detail-link-label">人的資本KPIダッシュボードを開く →</span>
-          </a>
         </div>
+
+        <!-- 📊 詳細KPIダッシュボードへの大型CTAバナー（この画面にない機能を強調） -->
+        <a href="#" id="kpi-detail-link" target="_blank" style="display:block;background:linear-gradient(135deg,#2563EB,#4F46E5,#7C3AED);color:#fff;text-decoration:none;padding:22px 24px;border-radius:14px;margin-bottom:16px;box-shadow:0 4px 16px rgba(37,99,235,0.25);">
+          <div style="display:flex;align-items:flex-start;gap:16px;margin-bottom:14px;">
+            <div style="font-size:36px;line-height:1;flex-shrink:0;">📊</div>
+            <div style="flex:1;">
+              <div style="font-size:10px;font-weight:800;opacity:0.85;letter-spacing:2px;margin-bottom:6px;">📌 有価証券報告書「人的資本」セクション提出用</div>
+              <div id="kpi-detail-link-label" style="font-size:18px;font-weight:800;line-height:1.4;">投資家向け詳細レポートを開く（全社合算）</div>
+              <div style="font-size:11px;font-weight:500;opacity:0.95;margin-top:4px;">この画面では確認できない高度な分析を別タブで開きます</div>
+            </div>
+            <div style="font-size:22px;font-weight:800;flex-shrink:0;align-self:center;">→</div>
+          </div>
+
+          <!-- この画面にはない5つの追加機能を明示 -->
+          <div style="background:rgba(255,255,255,0.13);border-radius:10px;padding:12px 14px;">
+            <div style="font-size:11px;font-weight:800;margin-bottom:8px;letter-spacing:1px;">⭐ この画面では見られない機能：</div>
+            <div style="display:grid;grid-template-columns:1fr 1fr;gap:6px 12px;font-size:12px;line-height:1.5;">
+              <div>📊 <strong>属性別ブレイクダウン</strong>（男女別／年代別／職種別／会社別）</div>
+              <div>📉 <strong>実離職率の入力＋予測値突合</strong></div>
+              <div>🔵 <strong>ISO 30414 / 経産省ガイドライン</strong>マッピング</div>
+              <div>⚠️ <strong>法定3指標警告</strong>（女性管理職／男性育休／賃金格差）</div>
+              <div>🎯 <strong>貴社の中期目標値</strong>を個別設定</div>
+              <div>📄 <strong>PDFで投資家・有報資料</strong>として出力</div>
+            </div>
+          </div>
+        </a>
 
         <div style="background:#EEF2FF;border-radius:12px;padding:14px 16px;margin-bottom:12px;font-size:12px;color:#4F46E5;line-height:1.7;">
           <strong>人的資本開示KPI（3層構造）</strong><br>
