@@ -274,7 +274,7 @@
           <span class="kpi-target-val" id="kpi2-tval">—</span>
           <span class="kpi-badge na" id="kpi2-badge">—</span>
         </div>
-        <div class="kpi-desc">定着意思スコア3.5以上の従業員の割合</div>
+        <div class="kpi-desc">継続定着意思スコア3.5以上の従業員の割合</div>
         <div class="kpi-meta" id="kpi2-meta"></div>
       </div>
       <div class="kpi-card c3">
@@ -298,7 +298,7 @@
           <span class="kpi-target-val" id="kpi4-tval">—</span>以下
           <span class="kpi-badge na" id="kpi4-badge">—</span>
         </div>
-        <div class="kpi-desc">心理エナジー・行動・定着いずれかが低い従業員の割合（低いほど良好）</div>
+        <div class="kpi-desc">ウェルビーイング・離職予兆・継続定着いずれかが低い従業員の割合（低いほど良好）</div>
         <div class="kpi-meta" id="kpi4-meta"></div>
       </div>
       <div class="kpi-card c5">
@@ -310,7 +310,7 @@
           <span class="kpi-target-val" id="kpi5-tval">—</span>
           <span class="kpi-badge na" id="kpi5-badge">—</span>
         </div>
-        <div class="kpi-desc">対人関係・心理エナジー2軸の平均スコア</div>
+        <div class="kpi-desc">組織エンゲージメント・ウェルビーイング2軸の平均スコア</div>
         <div class="kpi-meta" id="kpi5-meta"></div>
       </div>
     </div>
@@ -342,7 +342,7 @@
           <thead>
             <tr>
               <th>診断日</th><th>氏名</th><th>職種</th>
-              <th>業務適応(A)</th><th>対人関係(B)</th><th>心理エナジー(C)</th><th>行動リスク(D)</th><th>定着意思(E)</th>
+              <th>立ち上がり・戦力化(A)</th><th>組織エンゲージメント(B)</th><th>ウェルビーイング(C)</th><th>離職予兆(D)</th><th>継続定着意思(E)</th>
               <th>総合</th><th>職場環境</th><th>離職リスク</th>
             </tr>
           </thead>
@@ -362,7 +362,7 @@
           <div class="def-body">
             入社後90日以内の従業員を対象に、5軸（A〜E）を各5問・5段階で計測した総合平均スコア。
             <div class="def-formula">総合スコア = (A + B + C + D + E) ÷ 5</div>
-            <span style="font-size:10px;color:#6B7280;">A=業務適応　B=対人関係　C=心理エナジー　D=行動リスク　E=定着意思</span><br>
+            <span style="font-size:10px;color:#6B7280;">A=立ち上がり・戦力化　B=組織エンゲージメント　C=ウェルビーイング　D=離職予兆　E=継続定着意思</span><br>
             月次で集計し推移を記録。計測タイミングは診断回答日。
             <div class="def-threshold">推奨水準：3.5以上（リミー基準）</div>
           </div>
@@ -371,7 +371,7 @@
         <div class="def-item c2">
           <div class="def-name">② オンボーディング定着率</div>
           <div class="def-body">
-            定着意思スコア（E軸）が3.5以上の従業員が全診断対象者に占める割合。
+            継続定着意思スコア（E軸）が3.5以上の従業員が全診断対象者に占める割合。
             <div class="def-formula">定着率(%) = E ≥ 3.5 の人数 ÷ 全診断人数 × 100</div>
             スコア3.5以上を「定着傾向あり」と定義。入社後の早期定着を定量化する指標。
             <div class="def-threshold">推奨水準：80%以上（リミー基準）</div>
@@ -391,7 +391,7 @@
         <div class="def-item c4">
           <div class="def-name">④ 早期離職リスク検知率</div>
           <div class="def-body">
-            心理エナジー(C)・行動リスク(D)・定着意思(E)のいずれかが2.5未満の従業員が占める割合。<strong>値が低いほど組織の健全性が高い。</strong>
+            ウェルビーイング(C)・離職予兆(D)・継続定着意思(E)のいずれかが2.5未満の従業員が占める割合。<strong>値が低いほど組織の健全性が高い。</strong>
             <div class="def-formula">リスク率(%) = (C or D or E &lt; 2.5) の人数 ÷ 全診断人数 × 100</div>
             閾値2.5は「中立（3点）から1段階低い水準」として設定。
             <div class="def-threshold">推奨水準：20%以下（リミー基準）</div>
@@ -401,7 +401,7 @@
         <div class="def-item c5" style="grid-column: span 2;">
           <div class="def-name">⑤ 職場環境スコア</div>
           <div class="def-body">
-            対人関係スコア（B軸）と心理エナジースコア（C軸）の2軸平均値。職場の心理的安全性・人間関係の質を定量的に示す。
+            組織エンゲージメントスコア（B軸）とウェルビーイングスコア（C軸）の2軸平均値。職場の心理的安全性・人間関係の質を定量的に示す。
             <div class="def-formula">職場環境スコア = (B + C) ÷ 2</div>
             B=職場の人間関係・コミュニケーション品質　C=精神的エネルギー・ストレス耐性の状態。月次平均値の推移で管理。
             <div class="def-threshold">推奨水準：3.5以上（リミー基準）</div>
@@ -510,7 +510,7 @@ function renderKpi(kpi) {
   setCard('kpi2', kpi.retentionRate, targets.t2, false, '%', n + '名中 ' + Math.round((kpi.retentionRate||0)*n/100) + '名');
   setCard('kpi3', kpi.avgActionRate, targets.t3, false, '%', kpi.actionRates.length + '回分のデータ');
   setCard('kpi4', kpi.riskRate, targets.t4, true, '%', 'リスク検知：' + kpi.atRiskCount + '名');
-  setCard('kpi5', kpi.workEnvScore, targets.t5, false, '/5', '対人・心理エナジー平均');
+  setCard('kpi5', kpi.workEnvScore, targets.t5, false, '/5', 'エンゲージメント・ウェルビーイング平均');
 
   renderCharts(kpi.trend, kpi.actionRates, targets);
 }
@@ -610,7 +610,7 @@ function renderTable(rows) {
 
 function downloadCSV() {
   if (rawRows.length === 0) { alert('ダウンロードするデータがありません'); return; }
-  var headers = ['診断日','氏名','メール','職種','業務適応(A)','対人関係(B)','心理エナジー(C)','行動リスク(D)','定着意思(E)','総合スコア','職場環境スコア','離職リスク'];
+  var headers = ['診断日','氏名','メール','職種','立ち上がり・戦力化(A)','組織エンゲージメント(B)','ウェルビーイング(C)','離職予兆(D)','継続定着意思(E)','総合スコア','職場環境スコア','離職リスク'];
   var rows = rawRows.map(r => [r.date, r.name, r.email, r.job, r.A, r.B, r.C, r.D, r.E, r.overall, r.workEnv, r.atRisk]);
   var csv = '﻿' + [headers, ...rows].map(r => r.map(v => '"' + String(v||'').replace(/"/g,'""') + '"').join(',')).join('\r\n');
   var blob = new Blob([csv], { type: 'text/csv;charset=utf-8;' });

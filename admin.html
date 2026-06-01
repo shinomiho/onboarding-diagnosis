@@ -355,9 +355,9 @@
         card('インプット指標', 'エンゲージメント総合スコア', kpi.avgScores.overall + '<span style="font-size:16px;"> / 5.0</span>', `回答数 ${kpi.totalRespondents}名`, sc(kpi.avgScores.overall)) +
         card('プロセス指標', 'マネジメントアクション実施率', kpi.avgActionRate !== null ? kpi.avgActionRate + '<span style="font-size:20px;">%</span>' : '—', kpi.avgActionRate !== null ? '全期間平均' : 'フェーズ2で計測開始', kpi.avgActionRate !== null ? (kpi.avgActionRate >= 70 ? '#10B981' : kpi.avgActionRate >= 40 ? '#F59E0B' : '#EF4444') : '#D1D5DB') +
         card('アウトカム指標', '要注意アラート発生率', kpi.riskRate + '<span style="font-size:20px;">%</span>', `${kpi.atRiskCount}名 / ${kpi.totalRespondents}名`, kpi.riskRate >= 30 ? '#EF4444' : kpi.riskRate >= 10 ? '#F59E0B' : '#10B981') +
-        card('アウトカム指標', '定着意思スコア平均', kpi.avgScores.E + '<span style="font-size:16px;"> / 5.0</span>', '離職リスク逆指標', sc(kpi.avgScores.E));
+        card('アウトカム指標', '継続定着意思スコア平均', kpi.avgScores.E + '<span style="font-size:16px;"> / 5.0</span>', '離職リスク逆指標', sc(kpi.avgScores.E));
 
-      const labels = [['A','業務適応'],['B','対人関係'],['C','心理エナジー'],['D','行動リスク'],['E','定着意思']];
+      const labels = [['A','立ち上がり・戦力化'],['B','組織エンゲージメント'],['C','ウェルビーイング'],['D','離職予兆'],['E','継続定着意思']];
       const bar = (v) => `<div style="display:flex;align-items:center;gap:10px;margin-bottom:10px;">
         <div style="width:90px;font-size:12px;color:#374151;text-align:right;">${labels.find(l=>l[0]===v[0])[1]}</div>
         <div style="flex:1;background:#F3F4F6;border-radius:99px;height:10px;">

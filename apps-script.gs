@@ -123,11 +123,11 @@ function handleChat(data, config) {
     if (!userMessage) return err('メッセージが空です');
 
     const groupContexts = {
-      general: 'ユーザーは今、リミーの「入社オンボーディング診断」フォームのプロフィール入力（氏名・メール・性別・年齢・職種・入社形態・診断タイミング）を行っています。この診断は25問・約5分で完了します。目的は従業員の職場適応状況をAIが分析し、マネージャーが早期にサポートできるようにすることです。',
-      work: 'ユーザーは今、診断のQ01〜Q06「業務適応・業務量」に関する設問（業務内容の理解、優先順位の整理、主体的な行動、ミスからの立て直し、業務量、詰まり感）に回答中です。入社直後の適応状況を測る設問です。',
-      relation: 'ユーザーは今、診断のQ07〜Q12「対人関係」に関する設問（上司への質問のしやすさ、相談できる人の有無、職場での受容感、フィードバックの質、雑談の有無、孤立感）に回答中です。職場の人間関係・心理的安全性を測る設問です。',
-      energy: 'ユーザーは今、診断のQ13〜Q18「心理エナジー・ウェルビーイング」に関する設問（憂うつ感、仕事後の余裕、睡眠の質、前向きな気持ち、達成感、不安・焦り）に回答中です。メンタルヘルス・エネルギー状態を測る設問です。',
-      risk: 'ユーザーは今、診断のQ19〜Q25「行動リスク・定着意思」に関する設問（遅刻・寝坊、報連相の減少、ミスの増加、指示待ち、感情の抑制疲弊、職場での継続意欲、離職意思）に回答中です。離職リスクや行動変容を測る最終設問です。'
+      general: 'ユーザーは今、リミーの「入社オンボーディング診断」フォームのプロフィール入力（氏名・メール・性別・年齢・職種・入社形態・診断タイミング）を行っています。この診断は28問・約5分で完了します。目的は従業員の職場適応状況をAIが分析し、マネージャーが早期にサポートできるようにすることです。',
+      work: 'ユーザーは今、診断のQ01〜Q06「立ち上がり・戦力化／業務量」に関する設問（業務内容の理解、優先順位の整理、主体的な行動、ミスからの立て直し、業務量、詰まり感）に回答中です。入社直後の適応状況を測る設問です。',
+      relation: 'ユーザーは今、診断のQ07〜Q12「組織エンゲージメント」に関する設問（上司への質問のしやすさ、相談できる人の有無、職場での受容感、フィードバックの質、雑談の有無、孤立感）に回答中です。職場の人間関係・心理的安全性を測る設問です。',
+      energy: 'ユーザーは今、診断のQ13〜Q18「ウェルビーイング」に関する設問（憂うつ感、仕事後の余裕、睡眠の質、前向きな気持ち、達成感、不安・焦り）に回答中です。メンタルヘルス・エネルギー状態を測る設問です。',
+      risk: 'ユーザーは今、診断のQ19〜Q28「離職予兆・継続定着意思」に関する設問（遅刻・寝坊、報連相の減少、ミスの増加、指示待ち、感情の抑制疲弊、職場での継続意欲、離職意思、半年後の自己イメージ、知人への紹介意思、会社での成長イメージ）に回答中です。離職リスクや行動変容を測る最終設問です。'
     };
 
     const systemPrompt = `あなたはリミー（RE:Me）の入社オンボーディング診断の日本語サポートAIです。
@@ -243,11 +243,11 @@ function callClaudeForEmployee(profile, scores, config) {
 ・職種：${profile.job}／入社形態：${profile.type}
 
 # 診断データ
-・仕事への馴染み度（業務適応）：${scores.A} / 5.0
-・周りとのつながり（対人関係）：${scores.B} / 5.0
-・心のガソリン残量（心理エナジー）：${scores.C} / 5.0
-・要注意アラート（行動リスク）：${scores.D} / 5.0（低いほど注意）
-・「ここで続けたい」（定着意思）：${scores.E} / 5.0
+・仕事への馴染み度（立ち上がり・戦力化）：${scores.A} / 5.0
+・周りとのつながり（組織エンゲージメント）：${scores.B} / 5.0
+・心のガソリン残量（ウェルビーイング）：${scores.C} / 5.0
+・要注意アラート（離職予兆）：${scores.D} / 5.0（低いほど注意）
+・「ここで続けたい」（継続定着意思）：${scores.E} / 5.0
 
 # 出力形式
 
@@ -426,11 +426,11 @@ function callClaudeForManager(profile, scores, config) {
 ・職種：${profile.job}／入社形態：${profile.type}／診断タイミング：入社${milestone}
 
 # 5軸スコア
-・業務適応：${scores.A} / 5.0
-・対人関係：${scores.B} / 5.0
-・心理エナジー：${scores.C} / 5.0
-・行動リスク：${scores.D} / 5.0（低いほど心理的負荷が高い）
-・定着意思：${scores.E} / 5.0
+・立ち上がり・戦力化：${scores.A} / 5.0
+・組織エンゲージメント：${scores.B} / 5.0
+・ウェルビーイング：${scores.C} / 5.0
+・離職予兆：${scores.D} / 5.0（低いほど心理的負荷が高い）
+・継続定着意思：${scores.E} / 5.0
 
 # 出力形式（この形式で必ず出力すること）
 
@@ -438,11 +438,11 @@ function callClaudeForManager(profile, scores, config) {
 （1〜2文で現在の状態を端的に要約。総合的な印象と最も注目すべき点を述べる）
 
 【5軸コメント】
-① 業務適応（${scores.A}）：（スコアに基づいた観察コメント）
-② 対人関係（${scores.B}）：（スコアに基づいた観察コメント）
-③ 心理エナジー（${scores.C}）：（スコアに基づいた観察コメント）
-④ 行動リスク（${scores.D}）：（スコアに基づいた観察コメント）
-⑤ 定着意思（${scores.E}）：（スコアに基づいた観察コメント）
+① 立ち上がり・戦力化（${scores.A}）：（スコアに基づいた観察コメント）
+② 組織エンゲージメント（${scores.B}）：（スコアに基づいた観察コメント）
+③ ウェルビーイング（${scores.C}）：（スコアに基づいた観察コメント）
+④ 離職予兆（${scores.D}）：（スコアに基づいた観察コメント）
+⑤ 継続定着意思（${scores.E}）：（スコアに基づいた観察コメント）
 
 【入社${milestone}マイルストーン アクションプラン】
 フォーカス：${guide.focus}
@@ -502,7 +502,7 @@ function buildRadarChartUrl(scores) {
   const cfg = {
     type: 'radar',
     data: {
-      labels: ['業務適応','対人関係','心理エナジー','行動リスク','定着意思'],
+      labels: ['立ち上がり・戦力化','組織エンゲージメント','ウェルビーイング','離職予兆','継続定着意思'],
       datasets: [{
         label: 'スコア',
         data: [scores.A, scores.B, scores.C, scores.D, scores.E],
@@ -522,7 +522,7 @@ function buildRadarChartUrl(scores) {
 }
 
 function buildManagerScoreHtml(scores) {
-  const axes = [['業務適応',scores.A],['対人関係',scores.B],['心理エナジー',scores.C],['行動リスク',scores.D],['定着意思',scores.E]];
+  const axes = [['立ち上がり・戦力化',scores.A],['組織エンゲージメント',scores.B],['ウェルビーイング',scores.C],['離職予兆',scores.D],['継続定着意思',scores.E]];
   const overall = (Object.values(scores).reduce((s,v)=>s+v,0)/5).toFixed(1);
   const atRisk = scores.C < 2.5 || scores.D < 2.5 || scores.E < 2.5;
   const bars = axes.map(([label, val]) => {
@@ -570,9 +570,9 @@ function sendManagerEmail(managerEmail, profile, report, scores, config) {
 function sendAdminEmail(profile, company, employeeReport, managerReport, scores, config) {
   const atRisk = scores.C < 2.5 || scores.D < 2.5 || scores.E < 2.5;
   const riskFlags = [
-    scores.C < 2.5 ? `心理エナジー ${scores.C}` : null,
-    scores.D < 2.5 ? `行動リスク ${scores.D}` : null,
-    scores.E < 2.5 ? `定着意思 ${scores.E}` : null,
+    scores.C < 2.5 ? `ウェルビーイング ${scores.C}` : null,
+    scores.D < 2.5 ? `離職予兆 ${scores.D}` : null,
+    scores.E < 2.5 ? `継続定着意思 ${scores.E}` : null,
   ].filter(Boolean);
 
   const alertBanner = atRisk ? `
@@ -594,7 +594,7 @@ function sendAdminEmail(profile, company, employeeReport, managerReport, scores,
 
   const scoreTable = alertBanner + `<table style="width:100%;border-collapse:collapse;margin:16px 0;font-size:13px;">
     <tr style="background:#F3F4F6;"><th style="padding:8px 12px;text-align:left;">因子</th><th style="padding:8px 12px;text-align:center;">スコア</th></tr>
-    ${[['業務適応',scores.A],['対人関係',scores.B],['心理エナジー',scores.C],['行動リスク',scores.D],['定着意思',scores.E]].map(([l,v])=>`
+    ${[['立ち上がり・戦力化',scores.A],['組織エンゲージメント',scores.B],['ウェルビーイング',scores.C],['離職予兆',scores.D],['継続定着意思',scores.E]].map(([l,v])=>`
     <tr style="border-bottom:1px solid #E5E7EB;">
       <td style="padding:8px 12px;">${l}</td>
       <td style="padding:8px 12px;text-align:center;font-weight:700;color:${v>=3.5?'#10B981':v>=2.5?'#F59E0B':'#EF4444'};">${v}</td>
@@ -681,10 +681,10 @@ function generateMonthlyAnalysis(company, responses, config) {
 診断人数：${responses.length}名 ／ 要注意：${atRisk.length}名
 
 ## チーム平均
-業務適応:${avg('A')} 対人関係:${avg('B')} 心理エナジー:${avg('C')} 行動リスク:${avg('D')} 定着意思:${avg('E')}
+立ち上がり・戦力化:${avg('A')} 組織エンゲージメント:${avg('B')} ウェルビーイング:${avg('C')} 離職予兆:${avg('D')} 継続定着意思:${avg('E')}
 
 ## 個別データ
-${responses.map(r=>`・${r.name}（${r.job}）：業務${r.scores.A}/対人${r.scores.B}/エナジー${r.scores.C}/リスク${r.scores.D}/定着${r.scores.E}`).join('\n')}
+${responses.map(r=>`・${r.name}（${r.job}）：立上${r.scores.A}/エンゲ${r.scores.B}/ウェル${r.scores.C}/予兆${r.scores.D}/継続${r.scores.E}`).join('\n')}
 
 以下の形式で回答してください：
 
@@ -717,7 +717,7 @@ function buildMonthlyReportHTML(company, responses, aiAnalysis, periodLabel, pre
   const avg = k => (responses.reduce((s,r)=>s+r.scores[k],0)/responses.length).toFixed(1);
   const atRiskCount = responses.filter(r=>r.scores.C<2.5||r.scores.D<2.5||r.scores.E<2.5).length;
 
-  const scoreLabels = [['A','業務適応'],['B','対人関係'],['C','心理エナジー'],['D','行動リスク'],['E','定着意思']];
+  const scoreLabels = [['A','立ち上がり・戦力化'],['B','組織エンゲージメント'],['C','ウェルビーイング'],['D','離職予兆'],['E','継続定着意思']];
   const avgBars = scoreLabels.map(([k,l]) => `
     <div style="margin-bottom:12px;">
       <div style="display:flex;justify-content:space-between;margin-bottom:4px;">
@@ -1669,7 +1669,7 @@ function sendInvitationEmail(employee, company, diagUrl, config) {
     <div style="background:#EEF2FF;border-radius:10px;padding:16px;">
       <p style="margin:0 0 6px;font-size:12px;font-weight:800;color:#3730A3;">🔒 プライバシーについて</p>
       <p style="margin:0;font-size:12px;color:#3730A3;line-height:1.9;">
-        上司に共有されるのは「業務適応・対人関係・心理エナジー・行動リスク・定着意思」の<strong>5つの軸スコア（1〜5）のみ</strong>です。<br>
+        上司に共有されるのは「立ち上がり・戦力化／組織エンゲージメント／ウェルビーイング／離職予兆／継続定着意思」の<strong>5つの軸スコア（1〜5）のみ</strong>です。<br>
         「Q1にどう答えたか」などの設問ごとの回答内容は、上司・会社に一切共有されません。<br>
         安心して率直にお答えください。
       </p>
