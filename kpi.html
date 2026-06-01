@@ -163,13 +163,19 @@
   /* 印刷 */
   @media print {
     body { background: #fff; }
-    .header-actions, .filter-bar, .table-section, .btn, .shortcut-btn, .apply-btn, .modal-overlay { display: none !important; }
+    .header-actions, .filter-bar, .btn, .shortcut-btn, .apply-btn, .modal-overlay { display: none !important; }
+    .table-section.no-print { display: none !important; }
     .kpi-grid { grid-template-columns: repeat(5, 1fr); }
     .charts-grid { grid-template-columns: 1fr 1fr; }
     .main { padding: 12px; max-width: 100%; }
     .chart-wrap { height: 160px; }
     .print-header { display: block !important; }
     .def-grid { grid-template-columns: 1fr 1fr; }
+    .turnover-grid { grid-template-columns: repeat(3, 1fr); }
+    .breakdown-table { font-size: 10px; }
+    .breakdown-table th, .breakdown-table td { padding: 4px 6px; }
+    .breakdown-tab:not(.active) { opacity: 0.35; }
+    .breakdown-tab { pointer-events: none; }
   }
   .print-header { display: none; text-align: center; margin-bottom: 20px; }
   .print-header h1 { font-size: 18px; font-weight: 800; color: #1F2937; }
@@ -444,10 +450,10 @@
       </div>
     </div>
 
-    <!-- ローデータテーブル -->
-    <div class="table-section">
+    <!-- ローデータテーブル（PDFには印刷しない：個人情報保護） -->
+    <div class="table-section no-print">
       <div class="table-header">
-        <div class="chart-title" style="margin:0;">診断データ一覧（<span id="row-count">0</span>件）</div>
+        <div class="chart-title" style="margin:0;">診断データ一覧（<span id="row-count">0</span>件） <span style="font-size:10px;color:#9CA3AF;font-weight:400;">※PDF出力時は非表示（個人情報保護）</span></div>
       </div>
       <div class="table-wrap">
         <table>
