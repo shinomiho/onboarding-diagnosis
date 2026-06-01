@@ -614,6 +614,20 @@ function applyFilter() {
   loadRaw(start, end);
 }
 
+// 会社名を先に取得して表示（データ0件でも社名が出るように）
+function loadCompanyName() {
+  if (!companyCode) return; // 全社合算モード時はスキップ
+  fetch(GAS_URL + '?action=get_company&code=' + encodeURIComponent(companyCode))
+    .then(r => r.json())
+    .then(d => {
+      if (d.success && d.company && d.company.name) {
+        document.getElementById('company-name-header').textContent = d.company.name;
+        document.getElementById('print-company').textContent = d.company.name + '　人的資本KPIレポート';
+      }
+    })
+    .catch(() => {});
+}
+
 function loadKpi(start, end) {
   var url;
   if (ADMIN_MODE) {
@@ -651,9 +665,13 @@ function loadRaw(start, end) {
 
 function renderKpi(kpi) {
   var targets = loadTargets();
-  var displayName = kpi.companyName || (ADMIN_MODE && !companyCode ? '全社合算（管理者表示）' : '');
-  document.getElementById('company-name-header').textContent = displayName;
-  document.getElementById('print-company').textContent = displayName + '　人的資本KPIレポート';
+  // 会社名は loadCompanyName で先に設定済み。kpiレスポンスのcompanyNameは上書き優先（管理者モード用）
+  var existingName = document.getElementById('company-name-header').textContent;
+  var displayName = kpi.companyName || existingName || (ADMIN_MODE && !companyCode ? '全社合算（管理者表示）' : '');
+  if (displayName && displayName !== '—') {
+    document.getElementById('company-name-header').textContent = displayName;
+    document.getElementById('print-company').textContent = displayName + '　人的資本KPIレポート';
+  }
   var n = kpi.totalRespondents;
 
   function setCard(id, actual, target, lowerIsBetter, unit, meta) {
@@ -1014,6 +1032,7 @@ window.addEventListener('DOMContentLoaded', function() {
   document.getElementById('period-label').textContent = '全期間';
   document.getElementById('loading').style.display = 'none';
   document.getElementById('app').style.display = 'block';
+  loadCompanyName(); // 会社名を先に取得・表示（データ0件でも社名は出る）
   loadKpi('', '');
   loadRaw('', '');
   restoreTurnoverInputs();
