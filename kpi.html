@@ -119,6 +119,39 @@
   .reset-link { font-size: 11px; color: #9CA3AF; text-decoration: underline; cursor: pointer; margin-right: auto; align-self: center; }
   .direction-note { font-size: 10px; color: #EF4444; font-weight: 700; }
 
+  /* 対象範囲バナー */
+  .scope-banner { background: #FFFBEB; border: 1px solid #FCD34D; border-radius: 12px; padding: 14px 18px; margin-bottom: 20px; font-size: 12px; color: #92400E; line-height: 1.7; }
+  .scope-banner strong { color: #78350F; }
+  .scope-banner .scope-sub { display: block; margin-top: 6px; font-size: 11px; color: #B45309; }
+
+  /* 属性別ブレイクダウン */
+  .breakdown-tabs { display: flex; gap: 6px; flex-wrap: wrap; margin-bottom: 12px; }
+  .breakdown-tab { background: #F3F4F6; border: none; border-radius: 6px; padding: 6px 12px; font-size: 12px; font-weight: 600; color: #6B7280; cursor: pointer; transition: all .15s; }
+  .breakdown-tab:hover, .breakdown-tab.active { background: #EEF2FF; color: #4F46E5; }
+  .breakdown-table th, .breakdown-table td { padding: 8px 12px; font-size: 12px; }
+  .breakdown-bar-wrap { display: inline-block; width: 80px; height: 8px; background: #F3F4F6; border-radius: 99px; vertical-align: middle; margin-right: 6px; }
+  .breakdown-bar { height: 100%; border-radius: 99px; }
+
+  /* 実離職率セクション */
+  .turnover-grid { display: grid; grid-template-columns: repeat(3, 1fr); gap: 12px; margin-bottom: 28px; }
+  .turnover-card { background: #fff; border: 1px solid #E5E7EB; border-radius: 12px; padding: 16px; }
+  .turnover-label { font-size: 11px; font-weight: 700; color: #6B7280; margin-bottom: 8px; }
+  .turnover-input-wrap { display: flex; align-items: baseline; gap: 4px; }
+  .turnover-input { width: 80px; border: 1.5px solid #D1D5DB; border-radius: 6px; padding: 6px 10px; font-size: 20px; font-weight: 800; color: #1F2937; text-align: right; }
+  .turnover-unit { font-size: 13px; color: #6B7280; }
+  .turnover-meta { font-size: 10px; color: #9CA3AF; margin-top: 6px; line-height: 1.5; }
+  .turnover-vs { font-size: 11px; color: #374151; margin-top: 4px; }
+  .turnover-vs strong { color: #4F46E5; }
+
+  /* 年度比較バッジ */
+  .yoy-badge { display: inline-block; font-size: 10px; font-weight: 700; padding: 2px 6px; border-radius: 20px; margin-left: 4px; vertical-align: middle; }
+  .yoy-up { background: #D1FAE5; color: #065F46; }
+  .yoy-down { background: #FEE2E2; color: #991B1B; }
+  .yoy-flat { background: #F3F4F6; color: #6B7280; }
+
+  /* ISO 30414 マッピング */
+  .iso-tag { display: inline-block; background: #EEF2FF; color: #4338CA; font-size: 10px; font-weight: 700; padding: 2px 6px; border-radius: 4px; margin-right: 4px; margin-bottom: 4px; }
+
   /* フッター */
   .footer { text-align: center; color: #9CA3AF; font-size: 11px; padding: 16px; }
 
@@ -159,9 +192,10 @@
 <!-- 目標設定モーダル -->
 <div class="modal-overlay" id="target-modal" onclick="if(event.target===this)closeModal()">
   <div class="modal">
-    <div class="modal-title">🎯 KPI目標値を設定</div>
+    <div class="modal-title">🎯 貴社の中期目標値を設定</div>
     <div class="modal-sub">
-      デフォルト値はリミーが設定した推奨水準です。貴社の方針に合わせて自由に変更できます。<br>
+      有価証券報告書に記載する「中期目標」をここで設定してください。<br>
+      デフォルト値はリミーが設定した推奨水準です。貴社の人材育成方針・社内環境整備方針に応じて自由に変更できます。<br>
       設定はこのブラウザに保存され、次回以降も引き継がれます。
     </div>
     <div class="target-rows">
@@ -247,10 +281,20 @@
 
   <div class="main">
 
+    <!-- 計測対象範囲バナー -->
+    <div class="scope-banner">
+      <strong>📌 計測対象範囲：</strong>入社後90日以内の従業員（全社員人的資本指標の<strong>サブ指標（オンボーディングKPI）</strong>として位置付け）
+      <span class="scope-sub">
+        有価証券報告書「人的資本」セクション全体には、別途
+        <strong>女性管理職比率／男性育休取得率／男女賃金格差（法定3指標）</strong>
+        および <strong>実離職率</strong> 等の集計が必要です。本ダッシュボードはこれを <strong>補完する入社初期エンゲージメント指標群</strong>として位置付けてください。
+      </span>
+    </div>
+
     <!-- KPI 5指標 -->
     <div class="section-title">
-      <span>有価証券報告書 掲載KPI 5指標</span>
-      <span style="font-size:11px;color:#9CA3AF;font-weight:400;text-transform:none;">点線 = 目標値（<span style="cursor:pointer;color:#4F46E5;text-decoration:underline;" onclick="openModal()">変更</span>）</span>
+      <span>有価証券報告書 掲載KPI 5指標（入社初期エンゲージメント）</span>
+      <span style="font-size:11px;color:#9CA3AF;font-weight:400;text-transform:none;">点線 = 貴社の中期目標（<span style="cursor:pointer;color:#4F46E5;text-decoration:underline;" onclick="openModal()">変更</span>）</span>
     </div>
     <div class="kpi-grid">
       <div class="kpi-card c1">
@@ -262,7 +306,7 @@
           <span class="kpi-target-val" id="kpi1-tval">—</span>
           <span class="kpi-badge na" id="kpi1-badge">—</span>
         </div>
-        <div class="kpi-desc">5軸スコア（業務・対人・心理・リスク・定着）の総合平均</div>
+        <div class="kpi-desc">5軸（立ち上がり・エンゲージメント・ウェルビーイング・離職予兆・継続定着）の総合平均</div>
         <div class="kpi-meta" id="kpi1-meta"></div>
       </div>
       <div class="kpi-card c2">
@@ -315,8 +359,43 @@
       </div>
     </div>
 
+    <!-- 実離職率（人的資本開示で重視される実績値） -->
+    <div class="section-title">
+      <span>📉 実離職率（実績値・手動入力）</span>
+      <span style="font-size:11px;color:#9CA3AF;font-weight:400;text-transform:none;">人事システムで集計した値を入力 → 予測指標との突合に使用</span>
+    </div>
+    <div class="turnover-grid">
+      <div class="turnover-card">
+        <div class="turnover-label">入社後90日以内 離職率</div>
+        <div class="turnover-input-wrap">
+          <input type="number" id="actual-90d" class="turnover-input" min="0" max="100" step="0.1" onchange="saveTurnover()">
+          <span class="turnover-unit">%</span>
+        </div>
+        <div class="turnover-vs" id="vs-90d">—</div>
+        <div class="turnover-meta">本ダッシュボード「リスク検知率(④)」との突合で予測精度を検証</div>
+      </div>
+      <div class="turnover-card">
+        <div class="turnover-label">入社後1年以内 離職率</div>
+        <div class="turnover-input-wrap">
+          <input type="number" id="actual-1y" class="turnover-input" min="0" max="100" step="0.1" onchange="saveTurnover()">
+          <span class="turnover-unit">%</span>
+        </div>
+        <div class="turnover-vs" id="vs-1y">—</div>
+        <div class="turnover-meta">早期離職の主要指標。ISO 30414 / 経産省ガイドラインで重視</div>
+      </div>
+      <div class="turnover-card">
+        <div class="turnover-label">年間離職率（全社）</div>
+        <div class="turnover-input-wrap">
+          <input type="number" id="actual-overall" class="turnover-input" min="0" max="100" step="0.1" onchange="saveTurnover()">
+          <span class="turnover-unit">%</span>
+        </div>
+        <div class="turnover-vs" id="vs-overall">—</div>
+        <div class="turnover-meta">人的資本開示の代表的指標。法定開示ではないが投資家関心が高い</div>
+      </div>
+    </div>
+
     <!-- チャート -->
-    <div class="section-title">トレンド推移（点線 = 目標値）</div>
+    <div class="section-title">トレンド推移（点線 = 貴社中期目標）</div>
     <div class="charts-grid">
       <div class="chart-card">
         <div class="chart-title">スコア推移（指標①・⑤）</div>
@@ -329,6 +408,39 @@
         <div class="chart-sub">縦軸：0〜100%　点線 = 目標</div>
         <div class="chart-wrap"><canvas id="chart-rates"></canvas></div>
         <div class="no-data" id="no-rates" style="display:none;">データがありません</div>
+      </div>
+    </div>
+
+    <!-- 属性別ブレイクダウン -->
+    <div class="section-title">
+      <span>📊 属性別ブレイクダウン（人的資本開示の多様性・包摂性対応）</span>
+      <span style="font-size:11px;color:#9CA3AF;font-weight:400;text-transform:none;">属性別の集計値・診断人数を比較</span>
+    </div>
+    <div class="table-section">
+      <div class="breakdown-tabs">
+        <button class="breakdown-tab active" data-key="gender" onclick="setBreakdown('gender', this)">男女別</button>
+        <button class="breakdown-tab" data-key="age" onclick="setBreakdown('age', this)">年代別</button>
+        <button class="breakdown-tab" data-key="job" onclick="setBreakdown('job', this)">職種別</button>
+        <button class="breakdown-tab" data-key="type" onclick="setBreakdown('type', this)">入社形態別</button>
+      </div>
+      <div class="table-wrap">
+        <table class="breakdown-table" id="breakdown-table">
+          <thead>
+            <tr>
+              <th id="breakdown-th">区分</th>
+              <th>人数</th>
+              <th>総合スコア</th>
+              <th>立ち上がり(A)</th>
+              <th>エンゲージメント(B)</th>
+              <th>ウェルビーイング(C)</th>
+              <th>離職予兆(D)</th>
+              <th>継続定着(E)</th>
+              <th>要注意検知率</th>
+            </tr>
+          </thead>
+          <tbody id="breakdown-body"></tbody>
+        </table>
+        <div class="no-data" id="no-breakdown" style="display:none;">データがありません</div>
       </div>
     </div>
 
@@ -364,17 +476,19 @@
             <div class="def-formula">総合スコア = (A + B + C + D + E) ÷ 5</div>
             <span style="font-size:10px;color:#6B7280;">A=立ち上がり・戦力化　B=組織エンゲージメント　C=ウェルビーイング　D=離職予兆　E=継続定着意思</span><br>
             月次で集計し推移を記録。計測タイミングは診断回答日。
-            <div class="def-threshold">推奨水準：3.5以上（リミー基準）</div>
+            <div style="margin-top:6px;"><span class="iso-tag">ISO 30414: Engagement</span><span class="iso-tag">経産省「人材版伊藤レポート2.0」: 従業員エンゲージメント</span></div>
+            <div class="def-threshold">リミー推奨水準：3.5以上 ／ 貴社中期目標：「🎯 目標設定」で個別入力</div>
           </div>
         </div>
 
         <div class="def-item c2">
           <div class="def-name">② オンボーディング定着率</div>
           <div class="def-body">
-            継続定着意思スコア（E軸）が3.5以上の従業員が全診断対象者に占める割合。
+            継続定着意思スコア（E軸）が3.5以上の従業員が全診断対象者に占める割合。<strong>予測指標</strong>のため、実離職率と併記し継続的に突合する。
             <div class="def-formula">定着率(%) = E ≥ 3.5 の人数 ÷ 全診断人数 × 100</div>
             スコア3.5以上を「定着傾向あり」と定義。入社後の早期定着を定量化する指標。
-            <div class="def-threshold">推奨水準：80%以上（リミー基準）</div>
+            <div style="margin-top:6px;"><span class="iso-tag">ISO 30414: Retention</span><span class="iso-tag">GRI 401-1（離職率）の先行指標</span></div>
+            <div class="def-threshold">リミー推奨水準：80%以上 ／ 貴社中期目標：「🎯 目標設定」で個別入力</div>
           </div>
         </div>
 
@@ -384,7 +498,8 @@
             月次AIレポートで提示した推奨アクションの実施状況をマネージャーが自己評価した実施率の平均値。
             <div class="def-formula">実施率(%) = 実施済みアクション数 ÷ 推奨アクション総数 × 100</div>
             毎月5日・20日のリマインドメールよりアクションチェックシートへの回答を集計。
-            <div class="def-threshold">推奨水準：70%以上（リミー基準）</div>
+            <div style="margin-top:6px;"><span class="iso-tag">ISO 30414: Leadership</span><span class="iso-tag">経産省「人材版伊藤レポート2.0」: マネジメント施策実行</span></div>
+            <div class="def-threshold">リミー推奨水準：70%以上 ／ 貴社中期目標：「🎯 目標設定」で個別入力</div>
           </div>
         </div>
 
@@ -394,20 +509,46 @@
             ウェルビーイング(C)・離職予兆(D)・継続定着意思(E)のいずれかが2.5未満の従業員が占める割合。<strong>値が低いほど組織の健全性が高い。</strong>
             <div class="def-formula">リスク率(%) = (C or D or E &lt; 2.5) の人数 ÷ 全診断人数 × 100</div>
             閾値2.5は「中立（3点）から1段階低い水準」として設定。
-            <div class="def-threshold">推奨水準：20%以下（リミー基準）</div>
+            <div style="margin-top:6px;"><span class="iso-tag">ISO 30414: Workforce Health &amp; Safety</span><span class="iso-tag">GRI 401-1（離職率）の先行指標</span></div>
+            <div class="def-threshold">リミー推奨水準：20%以下 ／ 貴社中期目標：「🎯 目標設定」で個別入力</div>
           </div>
         </div>
 
-        <div class="def-item c5" style="grid-column: span 2;">
+        <div class="def-item c5">
           <div class="def-name">⑤ 職場環境スコア</div>
           <div class="def-body">
             組織エンゲージメントスコア（B軸）とウェルビーイングスコア（C軸）の2軸平均値。職場の心理的安全性・人間関係の質を定量的に示す。
             <div class="def-formula">職場環境スコア = (B + C) ÷ 2</div>
             B=職場の人間関係・コミュニケーション品質　C=精神的エネルギー・ストレス耐性の状態。月次平均値の推移で管理。
-            <div class="def-threshold">推奨水準：3.5以上（リミー基準）</div>
+            <div style="margin-top:6px;"><span class="iso-tag">ISO 30414: Organizational Culture</span><span class="iso-tag">経産省「人材版伊藤レポート2.0」: 心理的安全性</span></div>
+            <div class="def-threshold">リミー推奨水準：3.5以上 ／ 貴社中期目標：「🎯 目標設定」で個別入力</div>
           </div>
         </div>
 
+        <div class="def-item" style="border-left-color:#9CA3AF;background:#F3F4F6;">
+          <div class="def-name">⑥ 実離職率（実績値・手動入力）</div>
+          <div class="def-body">
+            人事システム等で集計した実離職率を企業が入力。リミーは予測指標（①〜⑤）を提供し、<strong>実績値との突合で予測精度を継続検証</strong>する。
+            <div class="def-formula">90日／1年／全社 の3区分で集計</div>
+            予測指標（リミーKPI）と実離職率（実績）の両方を併記することで、開示の説得力が高まる。
+            <div style="margin-top:6px;"><span class="iso-tag">ISO 30414: Retention</span><span class="iso-tag">GRI 401-1</span><span class="iso-tag">投資家関心：高</span></div>
+            <div class="def-threshold">業界平均との比較を併記すると効果的（中途入社90日離職率の業界平均：おおむね10〜15%）</div>
+          </div>
+        </div>
+
+      </div>
+
+      <!-- 法定3指標の注記 -->
+      <div style="margin-top:20px;background:#FEF2F2;border:1px solid #FECACA;border-radius:8px;padding:14px 18px;">
+        <div style="font-size:12px;font-weight:800;color:#991B1B;margin-bottom:6px;">⚠️ 法定開示3指標（リミー範囲外・別途集計が必要）</div>
+        <div style="font-size:11px;color:#7F1D1D;line-height:1.8;">
+          以下3指標は2023年3月期以降、上場企業に開示が義務化されています（女性活躍推進法／育児・介護休業法）。<strong>本ダッシュボードには含まれません</strong>ので、別途人事システム等で集計してください。
+          <ul style="margin:6px 0 0 18px;padding:0;">
+            <li>女性管理職比率</li>
+            <li>男性育児休業取得率</li>
+            <li>男女間賃金格差（全労働者／正規／非正規）</li>
+          </ul>
+        </div>
       </div>
     </div>
 
@@ -513,6 +654,8 @@ function renderKpi(kpi) {
   setCard('kpi5', kpi.workEnvScore, targets.t5, false, '/5', 'エンゲージメント・ウェルビーイング平均');
 
   renderCharts(kpi.trend, kpi.actionRates, targets);
+  renderTurnoverVs();
+  loadYoYComparison();
 }
 
 function renderEmpty() {
@@ -606,6 +749,167 @@ function renderTable(rows) {
     '<td class="' + (r.atRisk === 'あり' ? 'risk-yes' : 'risk-no') + '">' + r.atRisk + '</td>' +
     '</tr>'
   ).join('');
+  renderBreakdown();
+}
+
+// ===== 属性別ブレイクダウン =====
+var currentBreakdownKey = 'gender';
+var BREAKDOWN_HEADERS = { gender: '性別', age: '年代', job: '職種', type: '入社形態' };
+
+function setBreakdown(key, btn) {
+  currentBreakdownKey = key;
+  document.querySelectorAll('.breakdown-tab').forEach(b => b.classList.remove('active'));
+  if (btn) btn.classList.add('active');
+  renderBreakdown();
+}
+
+function ageBucket(age) {
+  var a = Number(age);
+  if (!a || isNaN(a)) return '未回答';
+  if (a < 25) return '20代前半';
+  if (a < 30) return '20代後半';
+  if (a < 35) return '30代前半';
+  if (a < 40) return '30代後半';
+  if (a < 45) return '40代前半';
+  if (a < 50) return '40代後半';
+  if (a < 55) return '50代前半';
+  if (a < 60) return '50代後半';
+  return '60代以上';
+}
+
+function bucketValue(row, key) {
+  if (key === 'gender') return row.gender || '未回答';
+  if (key === 'age')    return ageBucket(row.age);
+  if (key === 'job')    return row.job || '未回答';
+  if (key === 'type')   return row.type || '未回答';
+  return '—';
+}
+
+function renderBreakdown() {
+  var tbody = document.getElementById('breakdown-body');
+  var noEl = document.getElementById('no-breakdown');
+  document.getElementById('breakdown-th').textContent = BREAKDOWN_HEADERS[currentBreakdownKey];
+
+  if (!rawRows || rawRows.length === 0) {
+    tbody.innerHTML = '';
+    noEl.style.display = 'flex';
+    return;
+  }
+  noEl.style.display = 'none';
+
+  var groups = {};
+  rawRows.forEach(r => {
+    var key = bucketValue(r, currentBreakdownKey);
+    if (!groups[key]) groups[key] = [];
+    groups[key].push(r);
+  });
+
+  var keys = Object.keys(groups).sort();
+  tbody.innerHTML = keys.map(k => {
+    var arr = groups[k];
+    var avg = ax => (arr.reduce((s, r) => s + Number(r[ax]), 0) / arr.length).toFixed(1);
+    var overall = (arr.reduce((s, r) => s + Number(r.overall), 0) / arr.length).toFixed(1);
+    var atRiskN = arr.filter(r => r.atRisk === 'あり').length;
+    var atRiskPct = Math.round(atRiskN / arr.length * 100);
+    var bar = (v, color) => '<span class="breakdown-bar-wrap"><span class="breakdown-bar" style="width:' + (v/5*100) + '%;background:' + color + ';"></span></span>' + v;
+    var sc = v => Number(v) >= 3.5 ? '#10B981' : Number(v) >= 2.5 ? '#F59E0B' : '#EF4444';
+    return '<tr>' +
+      '<td><strong>' + k + '</strong></td>' +
+      '<td>' + arr.length + '名</td>' +
+      '<td><strong style="color:' + sc(overall) + ';">' + overall + '</strong></td>' +
+      '<td>' + bar(avg('A'), sc(avg('A'))) + '</td>' +
+      '<td>' + bar(avg('B'), sc(avg('B'))) + '</td>' +
+      '<td>' + bar(avg('C'), sc(avg('C'))) + '</td>' +
+      '<td>' + bar(avg('D'), sc(avg('D'))) + '</td>' +
+      '<td>' + bar(avg('E'), sc(avg('E'))) + '</td>' +
+      '<td class="' + (atRiskPct >= 30 ? 'risk-yes' : 'risk-no') + '">' + atRiskPct + '% (' + atRiskN + '名)</td>' +
+      '</tr>';
+  }).join('');
+}
+
+// ===== 実離職率（手動入力＋localStorage保存）＝予測指標との突合 =====
+function loadTurnover() {
+  try {
+    var saved = localStorage.getItem('limee_turnover_' + companyCode);
+    return saved ? JSON.parse(saved) : {};
+  } catch(e) { return {}; }
+}
+
+function saveTurnover() {
+  var t = {
+    d90: document.getElementById('actual-90d').value,
+    y1:  document.getElementById('actual-1y').value,
+    all: document.getElementById('actual-overall').value,
+  };
+  localStorage.setItem('limee_turnover_' + companyCode, JSON.stringify(t));
+  renderTurnoverVs();
+}
+
+function renderTurnoverVs() {
+  var t = loadTurnover();
+  var predicted = currentKpi && currentKpi.riskRate != null ? Number(currentKpi.riskRate) : null;
+  var fmtNum = v => v != null && v !== '' ? Number(v).toFixed(1) + '%' : '—';
+  var diff90 = (t.d90 !== '' && t.d90 != null && predicted != null) ? ' (リスク検知率 ' + Math.round(predicted) + '% との差 ' + (Number(t.d90) - predicted).toFixed(1) + 'pt)' : '';
+  document.getElementById('vs-90d').innerHTML = t.d90 != null && t.d90 !== '' ? '実績：<strong>' + fmtNum(t.d90) + '</strong>' + diff90 : '<span style="color:#9CA3AF;">未入力</span>';
+  document.getElementById('vs-1y').innerHTML = t.y1 != null && t.y1 !== '' ? '実績：<strong>' + fmtNum(t.y1) + '</strong>' : '<span style="color:#9CA3AF;">未入力</span>';
+  document.getElementById('vs-overall').innerHTML = t.all != null && t.all !== '' ? '実績：<strong>' + fmtNum(t.all) + '</strong>' : '<span style="color:#9CA3AF;">未入力</span>';
+}
+
+function restoreTurnoverInputs() {
+  var t = loadTurnover();
+  if (t.d90 != null) document.getElementById('actual-90d').value = t.d90;
+  if (t.y1  != null) document.getElementById('actual-1y').value  = t.y1;
+  if (t.all != null) document.getElementById('actual-overall').value = t.all;
+  renderTurnoverVs();
+}
+
+// ===== 年度比較（前期間と当期間の差分） =====
+function loadYoYComparison() {
+  // 直近12ヶ月と、その前12ヶ月のスコアを比較
+  var start = document.getElementById('start-date').value;
+  var end = document.getElementById('end-date').value;
+  // 当期間：start〜end / 前期間：start-期間幅〜start
+  if (!end) end = new Date().toISOString().slice(0,10);
+  if (!start) {
+    // 全期間ならYoY計算はスキップ
+    return;
+  }
+  var endD = new Date(end);
+  var startD = new Date(start);
+  var spanMs = endD - startD;
+  var prevEnd = new Date(startD.getTime() - 86400000);
+  var prevStart = new Date(prevEnd.getTime() - spanMs);
+  var fmt = d => d.toISOString().slice(0,10);
+
+  fetch(GAS_URL + '?action=get_kpi_company&code=' + encodeURIComponent(companyCode) + '&startDate=' + fmt(prevStart) + '&endDate=' + fmt(prevEnd))
+    .then(r => r.json())
+    .then(d => {
+      if (!d.success || !d.kpi || !currentKpi) return;
+      renderYoYBadges(currentKpi, d.kpi);
+    });
+}
+
+function renderYoYBadges(curr, prev) {
+  var pairs = [
+    ['kpi1', curr.avgScores.overall, prev.avgScores.overall, false],
+    ['kpi2', curr.retentionRate, prev.retentionRate, false],
+    ['kpi3', curr.avgActionRate, prev.avgActionRate, false],
+    ['kpi4', curr.riskRate, prev.riskRate, true],
+    ['kpi5', curr.workEnvScore, prev.workEnvScore, false],
+  ];
+  pairs.forEach(p => {
+    var id = p[0], c = p[1], pr = p[2], lowerIsBetter = p[3];
+    if (c == null || pr == null) return;
+    var diff = Number(c) - Number(pr);
+    var good = lowerIsBetter ? diff < 0 : diff > 0;
+    var cls = Math.abs(diff) < 0.05 ? 'yoy-flat' : (good ? 'yoy-up' : 'yoy-down');
+    var arrow = Math.abs(diff) < 0.05 ? '→' : (diff > 0 ? '▲' : '▼');
+    var metaEl = document.getElementById(id + '-meta');
+    if (metaEl) {
+      var existing = metaEl.textContent;
+      metaEl.innerHTML = existing + ' <span class="yoy-badge ' + cls + '">' + arrow + ' 前期比 ' + (diff > 0 ? '+' : '') + diff.toFixed(1) + '</span>';
+    }
+  });
 }
 
 function downloadCSV() {
@@ -671,6 +975,7 @@ window.addEventListener('DOMContentLoaded', function() {
   document.getElementById('app').style.display = 'block';
   loadKpi('', '');
   loadRaw('', '');
+  restoreTurnoverInputs();
 });
 </script>
 </body>

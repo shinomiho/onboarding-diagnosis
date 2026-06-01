@@ -120,9 +120,16 @@
           </div>
         </div>
 
-        <div style="background:#EEF2FF;border-radius:12px;padding:14px 16px;margin-bottom:16px;font-size:12px;color:#4F46E5;line-height:1.7;">
+        <div style="background:#EEF2FF;border-radius:12px;padding:14px 16px;margin-bottom:12px;font-size:12px;color:#4F46E5;line-height:1.7;">
           <strong>人的資本開示KPI（3層構造）</strong><br>
           インプット指標（スコア） → プロセス指標（管理者アクション実施率） → アウトカム指標（リスク率・定着スコア）
+        </div>
+
+        <div style="background:#FFFBEB;border:1px solid #FCD34D;border-radius:12px;padding:12px 16px;margin-bottom:16px;font-size:12px;color:#92400E;line-height:1.7;">
+          <strong>📌 計測対象範囲：入社後90日以内の従業員</strong>（全社員人的資本指標のサブ指標）<br>
+          有価証券報告書対応の詳細KPI（属性別ブレイクダウン・実離職率突合・ISO 30414マッピング・年度比較）は
+          <a href="#" id="kpi-detail-link" style="color:#92400E;text-decoration:underline;font-weight:700;">人的資本KPIダッシュボード（詳細版）</a>
+          をご利用ください。
         </div>
 
         <div id="kpi-companies" style="margin-bottom:16px;display:none;"></div>
@@ -291,6 +298,15 @@
     // ===== KPI =====
     async function loadKpi() {
       const code = document.getElementById('kpi-filter-company').value;
+      // 詳細KPIダッシュボードへのリンクを更新
+      const detailLink = document.getElementById('kpi-detail-link');
+      if (detailLink) {
+        detailLink.href = code ? `kpi.html?code=${encodeURIComponent(code)}` : '#';
+        detailLink.style.pointerEvents = code ? 'auto' : 'none';
+        detailLink.style.opacity = code ? '1' : '0.5';
+        if (!code) detailLink.title = '会社を選択してください';
+        else detailLink.target = '_blank';
+      }
       const url = `${APPS_SCRIPT_URL}?action=get_kpi_data&adminSecret=${encodeURIComponent(adminSecret)}${code ? '&companyCode=' + code : ''}`;
       const res = await apiFetch(url);
       if (!res.success || !res.kpi) {
