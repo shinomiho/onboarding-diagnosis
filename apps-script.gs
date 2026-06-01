@@ -1161,6 +1161,13 @@ function getKpiData(companyCode, config, startDate, endDate) {
   if (endDate) { const ed = new Date(endDate); ed.setHours(23,59,59); allRows = allRows.filter(r => new Date(r[0]) <= ed); }
   if (allRows.length === 0) return ok({ kpi: null });
 
+  // companyCode指定時は会社名を解決
+  let resolvedCompanyName = '';
+  if (companyCode) {
+    const c = getCompanyByCodeInternal(companyCode, config);
+    if (c) resolvedCompanyName = c.name;
+  }
+
   const totalRespondents = allRows.length;
   const atRiskRows = allRows.filter(r => Number(r[11]) < 2.5 || Number(r[12]) < 2.5 || Number(r[13]) < 2.5);
 
@@ -1246,6 +1253,7 @@ function getKpiData(companyCode, config, startDate, endDate) {
 
   return ok({
     kpi: {
+      companyName: resolvedCompanyName,
       totalRespondents,
       atRiskCount: atRiskRows.length,
       riskRate: Math.round(atRiskRows.length / totalRespondents * 100),
