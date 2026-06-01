@@ -172,10 +172,12 @@
     .print-header { display: block !important; }
     .def-grid { grid-template-columns: 1fr 1fr; }
     .turnover-grid { grid-template-columns: repeat(3, 1fr); }
-    .breakdown-table { font-size: 10px; }
+    .breakdown-table { font-size: 10px; display: table !important; }
     .breakdown-table th, .breakdown-table td { padding: 4px 6px; }
+    .breakdown-tabs { display: flex !important; }
     .breakdown-tab:not(.active) { opacity: 0.35; }
     .breakdown-tab { pointer-events: none; }
+    .table-section:not(.no-print) { display: block !important; }
   }
   .print-header { display: none; text-align: center; margin-bottom: 20px; }
   .print-header h1 { font-size: 18px; font-weight: 800; color: #1F2937; }
@@ -744,17 +746,17 @@ function renderTable(rows) {
   if (rows.length === 0) {
     tbody.innerHTML = '';
     document.getElementById('no-raw').style.display = 'flex';
-    return;
+  } else {
+    document.getElementById('no-raw').style.display = 'none';
+    tbody.innerHTML = rows.map(r =>
+      '<tr>' +
+      '<td>' + r.date + '</td><td>' + r.name + '</td><td>' + (r.job || '—') + '</td>' +
+      '<td>' + r.A + '</td><td>' + r.B + '</td><td>' + r.C + '</td><td>' + r.D + '</td><td>' + r.E + '</td>' +
+      '<td><strong>' + r.overall + '</strong></td><td>' + r.workEnv + '</td>' +
+      '<td class="' + (r.atRisk === 'あり' ? 'risk-yes' : 'risk-no') + '">' + r.atRisk + '</td>' +
+      '</tr>'
+    ).join('');
   }
-  document.getElementById('no-raw').style.display = 'none';
-  tbody.innerHTML = rows.map(r =>
-    '<tr>' +
-    '<td>' + r.date + '</td><td>' + r.name + '</td><td>' + (r.job || '—') + '</td>' +
-    '<td>' + r.A + '</td><td>' + r.B + '</td><td>' + r.C + '</td><td>' + r.D + '</td><td>' + r.E + '</td>' +
-    '<td><strong>' + r.overall + '</strong></td><td>' + r.workEnv + '</td>' +
-    '<td class="' + (r.atRisk === 'あり' ? 'risk-yes' : 'risk-no') + '">' + r.atRisk + '</td>' +
-    '</tr>'
-  ).join('');
   renderBreakdown();
 }
 
@@ -982,6 +984,7 @@ window.addEventListener('DOMContentLoaded', function() {
   loadKpi('', '');
   loadRaw('', '');
   restoreTurnoverInputs();
+  renderBreakdown(); // 初回：rawRows空でも空表示を出す
 });
 </script>
 </body>
