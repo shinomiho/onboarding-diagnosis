@@ -187,6 +187,7 @@ function doGet(e) {
     if (action === 'get_kpi_data')         { if (!validateAdmin(e.parameter.adminSecret, config)) return err('認証エラー'); return getKpiData(e.parameter.companyCode || '', config); }
     if (action === 'get_kpi_company')      return getKpiCompany(e.parameter, config);
     if (action === 'get_raw_data')         return getRawDataCompany(e.parameter, config);
+    if (action === 'get_raw_data_admin')   { if (!validateAdmin(e.parameter.adminSecret, config)) return err('認証エラー'); return getRawDataAdmin(e.parameter, config); }
     if (action === 'get_action_check_info') return getActionCheckInfo(e.parameter.company, config);
     if (action === 'get_company_dashboard') return getCompanyDashboard(e.parameter, config);
     return err('不明なアクション');
@@ -1297,6 +1298,44 @@ function getRawDataCompany(params, config) {
   }));
 
   return ok({ company: company.name, rows: data });
+}
+
+// ===== 管理者向け生データ（全社合算 or 特定会社） =====
+function getRawDataAdmin(params, config) {
+  const ss = SpreadsheetApp.openById(config.spreadsheetId);
+  const sheet = ss.getSheetByName('responses');
+  if (!sheet) return ok({ company: '全社合算', rows: [] });
+
+  let rows = sheet.getDataRange().getValues().slice(1).filter(r => r[0]);
+  if (params.companyCode) rows = rows.filter(r => r[1] === params.companyCode);
+  if (params.startDate) { const sd = new Date(params.startDate); rows = rows.filter(r => new Date(r[0]) >= sd); }
+  if (params.endDate)   { const ed = new Date(params.endDate); ed.setHours(23,59,59); rows = rows.filter(r => new Date(r[0]) <= ed); }
+
+  const data = rows.map(r => ({
+    date: Utilities.formatDate(new Date(r[0]), 'Asia/Tokyo', 'yyyy/MM/dd'),
+    companyName: r[2] || '',
+    name: r[3],
+    email: r[4],
+    gender: r[5] || '',
+    age: r[6] || '',
+    job: r[7] || '',
+    type: r[8] || '',
+    A: Number(r[9]).toFixed(1),
+    B: Number(r[10]).toFixed(1),
+    C: Number(r[11]).toFixed(1),
+    D: Number(r[12]).toFixed(1),
+    E: Number(r[13]).toFixed(1),
+    overall: ((Number(r[9])+Number(r[10])+Number(r[11])+Number(r[12])+Number(r[13]))/5).toFixed(1),
+    workEnv: ((Number(r[10])+Number(r[11]))/2).toFixed(1),
+    atRisk: (Number(r[11]) < 2.5 || Number(r[12]) < 2.5 || Number(r[13]) < 2.5) ? 'あり' : 'なし',
+  }));
+
+  let companyLabel = '全社合算';
+  if (params.companyCode) {
+    const c = getCompanyByCodeInternal(params.companyCode, config);
+    if (c) companyLabel = c.name;
+  }
+  return ok({ company: companyLabel, rows: data });
 }
 
 // ===== 企業自己登録（register.html から） =====

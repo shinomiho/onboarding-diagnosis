@@ -261,8 +261,10 @@
       <div class="logo">RE<span>:</span>Me</div>
       <div class="company-name" id="company-name-header">—</div>
       <div class="header-badge">人的資本KPIダッシュボード</div>
+      <div class="header-badge" id="admin-badge" style="display:none;background:#F59E0B;color:#fff;">⚙️ 管理者表示</div>
     </div>
     <div class="header-actions">
+      <a id="admin-back-link" href="admin.html" style="display:none;font-size:13px;font-weight:600;color:#4F46E5;text-decoration:none;padding:8px 12px;">← 管理画面へ戻る</a>
       <button class="btn btn-gray" onclick="openModal()">🎯 目標設定</button>
       <button class="btn btn-outline" onclick="downloadCSV()">📊 CSVダウンロード</button>
       <button class="btn btn-primary" onclick="window.print()">📄 PDFで保存</button>
@@ -430,6 +432,7 @@
         <button class="breakdown-tab" data-key="age" onclick="setBreakdown('age', this)">年代別</button>
         <button class="breakdown-tab" data-key="job" onclick="setBreakdown('job', this)">職種別</button>
         <button class="breakdown-tab" data-key="type" onclick="setBreakdown('type', this)">入社形態別</button>
+        <button class="breakdown-tab" data-key="company" id="tab-company" onclick="setBreakdown('company', this)" style="display:none;">会社別</button>
       </div>
       <div class="table-wrap">
         <table class="breakdown-table" id="breakdown-table">
@@ -566,7 +569,10 @@
 
 <script>
 var GAS_URL = 'https://script.google.com/macros/s/AKfycbyGceshWFX-_kepVh5KHTvNwsrNAh7hW22U48KSp4DVvohXurOsAa6BDW7MFrsbKJ0n/exec';
-var companyCode = new URLSearchParams(location.search).get('code') || '';
+var _params = new URLSearchParams(location.search);
+var companyCode = _params.get('code') || '';
+var adminSecret = _params.get('admin') || '';
+var ADMIN_MODE = !!adminSecret;
 var rawRows = [];
 var chartScores = null, chartRates = null;
 var currentKpi = null;
@@ -609,7 +615,13 @@ function applyFilter() {
 }
 
 function loadKpi(start, end) {
-  var url = GAS_URL + '?action=get_kpi_company&code=' + encodeURIComponent(companyCode);
+  var url;
+  if (ADMIN_MODE) {
+    url = GAS_URL + '?action=get_kpi_data&adminSecret=' + encodeURIComponent(adminSecret);
+    if (companyCode) url += '&companyCode=' + encodeURIComponent(companyCode);
+  } else {
+    url = GAS_URL + '?action=get_kpi_company&code=' + encodeURIComponent(companyCode);
+  }
   if (start) url += '&startDate=' + start;
   if (end) url += '&endDate=' + end;
   fetch(url)
@@ -623,7 +635,13 @@ function loadKpi(start, end) {
 }
 
 function loadRaw(start, end) {
-  var url = GAS_URL + '?action=get_raw_data&code=' + encodeURIComponent(companyCode);
+  var url;
+  if (ADMIN_MODE) {
+    url = GAS_URL + '?action=get_raw_data_admin&adminSecret=' + encodeURIComponent(adminSecret);
+    if (companyCode) url += '&companyCode=' + encodeURIComponent(companyCode);
+  } else {
+    url = GAS_URL + '?action=get_raw_data&code=' + encodeURIComponent(companyCode);
+  }
   if (start) url += '&startDate=' + start;
   if (end) url += '&endDate=' + end;
   fetch(url)
@@ -633,8 +651,9 @@ function loadRaw(start, end) {
 
 function renderKpi(kpi) {
   var targets = loadTargets();
-  document.getElementById('company-name-header').textContent = kpi.companyName || '';
-  document.getElementById('print-company').textContent = (kpi.companyName || '') + '　人的資本KPIレポート';
+  var displayName = kpi.companyName || (ADMIN_MODE && !companyCode ? '全社合算（管理者表示）' : '');
+  document.getElementById('company-name-header').textContent = displayName;
+  document.getElementById('print-company').textContent = displayName + '　人的資本KPIレポート';
   var n = kpi.totalRespondents;
 
   function setCard(id, actual, target, lowerIsBetter, unit, meta) {
@@ -762,7 +781,7 @@ function renderTable(rows) {
 
 // ===== 属性別ブレイクダウン =====
 var currentBreakdownKey = 'gender';
-var BREAKDOWN_HEADERS = { gender: '性別', age: '年代', job: '職種', type: '入社形態' };
+var BREAKDOWN_HEADERS = { gender: '性別', age: '年代', job: '職種', type: '入社形態', company: '会社' };
 
 function setBreakdown(key, btn) {
   currentBreakdownKey = key;
@@ -786,10 +805,11 @@ function ageBucket(age) {
 }
 
 function bucketValue(row, key) {
-  if (key === 'gender') return row.gender || '未回答';
-  if (key === 'age')    return ageBucket(row.age);
-  if (key === 'job')    return row.job || '未回答';
-  if (key === 'type')   return row.type || '未回答';
+  if (key === 'gender')  return row.gender || '未回答';
+  if (key === 'age')     return ageBucket(row.age);
+  if (key === 'job')     return row.job || '未回答';
+  if (key === 'type')    return row.type || '未回答';
+  if (key === 'company') return row.companyName || '未回答';
   return '—';
 }
 
@@ -973,9 +993,22 @@ function resetTargets() {
 
 // 初期化
 window.addEventListener('DOMContentLoaded', function() {
-  if (!companyCode) {
-    document.getElementById('loading').innerHTML = '<p style="color:#EF4444;font-size:14px;">URLに会社コード（?code=LIMEE_XXXXXX）が必要です</p>';
+  // 管理者モード判定（admin もしくは code どちらかが必要）
+  if (!companyCode && !ADMIN_MODE) {
+    document.getElementById('loading').innerHTML = '<p style="color:#EF4444;font-size:14px;">URLに会社コード（?code=LIMEE_XXXXXX）または管理者トークン（?admin=...）が必要です</p>';
     return;
+  }
+  if (ADMIN_MODE) {
+    document.getElementById('admin-badge').style.display = 'inline-block';
+    document.getElementById('admin-back-link').style.display = 'inline-block';
+    document.getElementById('tab-company').style.display = 'inline-block';
+    if (!companyCode) {
+      // 全社合算モード：会社別タブをデフォルトに
+      document.getElementById('company-name-header').textContent = '全社合算（管理者表示）';
+      document.title = '人的資本KPI（全社合算）— リミー管理画面';
+    } else {
+      document.title = '人的資本KPI（管理者表示）— リミー管理画面';
+    }
   }
   document.getElementById('print-date').textContent = new Date().toLocaleDateString('ja-JP');
   document.getElementById('period-label').textContent = '全期間';
