@@ -1401,7 +1401,8 @@ function registerCompany(data, config) {
   sendWelcomeEmail(data, diagUrl, config);
   sendRegistrationNotify(data, diagUrl, code, config);
 
-  return ok({ code, url: diagUrl });
+  const adminUrl = `${config.siteUrl}/company-admin.html?code=${code}`;
+  return ok({ code, url: diagUrl, diagUrl, adminUrl });
 }
 
 function sendWelcomeEmail(data, diagUrl, config) {

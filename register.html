@@ -78,7 +78,7 @@
 
       </div>
 
-      <button onclick="submitRegistration()" class="submit-btn" id="submit-btn">登録して診断URLを発行する</button>
+      <button onclick="submitRegistration()" class="submit-btn" id="submit-btn">登録して管理画面を発行する</button>
       <p id="form-error" style="color:#EF4444;font-size:13px;text-align:center;margin-top:8px;display:none;"></p>
 
       <p style="font-size:11px;color:#9CA3AF;text-align:center;margin-top:16px;line-height:1.7;">
@@ -90,25 +90,52 @@
 
   <!-- 完了画面 -->
   <div id="done-screen" class="hidden">
-    <div class="container" style="max-width:480px;padding-top:60px;text-align:center;">
+    <div class="container" style="max-width:560px;padding-top:50px;padding-bottom:60px;text-align:center;">
       <p style="font-size:48px;margin:0 0 16px;">🎉</p>
-      <h2 style="font-size:20px;color:var(--text);margin-bottom:8px;">登録が完了しました！</h2>
-      <p id="done-company" style="font-size:15px;font-weight:700;color:var(--primary);margin-bottom:20px;"></p>
-      <p style="font-size:14px;color:var(--text-sub);line-height:1.8;margin-bottom:28px;">
-        管理者のメールアドレスへ<br>
-        <strong>診断URLと使い方ガイド</strong>を送信しました。<br>
-        メールをご確認ください。
+      <h2 style="font-size:22px;color:var(--text);margin-bottom:8px;">登録が完了しました！</h2>
+      <p id="done-company" style="font-size:16px;font-weight:700;color:var(--primary);margin-bottom:14px;"></p>
+      <p style="font-size:13px;color:var(--text-sub);line-height:1.8;margin-bottom:28px;">
+        管理者のメールアドレスへ<strong>使い方ガイド</strong>を送信しました。<br>
+        まずは下の「管理画面を開く」から従業員を追加してください。
       </p>
 
-      <div style="background:var(--bg);border-radius:12px;padding:20px;margin-bottom:24px;text-align:left;">
-        <p style="font-size:12px;font-weight:700;color:var(--text-sub);margin:0 0 8px;">発行された診断URL</p>
-        <p id="done-url" style="font-size:12px;font-family:monospace;color:var(--text);word-break:break-all;margin:0 0 12px;"></p>
-        <button onclick="copyUrl()" style="padding:8px 20px;background:var(--primary);color:white;border:none;border-radius:8px;font-size:13px;font-weight:700;cursor:pointer;">URLをコピー</button>
+      <!-- 🏢 PRIMARY: 管理画面（最初にやること） -->
+      <div style="background:linear-gradient(135deg,#4F46E5,#7C3AED);border-radius:14px;padding:22px 24px;margin-bottom:18px;text-align:left;color:#fff;box-shadow:0 4px 16px rgba(79,70,229,0.25);">
+        <div style="display:flex;align-items:center;gap:8px;margin-bottom:10px;">
+          <span style="background:#fff;color:#4F46E5;font-size:11px;font-weight:800;padding:3px 10px;border-radius:99px;">STEP 1</span>
+          <span style="font-size:11px;opacity:0.9;font-weight:600;letter-spacing:1px;">まずここから</span>
+        </div>
+        <h3 style="margin:0 0 4px;font-size:18px;font-weight:800;">🏢 管理画面を開く</h3>
+        <p style="margin:0 0 14px;font-size:12px;opacity:0.95;line-height:1.7;">
+          従業員の追加・診断URLの共有・回答状況・KPIサマリーを一括管理できます。<br>
+          <strong>このURLをブックマーク</strong>してください。
+        </p>
+        <div style="background:rgba(255,255,255,0.13);border-radius:8px;padding:10px 12px;margin-bottom:12px;">
+          <p id="done-admin-url" style="font-size:11px;font-family:monospace;word-break:break-all;margin:0;opacity:0.95;"></p>
+        </div>
+        <div style="display:flex;gap:8px;flex-wrap:wrap;">
+          <a id="open-admin-btn" href="#" target="_blank" style="display:inline-block;background:#fff;color:#4F46E5;font-size:14px;font-weight:800;padding:11px 24px;border-radius:8px;text-decoration:none;">管理画面を開く →</a>
+          <button onclick="copyAdminUrl()" style="background:rgba(255,255,255,0.2);color:#fff;border:1px solid rgba(255,255,255,0.5);font-size:13px;font-weight:700;padding:10px 18px;border-radius:8px;cursor:pointer;">URLをコピー</button>
+        </div>
       </div>
 
-      <p style="font-size:13px;color:var(--text-sub);line-height:1.8;">
-        このURLを新入社員に共有してください。<br>
-        診断結果は管理者へ自動送信されます。
+      <!-- 📋 SECONDARY: 診断URL（直接共有する場合） -->
+      <div style="background:#F9FAFB;border:1px solid #E5E7EB;border-radius:12px;padding:18px 20px;margin-bottom:16px;text-align:left;">
+        <div style="display:flex;align-items:center;gap:8px;margin-bottom:8px;">
+          <span style="background:#E5E7EB;color:#6B7280;font-size:10px;font-weight:700;padding:2px 8px;border-radius:99px;">参考</span>
+          <span style="font-size:11px;color:#9CA3AF;font-weight:600;">従業員向け診断URL</span>
+        </div>
+        <p style="margin:0 0 8px;font-size:11px;color:#6B7280;line-height:1.6;">
+          通常は<strong>管理画面から従業員を追加</strong>すると招待メールが自動送信されます。直接共有したい場合のみこちらをお使いください。
+        </p>
+        <div style="background:#fff;border:1px solid #E5E7EB;border-radius:6px;padding:8px 10px;margin-bottom:8px;">
+          <p id="done-url" style="font-size:11px;font-family:monospace;color:#374151;word-break:break-all;margin:0;"></p>
+        </div>
+        <button onclick="copyUrl()" style="padding:6px 14px;background:#fff;color:#4F46E5;border:1px solid #C7D2FE;border-radius:6px;font-size:12px;font-weight:700;cursor:pointer;">診断URLをコピー</button>
+      </div>
+
+      <p style="font-size:12px;color:var(--text-sub);line-height:1.8;">
+        診断結果は管理者のメールへ自動送信され、管理画面・KPIダッシュボードでも確認できます。
       </p>
     </div>
   </div>
@@ -128,6 +155,7 @@
     const params = new URLSearchParams(window.location.search);
     const regToken = params.get('token') || '';
     let generatedUrl = '';
+    let generatedAdminUrl = '';
 
     async function submitRegistration() {
       const companyName  = document.getElementById('company-name').value.trim();
@@ -158,10 +186,13 @@
         const data = await res.json();
         if (!data.success) throw new Error(data.error);
 
-        generatedUrl = data.url;
+        generatedUrl = data.diagUrl || data.url;
+        generatedAdminUrl = data.adminUrl || '';
         document.getElementById('done-company').textContent =
           companyName + (teamName ? ` ／ ${teamName}` : '');
         document.getElementById('done-url').textContent = generatedUrl;
+        document.getElementById('done-admin-url').textContent = generatedAdminUrl;
+        document.getElementById('open-admin-btn').href = generatedAdminUrl;
         document.getElementById('form-screen').classList.add('hidden');
         document.getElementById('done-screen').classList.remove('hidden');
       } catch(e) {
@@ -171,7 +202,7 @@
           : '登録に失敗しました。もう一度お試しください。';
         errEl.style.display = 'block';
         btn.disabled = false;
-        btn.textContent = '登録して診断URLを発行する';
+        btn.textContent = '登録して管理画面を発行する';
       }
     }
 
@@ -182,7 +213,10 @@
     }
 
     function copyUrl() {
-      navigator.clipboard.writeText(generatedUrl).then(() => alert('URLをコピーしました'));
+      navigator.clipboard.writeText(generatedUrl).then(() => alert('診断URLをコピーしました'));
+    }
+    function copyAdminUrl() {
+      navigator.clipboard.writeText(generatedAdminUrl).then(() => alert('管理画面URLをコピーしました'));
     }
   </script>
 </body>
