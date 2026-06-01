@@ -86,6 +86,54 @@
       padding: 3px 8px; border-radius: 99px;
     }
 
+    /* タブナビゲーション */
+    .tab-nav {
+      display: flex; gap: 6px; background: #fff; border-radius: 12px;
+      padding: 6px; margin-bottom: 16px; box-shadow: 0 1px 4px rgba(0,0,0,0.06);
+    }
+    .tab-btn {
+      flex: 1; background: transparent; border: none; padding: 10px 8px;
+      border-radius: 8px; font-size: 13px; font-weight: 700; color: #6B7280;
+      cursor: pointer; transition: all .15s; white-space: nowrap;
+    }
+    .tab-btn:hover { background: #F3F4F6; }
+    .tab-btn.active { background: #4F46E5; color: #fff; }
+    .tab-panel { display: none; }
+    .tab-panel.active { display: block; }
+
+    /* 回答一覧スタイル */
+    .response-card {
+      background: #fff; border-radius: 12px; padding: 14px 16px;
+      box-shadow: 0 1px 4px rgba(0,0,0,0.06); margin-bottom: 10px;
+    }
+    .response-card-header { display: flex; justify-content: space-between; align-items: center; margin-bottom: 8px; }
+    .response-name { font-size: 14px; font-weight: 700; color: #1F2937; }
+    .response-date { font-size: 11px; color: #9CA3AF; }
+    .response-meta { font-size: 11px; color: #6B7280; margin-bottom: 8px; }
+    .response-scores { display: flex; gap: 6px; flex-wrap: wrap; }
+    .score-chip {
+      flex: 1; min-width: 0; text-align: center; background: #F9FAFB;
+      border-radius: 8px; padding: 6px 4px;
+    }
+    .score-chip-label { font-size: 9px; color: #9CA3AF; font-weight: 600; }
+    .score-chip-val { font-size: 16px; font-weight: 800; line-height: 1.2; }
+
+    /* 簡易KPIスタイル */
+    .summary-grid {
+      display: grid; grid-template-columns: 1fr 1fr; gap: 10px; margin-bottom: 14px;
+    }
+    .summary-card {
+      background: #fff; border-radius: 12px; padding: 14px;
+      box-shadow: 0 1px 4px rgba(0,0,0,0.06); border-top: 3px solid #6366F1;
+    }
+    .summary-card.green { border-top-color: #10B981; }
+    .summary-card.orange { border-top-color: #F59E0B; }
+    .summary-card.red { border-top-color: #EF4444; }
+    .summary-card-label { font-size: 10px; font-weight: 800; color: #9CA3AF; letter-spacing: 1px; margin-bottom: 4px; }
+    .summary-card-title { font-size: 11px; font-weight: 700; color: #6B7280; margin-bottom: 6px; line-height: 1.4; }
+    .summary-card-value { font-size: 22px; font-weight: 800; color: #1F2937; line-height: 1; }
+    .summary-card-sub { font-size: 11px; color: #9CA3AF; margin-top: 4px; }
+
     .section-header {
       display: flex; justify-content: space-between; align-items: center;
       margin-bottom: 12px;
@@ -201,7 +249,7 @@
   <!-- Main content -->
   <div id="mainContent" style="display:none;">
 
-    <!-- Stats -->
+    <!-- Stats（全タブ共通の上部サマリー） -->
     <div class="stats-grid">
       <div class="stat-card">
         <div class="stat-label">登録人数</div>
@@ -227,40 +275,70 @@
       </div>
     </div>
 
-    <!-- Diagnosis URL -->
-    <div class="url-card" id="diagUrlCard" style="display:none;">
-      <div class="url-card-label">診断URL</div>
-      <div class="url-card-url" id="diagUrlText">—</div>
-      <button class="copy-btn" onclick="copyDiagUrl()">コピー</button>
+    <!-- タブ切替 -->
+    <div class="tab-nav">
+      <button class="tab-btn active" data-tab="employees" onclick="showTab('employees', this)">👥 従業員管理</button>
+      <button class="tab-btn" data-tab="responses" onclick="showTab('responses', this)">📋 回答一覧</button>
+      <button class="tab-btn" data-tab="kpi" onclick="showTab('kpi', this)">📊 KPIサマリー</button>
     </div>
 
-    <!-- KPIダッシュボード案内（有価証券報告書対応） -->
-    <div class="kpi-card-banner" id="kpiBanner" style="display:none;">
-      <div class="kpi-card-banner-label">📊 人的資本KPIダッシュボード</div>
-      <div class="kpi-card-banner-title">有価証券報告書対応の詳細レポートはこちら</div>
-      <div class="kpi-card-banner-features">
-        <span class="kpi-feat-tag">ISO 30414準拠</span>
-        <span class="kpi-feat-tag">5指標+実離職率</span>
-        <span class="kpi-feat-tag">属性別ブレイクダウン</span>
-        <span class="kpi-feat-tag">PDF出力対応</span>
+    <!-- タブ1: 従業員管理 -->
+    <div id="panel-employees" class="tab-panel active">
+      <!-- Diagnosis URL -->
+      <div class="url-card" id="diagUrlCard" style="display:none;">
+        <div class="url-card-label">診断URL</div>
+        <div class="url-card-url" id="diagUrlText">—</div>
+        <button class="copy-btn" onclick="copyDiagUrl()">コピー</button>
       </div>
-      <div class="kpi-card-banner-sub">
-        エンゲージメント・定着率・離職リスクなど5つのKPIと、ISO 30414マッピング・属性別集計・実離職率突合を確認できます。<br>
-        PDF出力で投資家向け資料・有価証券報告書の人的資本セクション資料として利用可能です。
+
+      <!-- Employee list -->
+      <div class="section-header">
+        <div class="section-title">従業員一覧</div>
+        <button class="add-btn" onclick="openModal()">
+          <span>＋</span> 追加
+        </button>
       </div>
-      <a class="kpi-card-banner-btn" id="kpiBannerLink" href="#" target="_blank">KPIダッシュボードを開く →</a>
+
+      <div class="employee-list" id="employeeList">
+        <div class="empty-state"><p>従業員が登録されていません</p></div>
+      </div>
     </div>
 
-    <!-- Employee list -->
-    <div class="section-header">
-      <div class="section-title">従業員一覧</div>
-      <button class="add-btn" onclick="openModal()">
-        <span>＋</span> 追加
-      </button>
+    <!-- タブ2: 回答一覧 -->
+    <div id="panel-responses" class="tab-panel">
+      <div class="section-header" style="margin-bottom:12px;">
+        <div class="section-title">診断回答一覧</div>
+        <span id="responsesCount" style="font-size:12px;color:#6B7280;">—</span>
+      </div>
+      <div id="responsesList">
+        <div class="empty-state"><p>診断データを読み込み中...</p></div>
+      </div>
     </div>
 
-    <div class="employee-list" id="employeeList">
-      <div class="empty-state"><p>従業員が登録されていません</p></div>
+    <!-- タブ3: 簡易KPIサマリー -->
+    <div id="panel-kpi" class="tab-panel">
+      <!-- KPIダッシュボード案内（有価証券報告書対応） -->
+      <div class="kpi-card-banner" id="kpiBanner" style="display:none;">
+        <div class="kpi-card-banner-label">📊 人的資本KPIダッシュボード</div>
+        <div class="kpi-card-banner-title">有価証券報告書対応の詳細レポートはこちら</div>
+        <div class="kpi-card-banner-features">
+          <span class="kpi-feat-tag">ISO 30414準拠</span>
+          <span class="kpi-feat-tag">5指標+実離職率</span>
+          <span class="kpi-feat-tag">属性別ブレイクダウン</span>
+          <span class="kpi-feat-tag">PDF出力対応</span>
+        </div>
+        <div class="kpi-card-banner-sub">
+          属性別ブレイクダウン・実離職率突合・ISO 30414マッピング・法定3指標警告など、この画面では見られない詳細分析を別タブで開きます。
+        </div>
+        <a class="kpi-card-banner-btn" id="kpiBannerLink" href="#" target="_blank">詳細KPIダッシュボードを開く →</a>
+      </div>
+
+      <div class="section-header" style="margin-bottom:12px;">
+        <div class="section-title">簡易KPIサマリー（全期間）</div>
+      </div>
+      <div id="kpiSummary">
+        <div class="empty-state"><p>診断データがまだありません</p></div>
+      </div>
     </div>
 
   </div>
@@ -479,6 +557,108 @@
       }
     } catch (e) {
       showToast('❌ 通信エラー', 4000);
+    }
+  }
+
+  // ===== タブ切替 =====
+  let responsesLoaded = false;
+  let kpiLoaded = false;
+
+  function showTab(name, btn) {
+    document.querySelectorAll('.tab-panel').forEach(p => p.classList.remove('active'));
+    document.querySelectorAll('.tab-btn').forEach(b => b.classList.remove('active'));
+    document.getElementById('panel-' + name).classList.add('active');
+    if (btn) btn.classList.add('active');
+    if (name === 'responses' && !responsesLoaded) loadResponses();
+    if (name === 'kpi' && !kpiLoaded) loadKpiSummary();
+  }
+
+  // ===== 回答一覧 =====
+  function scoreColor(v) {
+    var n = Number(v);
+    return n >= 3.5 ? '#10B981' : n >= 2.5 ? '#F59E0B' : '#EF4444';
+  }
+
+  async function loadResponses() {
+    const list = document.getElementById('responsesList');
+    list.innerHTML = '<div class="empty-state"><p>診断データを読み込み中...</p></div>';
+    try {
+      const data = await gasGet({ action: 'get_responses_company', code: COMPANY_CODE });
+      if (!data.success || !data.responses || data.responses.length === 0) {
+        list.innerHTML = '<div class="empty-state"><p>まだ診断回答がありません<br>従業員が診断を完了するとここに表示されます</p></div>';
+        document.getElementById('responsesCount').textContent = '0名';
+        responsesLoaded = true;
+        return;
+      }
+      document.getElementById('responsesCount').textContent = data.responses.length + '名';
+      list.innerHTML = data.responses.map(r => {
+        const meta = [r.gender, r.age ? r.age + '歳' : '', r.job, r.type].filter(Boolean).join(' ／ ');
+        const scores = [['A','立上'],['B','エンゲ'],['C','ウェル'],['D','予兆'],['E','継続']];
+        const chips = scores.map(([k, lbl]) => {
+          const v = Number(r.scores[k]).toFixed(1);
+          return '<div class="score-chip"><div class="score-chip-label">' + lbl + '</div><div class="score-chip-val" style="color:' + scoreColor(v) + ';">' + v + '</div></div>';
+        }).join('');
+        return '<div class="response-card">' +
+          '<div class="response-card-header">' +
+          '<div class="response-name">' + esc(r.name) + '</div>' +
+          '<div class="response-date">' + esc(r.timestamp) + '</div>' +
+          '</div>' +
+          (meta ? '<div class="response-meta">' + esc(meta) + '</div>' : '') +
+          '<div class="response-scores">' + chips + '</div>' +
+          '</div>';
+      }).join('');
+      responsesLoaded = true;
+    } catch (e) {
+      list.innerHTML = '<div class="empty-state"><p style="color:#EF4444;">読み込みエラー：' + e.message + '</p></div>';
+    }
+  }
+
+  // ===== 簡易KPIサマリー =====
+  async function loadKpiSummary() {
+    const summary = document.getElementById('kpiSummary');
+    summary.innerHTML = '<div class="empty-state"><p>KPIデータを読み込み中...</p></div>';
+    try {
+      const data = await gasGet({ action: 'get_kpi_company', code: COMPANY_CODE });
+      if (!data.success || !data.kpi) {
+        summary.innerHTML = '<div class="empty-state"><p>診断データがまだありません<br>従業員が診断を完了するとKPIが集計されます</p></div>';
+        kpiLoaded = true;
+        return;
+      }
+      const k = data.kpi;
+      const sc = scoreColor;
+      const card = (cls, label, title, val, sub) =>
+        '<div class="summary-card ' + cls + '">' +
+        '<div class="summary-card-label">' + label + '</div>' +
+        '<div class="summary-card-title">' + title + '</div>' +
+        '<div class="summary-card-value">' + val + '</div>' +
+        '<div class="summary-card-sub">' + sub + '</div>' +
+        '</div>';
+      const overallCls = Number(k.avgScores.overall) >= 3.5 ? 'green' : Number(k.avgScores.overall) >= 2.5 ? 'orange' : 'red';
+      const riskCls = k.riskRate >= 30 ? 'red' : k.riskRate >= 10 ? 'orange' : 'green';
+      const eCls = Number(k.avgScores.E) >= 3.5 ? 'green' : Number(k.avgScores.E) >= 2.5 ? 'orange' : 'red';
+      const actionCls = k.avgActionRate == null ? '' : k.avgActionRate >= 70 ? 'green' : k.avgActionRate >= 40 ? 'orange' : 'red';
+      summary.innerHTML =
+        '<div class="summary-grid">' +
+        card(overallCls, 'インプット指標', 'エンゲージメント総合', k.avgScores.overall + '<span style="font-size:12px;font-weight:600;color:#6B7280;"> / 5.0</span>', '回答数 ' + k.totalRespondents + '名') +
+        card(actionCls, 'プロセス指標', 'アクション実施率', k.avgActionRate != null ? k.avgActionRate + '<span style="font-size:12px;">%</span>' : '—', k.avgActionRate != null ? '全期間平均' : 'まだデータなし') +
+        card(riskCls, 'アウトカム指標', '要注意アラート率', k.riskRate + '<span style="font-size:12px;">%</span>', k.atRiskCount + '名 / ' + k.totalRespondents + '名') +
+        card(eCls, 'アウトカム指標', '継続定着意思', k.avgScores.E + '<span style="font-size:12px;font-weight:600;color:#6B7280;"> / 5.0</span>', '離職リスク逆指標') +
+        '</div>' +
+        '<div style="background:#fff;border-radius:12px;padding:16px;box-shadow:0 1px 4px rgba(0,0,0,0.06);">' +
+        '<div style="font-size:13px;font-weight:700;margin-bottom:12px;color:#1F2937;">📊 5因子スコア（全期間平均）</div>' +
+        [['A','立ち上がり・戦力化'],['B','組織エンゲージメント'],['C','ウェルビーイング'],['D','離職予兆'],['E','継続定着意思']].map(([key, label]) => {
+          const v = Number(k.avgScores[key]);
+          const pct = Math.round(v / 5 * 100);
+          return '<div style="display:flex;align-items:center;gap:10px;margin-bottom:8px;">' +
+            '<div style="width:120px;font-size:11px;color:#374151;">' + label + '</div>' +
+            '<div style="flex:1;background:#F3F4F6;border-radius:99px;height:8px;">' +
+            '<div style="background:' + sc(v) + ';height:8px;border-radius:99px;width:' + pct + '%;"></div></div>' +
+            '<div style="font-size:13px;font-weight:700;color:' + sc(v) + ';width:32px;">' + v.toFixed(1) + '</div></div>';
+        }).join('') +
+        '</div>';
+      kpiLoaded = true;
+    } catch (e) {
+      summary.innerHTML = '<div class="empty-state"><p style="color:#EF4444;">読み込みエラー：' + e.message + '</p></div>';
     }
   }
 

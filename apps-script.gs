@@ -188,6 +188,7 @@ function doGet(e) {
     if (action === 'get_kpi_company')      return getKpiCompany(e.parameter, config);
     if (action === 'get_raw_data')         return getRawDataCompany(e.parameter, config);
     if (action === 'get_raw_data_admin')   { if (!validateAdmin(e.parameter.adminSecret, config)) return err('認証エラー'); return getRawDataAdmin(e.parameter, config); }
+    if (action === 'get_responses_company') return getResponsesCompany(e.parameter, config);
     if (action === 'get_action_check_info') return getActionCheckInfo(e.parameter.company, config);
     if (action === 'get_company_dashboard') return getCompanyDashboard(e.parameter, config);
     return err('不明なアクション');
@@ -934,6 +935,28 @@ function getCompanyByCode(code, config) {
 
 function getCompanyByCodeInternal(code, config) {
   return getCompaniesInternal(config).find(c => c.code === code) || null;
+}
+
+// 顧客が自社の回答一覧を取得（companyCode必須・admin不要）
+function getResponsesCompany(params, config) {
+  const company = getCompanyByCodeInternal(params.code, config);
+  if (!company) return err('無効な会社コードです');
+  const ss = SpreadsheetApp.openById(config.spreadsheetId);
+  const sheet = ss.getSheetByName('responses');
+  if (!sheet) return ok({ company: company.name, responses: [] });
+  const rows = sheet.getDataRange().getValues().slice(1).filter(r => r[0] && r[1] === params.code);
+  const responses = rows.map(r => ({
+    timestamp:   Utilities.formatDate(new Date(r[0]), 'Asia/Tokyo', 'yyyy/MM/dd HH:mm'),
+    name:        r[3],
+    email:       r[4],
+    gender:      r[5] || '',
+    age:         r[6] || '',
+    job:         r[7] || '',
+    type:        r[8] || '',
+    scores:      { A: r[9], B: r[10], C: r[11], D: r[12], E: r[13] },
+    resultId:    r[16] || '',
+  })).sort((a, b) => a.timestamp < b.timestamp ? 1 : -1);
+  return ok({ company: company.name, responses });
 }
 
 function getResponses(companyCode, config) {
