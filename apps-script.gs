@@ -914,6 +914,14 @@ function getResponses(companyCode, config) {
 }
 
 // ===== メールHTMLビルダー =====
+function renderReportMd(text) {
+  if (!text) return '';
+  var s = String(text);
+  s = s.replace(/&/g, '&amp;').replace(/</g, '&lt;').replace(/>/g, '&gt;');
+  s = s.replace(/\*\*([^*\n]+?)\*\*/g, '<strong>$1</strong>');
+  return s;
+}
+
 function buildEmailHTML(label, title, content, config, extraHtml) {
   return `<!DOCTYPE html><html lang="ja"><head><meta charset="UTF-8"></head>
 <body style="margin:0;padding:0;background:#F9FAFB;font-family:'Hiragino Sans',sans-serif;">
@@ -925,7 +933,7 @@ function buildEmailHTML(label, title, content, config, extraHtml) {
   </td></tr>
   ${extraHtml ? `<tr><td style="padding:24px 32px 0;">${extraHtml}</td></tr>` : ''}
   <tr><td style="padding:32px;">
-    <div style="font-size:14px;line-height:1.9;color:#374151;white-space:pre-wrap;">${content}</div>
+    <div style="font-size:14px;line-height:1.9;color:#374151;white-space:pre-wrap;">${renderReportMd(content)}</div>
   </td></tr>
   <tr><td style="background:#F9FAFB;padding:28px 32px;text-align:center;border-top:1px solid #E5E7EB;">
     <img src="https://drive.google.com/uc?export=view&id=1EXtEctBTrl__APTO1h4DUD_dmBy8jkEg" alt="リミー" style="width:160px;height:auto;margin-bottom:12px;display:block;margin-left:auto;margin-right:auto;">

@@ -436,15 +436,17 @@ function renderRadarChart(scores) {
     ctx.fill();
   }
 
-  // ラベル
+  // ラベル（左右で基準点を切り替え、長いラベルの見切れを防ぐ）
   ctx.fillStyle = '#374151';
-  ctx.font = '12px sans-serif';
-  ctx.textAlign = 'center';
+  ctx.font = '11px sans-serif';
   ctx.textBaseline = 'middle';
   for (let i = 0; i < N; i++) {
     const angle = (Math.PI * 2 * i / N) - Math.PI / 2;
-    const x = cx + (R + 30) * Math.cos(angle);
-    const y = cy + (R + 30) * Math.sin(angle);
+    const cosA = Math.cos(angle);
+    const sinA = Math.sin(angle);
+    const x = cx + (R + 12) * cosA;
+    const y = cy + (R + 18) * sinA;
+    ctx.textAlign = Math.abs(cosA) < 0.3 ? 'center' : (cosA > 0 ? 'left' : 'right');
     ctx.fillText(labels[i], x, y);
   }
 }

@@ -25,7 +25,7 @@
 
       <div class="chart-section">
         <h3>6因子スコア</h3>
-        <canvas id="radar-chart" width="340" height="340"></canvas>
+        <canvas id="radar-chart" width="480" height="340" style="max-width:100%;height:auto;"></canvas>
       </div>
 
       <div class="score-bars" id="score-bars"></div>
@@ -265,10 +265,12 @@
         const x = cx+R*vals[i]*Math.cos(a), y = cy+R*vals[i]*Math.sin(a);
         ctx.beginPath(); ctx.arc(x,y,4,0,Math.PI*2); ctx.fillStyle='#4F46E5'; ctx.fill();
       }
-      ctx.fillStyle='#374151'; ctx.font='12px sans-serif'; ctx.textAlign='center'; ctx.textBaseline='middle';
+      ctx.fillStyle='#374151'; ctx.font='11px sans-serif'; ctx.textBaseline='middle';
       for (let i = 0; i < N; i++) {
         const a = (Math.PI*2*i/N) - Math.PI/2;
-        ctx.fillText(labels[i], cx+(R+30)*Math.cos(a), cy+(R+30)*Math.sin(a));
+        const cosA = Math.cos(a), sinA = Math.sin(a);
+        ctx.textAlign = Math.abs(cosA) < 0.3 ? 'center' : (cosA > 0 ? 'left' : 'right');
+        ctx.fillText(labels[i], cx+(R+12)*cosA, cy+(R+18)*sinA);
       }
     }
 
