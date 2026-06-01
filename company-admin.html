@@ -64,6 +64,28 @@
     }
     .copy-btn:active { background: #3730A3; }
 
+    /* KPIダッシュボード案内カード */
+    .kpi-card-banner {
+      background: linear-gradient(135deg, #DBEAFE, #EEF2FF);
+      border: 1.5px solid #93C5FD; border-radius: 14px;
+      padding: 18px 20px; margin-bottom: 18px;
+    }
+    .kpi-card-banner-label { font-size: 10px; font-weight: 800; color: #1E40AF; letter-spacing: 2px; margin-bottom: 6px; }
+    .kpi-card-banner-title { font-size: 16px; font-weight: 800; color: #1E3A8A; margin-bottom: 6px; }
+    .kpi-card-banner-sub { font-size: 12px; color: #1E40AF; line-height: 1.7; margin-bottom: 12px; }
+    .kpi-card-banner-btn {
+      display: inline-block; background: #2563EB; color: #fff; text-decoration: none;
+      font-size: 13px; font-weight: 700; padding: 10px 20px; border-radius: 10px;
+    }
+    .kpi-card-banner-btn:active { background: #1E40AF; }
+    .kpi-card-banner-features {
+      display: flex; gap: 6px; flex-wrap: wrap; margin-bottom: 10px;
+    }
+    .kpi-feat-tag {
+      background: rgba(255,255,255,0.7); color: #1E40AF; font-size: 10px; font-weight: 700;
+      padding: 3px 8px; border-radius: 99px;
+    }
+
     .section-header {
       display: flex; justify-content: space-between; align-items: center;
       margin-bottom: 12px;
@@ -212,6 +234,23 @@
       <button class="copy-btn" onclick="copyDiagUrl()">コピー</button>
     </div>
 
+    <!-- KPIダッシュボード案内（有価証券報告書対応） -->
+    <div class="kpi-card-banner" id="kpiBanner" style="display:none;">
+      <div class="kpi-card-banner-label">📊 人的資本KPIダッシュボード</div>
+      <div class="kpi-card-banner-title">有価証券報告書対応の詳細レポートはこちら</div>
+      <div class="kpi-card-banner-features">
+        <span class="kpi-feat-tag">ISO 30414準拠</span>
+        <span class="kpi-feat-tag">5指標+実離職率</span>
+        <span class="kpi-feat-tag">属性別ブレイクダウン</span>
+        <span class="kpi-feat-tag">PDF出力対応</span>
+      </div>
+      <div class="kpi-card-banner-sub">
+        エンゲージメント・定着率・離職リスクなど5つのKPIと、ISO 30414マッピング・属性別集計・実離職率突合を確認できます。<br>
+        PDF出力で投資家向け資料・有価証券報告書の人的資本セクション資料として利用可能です。
+      </div>
+      <a class="kpi-card-banner-btn" id="kpiBannerLink" href="#" target="_blank">KPIダッシュボードを開く →</a>
+    </div>
+
     <!-- Employee list -->
     <div class="section-header">
       <div class="section-title">従業員一覧</div>
@@ -321,6 +360,13 @@
         diagUrl = data.diagUrl;
         document.getElementById('diagUrlText').textContent = data.diagUrl;
         document.getElementById('diagUrlCard').style.display = 'flex';
+      }
+
+      // KPIダッシュボードリンクを設定
+      if (COMPANY_CODE) {
+        const kpiUrl = `kpi.html?code=${encodeURIComponent(COMPANY_CODE)}`;
+        document.getElementById('kpiBannerLink').href = kpiUrl;
+        document.getElementById('kpiBanner').style.display = 'block';
       }
 
       renderEmployees(data.employees);

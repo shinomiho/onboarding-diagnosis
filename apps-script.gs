@@ -203,7 +203,7 @@ function handleDiagnosis(data, config) {
 
   const resultId = saveResponse(data, company, employeeReport, managerReport, config);
   sendEmployeeEmail(data.profile, employeeReport, resultId, config);
-  sendManagerEmail(company.managerEmail, data.profile, managerReport, data.scores, config);
+  sendManagerEmail(company.managerEmail, data.profile, managerReport, data.scores, config, company.code);
   sendAdminEmail(data.profile, company, employeeReport, managerReport, data.scores, config);
 
   return ok({ employeeReport, resultId });
@@ -559,11 +559,19 @@ function buildManagerScoreHtml(scores) {
     </div>`;
 }
 
-function sendManagerEmail(managerEmail, profile, report, scores, config) {
+function sendManagerEmail(managerEmail, profile, report, scores, config, companyCode) {
+  const code = companyCode || '';
+  const kpiUrl = config.siteUrl && code ? `${config.siteUrl}/kpi.html?code=${code}` : null;
+  const scoreHtml = buildManagerScoreHtml(scores) + (kpiUrl ? `
+    <div style="background:linear-gradient(135deg,#DBEAFE,#EEF2FF);border:1.5px solid #93C5FD;border-radius:12px;padding:14px 16px;margin-top:16px;text-align:center;">
+      <p style="margin:0 0 4px;font-size:11px;font-weight:800;color:#1E40AF;letter-spacing:1px;">📊 人的資本KPIダッシュボード</p>
+      <p style="margin:0 0 10px;font-size:12px;color:#1E40AF;line-height:1.6;">全従業員のスコア推移・ISO 30414マッピング・属性別ブレイクダウンを確認できます（有価証券報告書対応）</p>
+      <a href="${kpiUrl}" style="display:inline-block;background:#2563EB;color:#fff;font-size:12px;font-weight:700;padding:8px 18px;border-radius:8px;text-decoration:none;">KPIダッシュボードを開く →</a>
+    </div>` : '');
   MailApp.sendEmail({
     to: managerEmail,
     subject: `【リミー】${profile.name}さんのマネジメントレポート`,
-    htmlBody: buildEmailHTML('マネージャー向け処方箋', `${profile.name} さんの診断結果`, report, config, buildManagerScoreHtml(scores)),
+    htmlBody: buildEmailHTML('マネージャー向け処方箋', `${profile.name} さんの診断結果`, report, config, scoreHtml),
   });
 }
 
@@ -648,7 +656,8 @@ function sendMonthlyReports() {
     const actionCheckUrl = config.siteUrl
       ? `${config.siteUrl}/action-check.html?company=${company.code}&period=${encodeURIComponent(periodLabel)}&manager=${encodeURIComponent(company.managerEmail)}`
       : null;
-    const html = buildMonthlyReportHTML(company, responses, aiAnalysis, periodLabel, prevActionData, actionCheckUrl);
+    const kpiUrl = config.siteUrl ? `${config.siteUrl}/kpi.html?code=${company.code}` : null;
+    const html = buildMonthlyReportHTML(company, responses, aiAnalysis, periodLabel, prevActionData, actionCheckUrl, kpiUrl);
     const subject = `【リミー】${company.name}様 オンボーディングレポート（${periodLabel}）`;
     const recipients = [company.managerEmail, company.hrEmail].filter(Boolean).join(',');
 
@@ -711,7 +720,7 @@ ${atRisk.length > 0
   return callClaude(system, user, config);
 }
 
-function buildMonthlyReportHTML(company, responses, aiAnalysis, periodLabel, prevActionData, actionCheckUrl) {
+function buildMonthlyReportHTML(company, responses, aiAnalysis, periodLabel, prevActionData, actionCheckUrl, kpiUrl) {
   const sc = v => v >= 3.5 ? '#10B981' : v >= 2.5 ? '#F59E0B' : '#EF4444';
   const bar = v => `<div style="background:#F3F4F6;border-radius:99px;height:8px;"><div style="background:${sc(v)};height:8px;border-radius:99px;width:${Math.round(v/5*100)}%;"></div></div>`;
   const avg = k => (responses.reduce((s,r)=>s+r.scores[k],0)/responses.length).toFixed(1);
@@ -771,11 +780,11 @@ function buildMonthlyReportHTML(company, responses, aiAnalysis, periodLabel, pre
       <tr style="background:#F9FAFB;">
         <th style="padding:8px 12px;text-align:left;font-size:12px;color:#6B7280;">氏名</th>
         <th style="padding:8px 12px;text-align:left;font-size:12px;color:#6B7280;">職種</th>
-        <th style="padding:8px;text-align:center;font-size:11px;color:#6B7280;">業務</th>
-        <th style="padding:8px;text-align:center;font-size:11px;color:#6B7280;">対人</th>
-        <th style="padding:8px;text-align:center;font-size:11px;color:#6B7280;">エナジー</th>
-        <th style="padding:8px;text-align:center;font-size:11px;color:#6B7280;">リスク</th>
-        <th style="padding:8px;text-align:center;font-size:11px;color:#6B7280;">定着</th>
+        <th style="padding:8px;text-align:center;font-size:11px;color:#6B7280;">立上</th>
+        <th style="padding:8px;text-align:center;font-size:11px;color:#6B7280;">エンゲ</th>
+        <th style="padding:8px;text-align:center;font-size:11px;color:#6B7280;">ウェル</th>
+        <th style="padding:8px;text-align:center;font-size:11px;color:#6B7280;">予兆</th>
+        <th style="padding:8px;text-align:center;font-size:11px;color:#6B7280;">継続</th>
       </tr>
       ${memberRows}
     </table>
@@ -808,6 +817,28 @@ function buildMonthlyReportHTML(company, responses, aiAnalysis, periodLabel, pre
       <a href="${actionCheckUrl}" style="display:inline-block;background:#4F46E5;color:#fff;font-size:14px;font-weight:700;padding:12px 28px;border-radius:10px;text-decoration:none;">
         ✅ アクションを振り返る →
       </a>
+    </div>
+  </td></tr>
+  ` : ''}
+
+  ${kpiUrl ? `
+  <tr><td style="padding:0 32px 32px;">
+    <div style="background:linear-gradient(135deg,#DBEAFE,#EEF2FF);border:1.5px solid #93C5FD;border-radius:16px;padding:24px;text-align:center;">
+      <p style="margin:0 0 6px;font-size:22px;">📊</p>
+      <h3 style="margin:0 0 8px;font-size:16px;font-weight:800;color:#1E40AF;">人的資本KPIダッシュボード（有価証券報告書対応）</h3>
+      <p style="margin:0 0 14px;font-size:13px;color:#1E40AF;line-height:1.7;">
+        5つのKPI指標（エンゲージメント／定着率／アクション実施率／離職リスク／職場環境）と<br>
+        ISO 30414マッピング・属性別ブレイクダウン・実離職率突合をブラウザで確認できます。
+      </p>
+      <div style="margin-bottom:16px;font-size:11px;color:#1E40AF;">
+        <span style="background:#fff;padding:3px 8px;border-radius:99px;margin:2px;display:inline-block;">ISO 30414準拠</span>
+        <span style="background:#fff;padding:3px 8px;border-radius:99px;margin:2px;display:inline-block;">属性別集計</span>
+        <span style="background:#fff;padding:3px 8px;border-radius:99px;margin:2px;display:inline-block;">PDF出力対応</span>
+      </div>
+      <a href="${kpiUrl}" style="display:inline-block;background:#2563EB;color:#fff;font-size:14px;font-weight:700;padding:12px 28px;border-radius:10px;text-decoration:none;">
+        📈 KPIダッシュボードを開く →
+      </a>
+      <p style="margin:14px 0 0;font-size:10px;color:#6B7280;font-family:monospace;word-break:break-all;">${kpiUrl}</p>
     </div>
   </td></tr>
   ` : ''}
@@ -1355,8 +1386,14 @@ function sendWelcomeEmail(data, diagUrl, config) {
     <!-- STEP 3 -->
     <div style="border:2px solid #DBEAFE;border-radius:12px;padding:20px 24px;margin-bottom:28px;">
       <p style="margin:0 0 6px;font-size:11px;font-weight:700;color:#2563EB;letter-spacing:2px;">STEP 3</p>
-      <p style="margin:0 0 4px;font-size:15px;font-weight:800;color:#1F2937;">【自動】診断レポートが届く</p>
-      <p style="margin:0 0 14px;font-size:13px;color:#6B7280;line-height:1.8;">従業員が診断を完了すると、管理者様あてに診断レポートが自動送信されます。<br>KPIダッシュボードでは全従業員の状況をまとめて確認できます。</p>
+      <p style="margin:0 0 4px;font-size:15px;font-weight:800;color:#1F2937;">【自動】診断レポートが届く / KPIダッシュボードで継続管理</p>
+      <p style="margin:0 0 14px;font-size:13px;color:#6B7280;line-height:1.8;">従業員が診断を完了すると、管理者様あてに診断レポートが自動送信されます。<br><strong>人的資本KPIダッシュボード</strong>では全従業員の状況を5つの指標でまとめて確認でき、<br><strong>有価証券報告書「人的資本」セクション</strong>の記載資料としても活用いただけます。</p>
+      <div style="background:#F0F9FF;border-radius:8px;padding:10px 14px;margin-bottom:14px;">
+        <p style="margin:0;font-size:11px;color:#1E40AF;line-height:1.7;">
+          ✅ ISO 30414準拠の5指標 ／ ✅ 属性別ブレイクダウン（多様性・包摂性対応） ／<br>
+          ✅ 実離職率との突合 ／ ✅ PDF出力で投資家資料化が可能
+        </p>
+      </div>
       <p style="margin:14px 0 0;font-size:11px;font-family:monospace;color:#374151;word-break:break-all;">${config.siteUrl}/kpi.html?code=${code}</p>
       <a href="${config.siteUrl}/kpi.html?code=${code}" style="display:inline-block;background:#2563EB;color:#fff;font-size:13px;font-weight:700;padding:10px 24px;border-radius:8px;text-decoration:none;margin-top:10px;">KPIダッシュボードを確認する →</a>
     </div>
