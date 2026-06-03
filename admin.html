@@ -19,6 +19,28 @@
     .url-text { font-size:12px; font-family:monospace; color:var(--text); flex:1; word-break:break-all; }
     .copy-btn { padding:6px 12px; background:var(--primary); color:white; border:none; border-radius:6px; font-size:12px; font-weight:600; cursor:pointer; white-space:nowrap; }
     .delete-btn { padding:6px 12px; background:white; color:#EF4444; border:1.5px solid #EF4444; border-radius:6px; font-size:12px; font-weight:600; cursor:pointer; }
+    /* 会社一覧 表形式 */
+    .companies-table-wrap { background:white; border-radius:var(--radius); border:1px solid var(--border); overflow:hidden; }
+    .companies-scroll { overflow-x:auto; }
+    .companies-table { width:100%; border-collapse:collapse; font-size:13px; }
+    .companies-table thead th { background:var(--bg); padding:10px 12px; text-align:left; font-size:11px; font-weight:700; color:var(--text-sub); border-bottom:1px solid var(--border); white-space:nowrap; }
+    .companies-table tbody td { padding:12px; border-bottom:1px solid var(--border); vertical-align:middle; }
+    .companies-table tbody tr:last-child td { border-bottom:none; }
+    .companies-table tbody tr:hover { background:var(--bg); }
+    .ct-company-name { font-size:14px; font-weight:700; color:var(--text); }
+    .ct-company-meta { font-size:11px; color:var(--text-sub); margin-top:2px; }
+    .ct-email { font-size:12px; color:var(--text-sub); word-break:break-all; }
+    .url-icons { display:flex; gap:6px; align-items:center; }
+    .url-icon-btn { width:34px; height:34px; display:inline-flex; align-items:center; justify-content:center; border:1px solid var(--border); border-radius:8px; background:white; cursor:pointer; font-size:16px; transition:all 0.15s; padding:0; }
+    .url-icon-btn:hover { background:var(--primary-light); border-color:var(--primary); transform:translateY(-1px); }
+    .url-icon-btn.copied { background:#D1FAE5; border-color:#10B981; }
+    .url-icon-btn[data-tooltip]:hover::after { content:attr(data-tooltip); position:absolute; background:#1F2937; color:#fff; font-size:11px; padding:6px 10px; border-radius:6px; white-space:nowrap; margin-top:-44px; margin-left:0; z-index:10; }
+    .url-icon-btn { position:relative; }
+    .ct-delete-btn { padding:6px 10px; background:white; color:#EF4444; border:1.5px solid #EF4444; border-radius:6px; font-size:12px; font-weight:600; cursor:pointer; white-space:nowrap; }
+    @media(max-width:640px) {
+      .companies-table thead th, .companies-table tbody td { padding:8px; font-size:12px; }
+      .url-icon-btn { width:30px; height:30px; font-size:14px; }
+    }
     .add-form { background:white; border-radius:var(--radius); border:1px solid var(--border); padding:24px; margin-bottom:24px; }
     .add-form h3 { font-size:15px; font-weight:700; margin-bottom:16px; color:var(--text); }
     .form-grid { display:grid; grid-template-columns:1fr 1fr; gap:12px; }
@@ -247,52 +269,63 @@
         container.innerHTML = '<div class="empty-state">登録された会社はまだありません</div>';
         return;
       }
-      container.innerHTML = companies.map(c => {
+      const rows = companies.map(c => {
         const url = makeUrl(c.code, c.name);
         const adminUrl = makeAdminUrl(c.code);
         const kpiUrl = makeKpiUrl(c.code);
+        const dateStr = new Date(c.createdAt).toLocaleDateString('ja-JP');
+        const escAttr = s => String(s || '').replace(/"/g, '&quot;').replace(/'/g, '&#39;');
         return `
-        <div class="card">
-          <div class="card-header">
-            <div>
-              <div class="company-name">${c.name}</div>
-              <div class="company-email">上司: ${c.managerEmail}${c.hrEmail ? ' ／ 人事: ' + c.hrEmail : ''}</div>
+        <tr>
+          <td>
+            <div class="ct-company-name">${c.name}</div>
+            <div class="ct-company-meta">${c.code} ／ ${dateStr}</div>
+          </td>
+          <td>
+            <div class="ct-email">上司: ${c.managerEmail || '—'}</div>
+            ${c.hrEmail ? `<div class="ct-email">人事: ${c.hrEmail}</div>` : ''}
+          </td>
+          <td>
+            <div class="url-icons">
+              <button class="url-icon-btn" data-tooltip="📝 診断URL（従業員向け）" onclick="copyAnyUrl(this, '${escAttr(url)}', '診断URL')">📝</button>
+              <button class="url-icon-btn" data-tooltip="🏢 企業管理URL（人事・上司向け）" onclick="copyAnyUrl(this, '${escAttr(adminUrl)}', '企業管理URL')">🏢</button>
+              <button class="url-icon-btn" data-tooltip="📊 KPIダッシュボードURL（企業向け）" onclick="copyAnyUrl(this, '${escAttr(kpiUrl)}', 'KPIダッシュボードURL')">📊</button>
             </div>
-            <button onclick="deleteCompany('${c.code}','${c.name}')" class="delete-btn">削除</button>
-          </div>
-          <div style="margin-top:12px;font-size:11px;font-weight:700;color:var(--text-sub);">📝 診断URL（従業員向け）</div>
-          <div class="url-box" style="margin-top:4px;">
-            <span class="url-text" id="url-${c.code}">${url}</span>
-            <button onclick="copyUrl('${c.code}')" class="copy-btn">コピー</button>
-          </div>
-          <div style="margin-top:10px;font-size:11px;font-weight:700;color:var(--text-sub);">🏢 企業管理URL（人事・上司向け）</div>
-          <div class="url-box" style="margin-top:4px;">
-            <span class="url-text" id="admin-url-${c.code}">${adminUrl}</span>
-            <button onclick="copyAdminUrl('${c.code}')" class="copy-btn">コピー</button>
-          </div>
-          <div style="margin-top:10px;font-size:11px;font-weight:700;color:var(--text-sub);">📊 KPIダッシュボードURL（企業向け）</div>
-          <div class="url-box" style="margin-top:4px;">
-            <span class="url-text" id="kpi-url-${c.code}">${kpiUrl}</span>
-            <button onclick="copyKpiUrl('${c.code}')" class="copy-btn">コピー</button>
-          </div>
-          <div style="margin-top:8px;font-size:11px;color:var(--text-sub);">コード: ${c.code} ／ 登録日: ${new Date(c.createdAt).toLocaleDateString('ja-JP')}</div>
-        </div>`;
+          </td>
+          <td style="text-align:right;">
+            <button onclick="deleteCompany('${c.code}','${c.name}')" class="ct-delete-btn">🗑 削除</button>
+          </td>
+        </tr>`;
       }).join('');
+
+      container.innerHTML = `
+        <div class="companies-table-wrap">
+          <div class="companies-scroll">
+            <table class="companies-table">
+              <thead>
+                <tr>
+                  <th>会社名 / コード</th>
+                  <th>担当者</th>
+                  <th>URL（📝診断 🏢管理 📊KPI）</th>
+                  <th style="text-align:right;">操作</th>
+                </tr>
+              </thead>
+              <tbody>${rows}</tbody>
+            </table>
+          </div>
+        </div>`;
     }
 
-    function copyUrl(code) {
-      const url = document.getElementById(`url-${code}`).textContent;
-      navigator.clipboard.writeText(url).then(() => alert('診断URLをコピーしました'));
-    }
-
-    function copyAdminUrl(code) {
-      const url = document.getElementById(`admin-url-${code}`).textContent;
-      navigator.clipboard.writeText(url).then(() => alert('企業管理URLをコピーしました'));
-    }
-
-    function copyKpiUrl(code) {
-      const url = document.getElementById(`kpi-url-${code}`).textContent;
-      navigator.clipboard.writeText(url).then(() => alert('KPIダッシュボードURLをコピーしました'));
+    function copyAnyUrl(btn, url, label) {
+      navigator.clipboard.writeText(url).then(() => {
+        btn.classList.add('copied');
+        const original = btn.textContent;
+        btn.textContent = '✓';
+        setTimeout(() => {
+          btn.classList.remove('copied');
+          btn.textContent = original;
+        }, 1200);
+      }).catch(() => alert('コピーに失敗しました'));
     }
 
     // ===== 回答一覧 =====
