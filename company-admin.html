@@ -521,7 +521,15 @@
     try {
       const res = await gasPost({ action: 'add_employee', companyCode: COMPANY_CODE, name, email, department: dept });
       if (res.success) {
-        showToast('✅ 追加しました。案内メールを送信しました');
+        if (res.emailStatus === 'sent') {
+          showToast('✅ 追加し、案内メールを送信しました');
+        } else if (res.emailStatus === 'failed') {
+          showToast('⚠️ 追加しましたが、メール送信に失敗：' + (res.emailError || '不明なエラー'), 6000);
+        } else if (res.emailStatus === 'skipped') {
+          showToast('⚠️ 追加しましたが、メールは送信されません（' + (res.emailError || 'SITE_URL未設定') + '）', 6000);
+        } else {
+          showToast('✅ 追加しました');
+        }
         closeModal();
         loadDashboard();
       } else {
@@ -539,7 +547,19 @@
     if (!confirm(`${email} に招待メールを再送しますか？`)) return;
     try {
       const res = await gasPost({ action: 'resend_invitation', companyCode: COMPANY_CODE, email });
-      showToast(res.success ? '✅ 再送信しました' : '❌ ' + (res.error || '失敗'), 3000);
+      if (res.success) {
+        if (res.emailStatus === 'sent') {
+          showToast('✅ 再送信しました', 3000);
+        } else if (res.emailStatus === 'failed') {
+          showToast('⚠️ 再送に失敗：' + (res.emailError || '不明なエラー'), 6000);
+        } else if (res.emailStatus === 'skipped') {
+          showToast('⚠️ ' + (res.emailError || 'SITE_URL未設定'), 6000);
+        } else {
+          showToast('✅ 処理しました', 3000);
+        }
+      } else {
+        showToast('❌ ' + (res.error || '失敗'), 4000);
+      }
     } catch (e) {
       showToast('❌ 通信エラー', 4000);
     }

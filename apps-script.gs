@@ -1860,12 +1860,23 @@ function addEmployee(data, config) {
   const id = Utilities.getUuid();
   sheet.appendRow([id, data.companyCode, data.name, data.email, data.department || '', new Date().toISOString()]);
 
-  if (config.siteUrl) {
-    const diagUrl = `${config.siteUrl}/index.html?code=${data.companyCode}&c=${encodeURIComponent(company.name)}`;
-    sendInvitationEmail({ name: data.name, email: data.email }, company, diagUrl, config);
+  var emailStatus = 'sent';
+  var emailError = '';
+  if (!config.siteUrl) {
+    emailStatus = 'skipped';
+    emailError = 'SITE_URL が設定されていません';
+  } else {
+    try {
+      var diagUrl = config.siteUrl + '/index.html?code=' + data.companyCode + '&c=' + encodeURIComponent(company.name);
+      sendInvitationEmail({ name: data.name, email: data.email }, company, diagUrl, config);
+    } catch (e) {
+      emailStatus = 'failed';
+      emailError = String(e);
+      Logger.log('sendInvitationEmail failed: ' + emailError);
+    }
   }
 
-  return ok({ id });
+  return ok({ id: id, emailStatus: emailStatus, emailError: emailError });
 }
 
 function removeEmployee(data, config) {
@@ -1894,11 +1905,22 @@ function resendInvitation(data, config) {
     .find(r => r[1] === data.companyCode && r[3] === data.email);
   if (!row) return err('従業員が見つかりません');
 
-  if (config.siteUrl) {
-    const diagUrl = `${config.siteUrl}/index.html?code=${data.companyCode}&c=${encodeURIComponent(company.name)}`;
-    sendInvitationEmail({ name: row[2], email: row[3] }, company, diagUrl, config);
+  var emailStatus = 'sent';
+  var emailError = '';
+  if (!config.siteUrl) {
+    emailStatus = 'skipped';
+    emailError = 'SITE_URL が設定されていません';
+  } else {
+    try {
+      var diagUrl = config.siteUrl + '/index.html?code=' + data.companyCode + '&c=' + encodeURIComponent(company.name);
+      sendInvitationEmail({ name: row[2], email: row[3] }, company, diagUrl, config);
+    } catch (e) {
+      emailStatus = 'failed';
+      emailError = String(e);
+      Logger.log('sendInvitationEmail (resend) failed: ' + emailError);
+    }
   }
-  return ok({});
+  return ok({ emailStatus: emailStatus, emailError: emailError });
 }
 
 function sendInvitationEmail(employee, company, diagUrl, config) {
