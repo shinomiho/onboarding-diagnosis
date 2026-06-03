@@ -390,6 +390,18 @@ h2 {
 
 .score-bar-item:last-child { margin-bottom: 0; }
 
+.score-section-label {
+  font-size: 12px;
+  font-weight: 800;
+  color: #4F46E5;
+  letter-spacing: 0.5px;
+  margin: 16px 0 10px;
+  padding-bottom: 4px;
+  border-bottom: 1px dashed #E5E7EB;
+}
+
+.score-section-label:first-child { margin-top: 0; }
+
 .score-bar-header {
   display: flex;
   justify-content: space-between;

@@ -637,24 +637,43 @@
       const riskCls = k.riskRate >= 30 ? 'red' : k.riskRate >= 10 ? 'orange' : 'green';
       const eCls = Number(k.avgScores.E) >= 3.5 ? 'green' : Number(k.avgScores.E) >= 2.5 ? 'orange' : 'red';
       const actionCls = k.avgActionRate == null ? '' : k.avgActionRate >= 70 ? 'green' : k.avgActionRate >= 40 ? 'orange' : 'red';
+      const gAvg = (k.avgScores.G != null && k.avgScores.G !== '') ? k.avgScores.G : k.avgScores.E;
       summary.innerHTML =
         '<div class="summary-grid">' +
-        card(overallCls, 'インプット指標', 'エンゲージメント総合', k.avgScores.overall + '<span style="font-size:12px;font-weight:600;color:#6B7280;"> / 5.0</span>', '回答数 ' + k.totalRespondents + '名') +
+        card(overallCls, 'インプット指標', '6因子総合スコア', k.avgScores.overall + '<span style="font-size:12px;font-weight:600;color:#6B7280;"> / 5.0</span>', '回答数 ' + k.totalRespondents + '名') +
         card(actionCls, 'プロセス指標', 'アクション実施率', k.avgActionRate != null ? k.avgActionRate + '<span style="font-size:12px;">%</span>' : '—', k.avgActionRate != null ? '全期間平均' : 'まだデータなし') +
         card(riskCls, 'アウトカム指標', '要注意アラート率', k.riskRate + '<span style="font-size:12px;">%</span>', k.atRiskCount + '名 / ' + k.totalRespondents + '名') +
-        card(eCls, 'アウトカム指標', '継続定着意思', k.avgScores.E + '<span style="font-size:12px;font-weight:600;color:#6B7280;"> / 5.0</span>', '離職リスク逆指標') +
+        card(eCls, 'アウトカム指標', '継続定着意思', gAvg + '<span style="font-size:12px;font-weight:600;color:#6B7280;"> / 5.0</span>', '離職リスク逆指標') +
         '</div>' +
         '<div style="background:#fff;border-radius:12px;padding:16px;box-shadow:0 1px 4px rgba(0,0,0,0.06);">' +
-        '<div style="font-size:13px;font-weight:700;margin-bottom:12px;color:#1F2937;">📊 5因子スコア（全期間平均）</div>' +
-        [['A','立ち上がり・戦力化'],['B','組織エンゲージメント'],['C','ウェルビーイング'],['D','離職予兆'],['E','継続定着意思']].map(([key, label]) => {
-          const v = Number(k.avgScores[key]);
+        '<div style="font-size:13px;font-weight:700;margin-bottom:12px;color:#1F2937;">📊 インプット指標：6因子スコア（全期間平均）</div>' +
+        [
+          ['A','業務負荷'],['B','業務適応'],
+          ['C','関係性の共有度'],['D','関係性の心理的安全性'],
+          ['E','自己調整感'],['F','行動の変化']
+        ].map(([key, label]) => {
+          const raw = k.avgScores[key];
+          if (raw == null || raw === '') return '';
+          const v = Number(raw);
           const pct = Math.round(v / 5 * 100);
           return '<div style="display:flex;align-items:center;gap:10px;margin-bottom:8px;">' +
-            '<div style="width:120px;font-size:11px;color:#374151;">' + label + '</div>' +
+            '<div style="width:160px;font-size:11px;color:#374151;">' + label + '</div>' +
             '<div style="flex:1;background:#F3F4F6;border-radius:99px;height:8px;">' +
             '<div style="background:' + sc(v) + ';height:8px;border-radius:99px;width:' + pct + '%;"></div></div>' +
             '<div style="font-size:13px;font-weight:700;color:' + sc(v) + ';width:32px;">' + v.toFixed(1) + '</div></div>';
         }).join('') +
+        '<div style="font-size:13px;font-weight:700;margin:16px 0 12px;color:#1F2937;">🎯 アウトカム指標</div>' +
+        (function() {
+          const raw = k.avgScores.G;
+          if (raw == null || raw === '') return '<div style="font-size:11px;color:#9CA3AF;">継続定着意思データなし（旧データの可能性）</div>';
+          const v = Number(raw);
+          const pct = Math.round(v / 5 * 100);
+          return '<div style="display:flex;align-items:center;gap:10px;">' +
+            '<div style="width:160px;font-size:11px;color:#374151;">継続定着意思</div>' +
+            '<div style="flex:1;background:#F3F4F6;border-radius:99px;height:8px;">' +
+            '<div style="background:' + sc(v) + ';height:8px;border-radius:99px;width:' + pct + '%;"></div></div>' +
+            '<div style="font-size:13px;font-weight:700;color:' + sc(v) + ';width:32px;">' + v.toFixed(1) + '</div></div>';
+        })() +
         '</div>';
       kpiLoaded = true;
     } catch (e) {

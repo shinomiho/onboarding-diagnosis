@@ -54,12 +54,15 @@ const HEALTH_ADVICE = {
 };
 
 function getRelevantAdvice(scores) {
+  // 新6因子＋アウトカム
+  // A:業務負荷 / B:業務適応 / C:関係性の共有度 / D:関係性の心理的安全性
+  // E:自己調整感 / F:行動の変化 / G:継続定着意思
   const selected = [];
-  if (scores.C < 3.0)                   { selected.push(HEALTH_ADVICE.sleep); selected.push(HEALTH_ADVICE.fatigue); }
-  if (scores.C < 2.5 || scores.D < 3.0) { selected.push(HEALTH_ADVICE.anxiety); }
-  if (scores.A < 3.0)                   { selected.push(HEALTH_ADVICE.concentration); selected.push(HEALTH_ADVICE.nutrition); }
-  if (scores.D < 3.0)                   { selected.push(HEALTH_ADVICE.posture); selected.push(HEALTH_ADVICE.sittingBreak); }
-  if (scores.E < 3.0)                   { selected.push(HEALTH_ADVICE.selfCare); }
+  if (scores.E < 3.0)                   { selected.push(HEALTH_ADVICE.sleep); selected.push(HEALTH_ADVICE.fatigue); }
+  if (scores.E < 2.5 || scores.A < 3.0) { selected.push(HEALTH_ADVICE.anxiety); }
+  if (scores.B < 3.0)                   { selected.push(HEALTH_ADVICE.concentration); selected.push(HEALTH_ADVICE.nutrition); }
+  if (scores.A < 3.0 || scores.F < 3.0) { selected.push(HEALTH_ADVICE.posture); selected.push(HEALTH_ADVICE.sittingBreak); }
+  if (scores.G < 3.0)                   { selected.push(HEALTH_ADVICE.selfCare); }
   selected.push(HEALTH_ADVICE.selfMonitoring);
   const unique = [...new Map(selected.map(a => [a.label, a])).values()];
   return unique.slice(0, 3);
@@ -123,11 +126,12 @@ function handleChat(data, config) {
     if (!userMessage) return err('メッセージが空です');
 
     const groupContexts = {
-      general: 'ユーザーは今、リミーの「入社オンボーディング診断」フォームのプロフィール入力（氏名・メール・性別・年齢・職種・入社形態・診断タイミング）を行っています。この診断は28問・約5分で完了します。目的は従業員の職場適応状況をAIが分析し、マネージャーが早期にサポートできるようにすることです。',
-      work: 'ユーザーは今、診断のQ01〜Q06「立ち上がり・戦力化／業務量」に関する設問（業務内容の理解、優先順位の整理、主体的な行動、ミスからの立て直し、業務量、詰まり感）に回答中です。入社直後の適応状況を測る設問です。',
-      relation: 'ユーザーは今、診断のQ07〜Q12「組織エンゲージメント」に関する設問（上司への質問のしやすさ、相談できる人の有無、職場での受容感、フィードバックの質、雑談の有無、孤立感）に回答中です。職場の人間関係・心理的安全性を測る設問です。',
-      energy: 'ユーザーは今、診断のQ13〜Q18「ウェルビーイング」に関する設問（憂うつ感、仕事後の余裕、睡眠の質、前向きな気持ち、達成感、不安・焦り）に回答中です。メンタルヘルス・エネルギー状態を測る設問です。',
-      risk: 'ユーザーは今、診断のQ19〜Q28「離職予兆・継続定着意思」に関する設問（遅刻・寝坊、報連相の減少、ミスの増加、指示待ち、感情の抑制疲弊、職場での継続意欲、離職意思、半年後の自己イメージ、知人への紹介意思、会社での成長イメージ）に回答中です。離職リスクや行動変容を測る最終設問です。'
+      general: 'ユーザーは今、リミーの「入社オンボーディング診断」フォームのプロフィール入力（氏名・メール・性別・年齢・職種・入社形態・診断タイミング）を行っています。この診断は28問・約5分で完了します。目的は従業員の職場適応状況を6因子（業務負荷／業務適応／関係性の共有度／関係性の心理的安全性／自己調整感／行動の変化）でAIが分析し、マネージャーが早期にサポートできるようにすることです。',
+      work: 'ユーザーは今、診断のQ01〜Q06「業務適応／業務負荷」に関する設問（業務内容の理解、優先順位の整理、主体的な行動、ミスからの立て直し、業務量、詰まり感）に回答中です。入社直後の業務適応状況と負荷状態を測る設問です。',
+      relation: 'ユーザーは今、診断のQ07〜Q12「関係性の共有度／関係性の心理的安全性」に関する設問（上司への質問のしやすさ、相談できる人の有無、職場での受容感、フィードバックの質、雑談の有無、孤立感）に回答中です。職場の人間関係と心理的安全性を測る設問です。',
+      self: 'ユーザーは今、診断のQ13〜Q18「自己調整感」に関する設問（憂うつ感、仕事後の余裕、睡眠の質、前向きな気持ち、達成感、不安・焦り）に回答中です。自分の状態を整える力・メンタルヘルスを測る設問です。',
+      behavior: 'ユーザーは今、診断のQ19〜Q23「行動の変化」に関する設問（遅刻・寝坊、報連相の減少、ミスの増加、指示待ちの増加、感情の抑制疲弊）に回答中です。離脱の前兆となる行動変化を測る早期警告の設問です。',
+      outcome: 'ユーザーは今、診断のQ24〜Q28「継続定着意思（アウトカム指標）」に関する設問（職場での継続意欲、離職意思、半年後の自己イメージ、知人への紹介意思、会社での成長イメージ）に回答中です。6因子の効果が定着意思としてどう表れているかを測る結果指標です。'
     };
 
     const systemPrompt = `あなたはリミー（RE:Me）の入社オンボーディング診断の日本語サポートAIです。
@@ -245,22 +249,32 @@ function callClaudeForEmployee(profile, scores, config) {
 ・職種：${profile.job}／入社形態：${profile.type}
 
 # 診断データ
-・仕事への馴染み度（立ち上がり・戦力化）：${scores.A} / 5.0
-・周りとのつながり（組織エンゲージメント）：${scores.B} / 5.0
-・心のガソリン残量（ウェルビーイング）：${scores.C} / 5.0
-・要注意アラート（離職予兆）：${scores.D} / 5.0（低いほど注意）
-・「ここで続けたい」（継続定着意思）：${scores.E} / 5.0
+【インプット指標：6因子】
+・業務の負荷感（業務負荷）　　：${scores.A} / 5.0（低いほど負荷が高い）
+・仕事への馴染み度（業務適応）：${scores.B} / 5.0
+・周りとのつながり（関係性の共有度）：${scores.C} / 5.0
+・本音を出せる安心感（関係性の心理的安全性）：${scores.D} / 5.0
+・心のガソリン残量（自己調整感）：${scores.E} / 5.0
+・離脱行動のサイン（行動の変化）：${scores.F} / 5.0（低いほど注意）
+
+【アウトカム指標】
+・「ここで続けたい」（継続定着意思）：${scores.G} / 5.0
 
 # 出力形式
 
 ━━━━━━━━━━━━━━━━━━━━
 ▼ 📊 今のあなたの「心の現在地」
 ━━━━━━━━━━━━━━━━━━━━
-・仕事への馴染み度　：${scores.A} / 5.0
-・周りとのつながり　：${scores.B} / 5.0
-・心のガソリン残量　：${scores.C} / 5.0
-・要注意アラート　　：${scores.D} / 5.0
-・「ここで続けたい」：${scores.E} / 5.0
+【インプット6因子】
+・業務の負荷感　　：${scores.A} / 5.0
+・仕事への馴染み度：${scores.B} / 5.0
+・周りとのつながり：${scores.C} / 5.0
+・本音を出せる安心感：${scores.D} / 5.0
+・心のガソリン残量：${scores.E} / 5.0
+・離脱行動のサイン：${scores.F} / 5.0
+
+【アウトカム】
+・「ここで続けたい」：${scores.G} / 5.0
 ━━━━━━━━━━━━━━━━━━━━
 
 ▼ 🔍 メンターからの「ズバリ」一言
@@ -418,8 +432,8 @@ function callClaudeForManager(profile, scores, config) {
 
 # 出力ルール
 ・全体を通じて端的に。各セクションは3〜5文以内。
-・5軸コメントは各軸1〜2文。スコアの数値に基づいた具体的な観察コメント。
-・「Score_」という表記は使用禁止。軸名で記述すること。
+・6因子コメントは各因子1〜2文。スコアの数値に基づいた具体的な観察コメント。
+・「Score_」という表記は使用禁止。因子名で記述すること。
 ・攻撃的・否定的な表現は避け、建設的なトーンで。
 ・出力はプレーンテキスト（マークダウン記法なし）。`;
 
@@ -427,24 +441,32 @@ function callClaudeForManager(profile, scores, config) {
 ・氏名：${profile.name}／性別：${profile.gender}／年齢：${profile.age}
 ・職種：${profile.job}／入社形態：${profile.type}／診断タイミング：入社${milestone}
 
-# 5軸スコア
-・立ち上がり・戦力化：${scores.A} / 5.0
-・組織エンゲージメント：${scores.B} / 5.0
-・ウェルビーイング：${scores.C} / 5.0
-・離職予兆：${scores.D} / 5.0（低いほど心理的負荷が高い）
-・継続定着意思：${scores.E} / 5.0
+# 6因子スコア（インプット指標：人的資本KPI先行指標）
+・業務負荷：${scores.A} / 5.0（低いほど負荷が高い）
+・業務適応：${scores.B} / 5.0
+・関係性の共有度：${scores.C} / 5.0
+・関係性の心理的安全性：${scores.D} / 5.0
+・自己調整感：${scores.E} / 5.0
+・行動の変化：${scores.F} / 5.0（低いほど離脱行動のサインが強い）
+
+# アウトカム指標
+・継続定着意思：${scores.G} / 5.0
 
 # 出力形式（この形式で必ず出力すること）
 
 【状況サマリー】
 （1〜2文で現在の状態を端的に要約。総合的な印象と最も注目すべき点を述べる）
 
-【5軸コメント】
-① 立ち上がり・戦力化（${scores.A}）：（スコアに基づいた観察コメント）
-② 組織エンゲージメント（${scores.B}）：（スコアに基づいた観察コメント）
-③ ウェルビーイング（${scores.C}）：（スコアに基づいた観察コメント）
-④ 離職予兆（${scores.D}）：（スコアに基づいた観察コメント）
-⑤ 継続定着意思（${scores.E}）：（スコアに基づいた観察コメント）
+【6因子コメント】
+① 業務負荷（${scores.A}）：（スコアに基づいた観察コメント）
+② 業務適応（${scores.B}）：（スコアに基づいた観察コメント）
+③ 関係性の共有度（${scores.C}）：（スコアに基づいた観察コメント）
+④ 関係性の心理的安全性（${scores.D}）：（スコアに基づいた観察コメント）
+⑤ 自己調整感（${scores.E}）：（スコアに基づいた観察コメント）
+⑥ 行動の変化（${scores.F}）：（スコアに基づいた観察コメント）
+
+【アウトカム指標】
+継続定着意思（${scores.G}）：（インプット6因子の結果として、どう定着意思に表れているかをコメント）
 
 【入社${milestone}マイルストーン アクションプラン】
 フォーカス：${guide.focus}
@@ -462,15 +484,24 @@ function saveResponse(data, company, employeeReport, managerReport, config) {
   let sheet = ss.getSheetByName('responses');
   if (!sheet) {
     sheet = ss.insertSheet('responses');
-    sheet.appendRow(['timestamp','company_code','company_name','name','email','gender','age','job','type','score_a','score_b','score_c','score_d','score_e','employee_report','manager_report','result_id']);
+    // 列順は既存運用との互換性のためA-E→report→result_id→F/Gの順で固定。
+    sheet.appendRow(['timestamp','company_code','company_name','name','email','gender','age','job','type','score_a','score_b','score_c','score_d','score_e','employee_report','manager_report','result_id','score_f','score_g']);
     sheet.setFrozenRows(1);
   } else {
     const headers = sheet.getRange(1, 1, 1, sheet.getLastColumn()).getValues()[0];
     if (!headers.includes('result_id')) {
       sheet.getRange(1, sheet.getLastColumn() + 1).setValue('result_id');
     }
+    // 6因子化に伴いscore_f / score_g列を末尾に追加（既存data列を維持）
+    if (!headers.includes('score_f')) {
+      sheet.getRange(1, sheet.getLastColumn() + 1).setValue('score_f');
+    }
+    if (!headers.includes('score_g')) {
+      sheet.getRange(1, sheet.getLastColumn() + 1).setValue('score_g');
+    }
   }
   const resultId = Utilities.getUuid();
+  // F・Gは末尾に配置（既存データとの互換性のため）
   sheet.appendRow([
     new Date().toISOString(),
     data.companyCode, company.name,
@@ -479,6 +510,7 @@ function saveResponse(data, company, employeeReport, managerReport, config) {
     data.profile.job, data.profile.type,
     data.scores.A, data.scores.B, data.scores.C, data.scores.D, data.scores.E,
     employeeReport, managerReport, resultId,
+    data.scores.F, data.scores.G,
   ]);
   return resultId;
 }
@@ -504,10 +536,10 @@ function buildRadarChartUrl(scores) {
   const cfg = {
     type: 'radar',
     data: {
-      labels: ['立ち上がり・戦力化','組織エンゲージメント','ウェルビーイング','離職予兆','継続定着意思'],
+      labels: ['業務負荷','業務適応','関係性の共有度','関係性の心理的安全性','自己調整感','行動の変化'],
       datasets: [{
         label: 'スコア',
-        data: [scores.A, scores.B, scores.C, scores.D, scores.E],
+        data: [scores.A, scores.B, scores.C, scores.D, scores.E, scores.F],
         backgroundColor: 'rgba(79,70,229,0.15)',
         borderColor: '#4F46E5',
         borderWidth: 2,
@@ -516,22 +548,27 @@ function buildRadarChartUrl(scores) {
       }]
     },
     options: {
-      scale: { ticks: { min: 0, max: 5, stepSize: 1, fontSize: 10 }, pointLabels: { fontSize: 12 } },
+      scale: { ticks: { min: 0, max: 5, stepSize: 1, fontSize: 10 }, pointLabels: { fontSize: 11 } },
       legend: { display: false }
     }
   };
-  return 'https://quickchart.io/chart?w=380&h=280&bkg=white&c=' + encodeURIComponent(JSON.stringify(cfg));
+  return 'https://quickchart.io/chart?w=420&h=320&bkg=white&c=' + encodeURIComponent(JSON.stringify(cfg));
 }
 
 function buildManagerScoreHtml(scores) {
-  const axes = [['立ち上がり・戦力化',scores.A],['組織エンゲージメント',scores.B],['ウェルビーイング',scores.C],['離職予兆',scores.D],['継続定着意思',scores.E]];
-  const overall = (Object.values(scores).reduce((s,v)=>s+v,0)/5).toFixed(1);
-  const atRisk = scores.C < 2.5 || scores.D < 2.5 || scores.E < 2.5;
-  const bars = axes.map(([label, val]) => {
+  const inputAxes = [
+    ['業務負荷',scores.A],['業務適応',scores.B],
+    ['関係性の共有度',scores.C],['関係性の心理的安全性',scores.D],
+    ['自己調整感',scores.E],['行動の変化',scores.F]
+  ];
+  const outcomeAxes = [['継続定着意思',scores.G]];
+  const overall = ((scores.A+scores.B+scores.C+scores.D+scores.E+scores.F)/6).toFixed(1);
+  const atRisk = scores.E < 2.5 || scores.F < 2.5 || scores.G < 2.5;
+  const renderBars = axes => axes.map(([label, val]) => {
     const pct = Math.round(val / 5 * 100);
     const color = val >= 3.5 ? '#10B981' : val >= 2.5 ? '#F59E0B' : '#EF4444';
     return `<tr>
-      <td style="padding:5px 0;font-size:12px;color:#374151;width:90px;white-space:nowrap;">${label}</td>
+      <td style="padding:5px 0;font-size:12px;color:#374151;width:140px;white-space:nowrap;">${label}</td>
       <td style="padding:5px 8px;">
         <div style="background:#E5E7EB;border-radius:4px;height:12px;">
           <div style="background:${color};border-radius:4px;height:12px;width:${pct}%;"></div>
@@ -541,14 +578,16 @@ function buildManagerScoreHtml(scores) {
     </tr>`;
   }).join('');
   const alertBox = atRisk
-    ? `<div style="margin-top:12px;background:#FEF2F2;border-radius:8px;padding:12px;font-size:12px;color:#DC2626;font-weight:700;">⚠️ 低スコア軸があります。早めのフォローを推奨します。</div>`
-    : `<div style="margin-top:12px;background:#F0FDF4;border-radius:8px;padding:12px;font-size:12px;color:#166534;">✅ 全軸安定しています。</div>`;
+    ? `<div style="margin-top:12px;background:#FEF2F2;border-radius:8px;padding:12px;font-size:12px;color:#DC2626;font-weight:700;">⚠️ 低スコア因子があります。早めのフォローを推奨します。</div>`
+    : `<div style="margin-top:12px;background:#F0FDF4;border-radius:8px;padding:12px;font-size:12px;color:#166534;">✅ 全因子安定しています。</div>`;
   return `
     <div style="background:#F5F3FF;border-radius:12px;padding:20px;margin-bottom:16px;">
-      <p style="margin:0 0 4px;font-size:13px;font-weight:800;color:#3730A3;">📊 5軸スコアサマリー</p>
-      <p style="margin:0 0 16px;font-size:12px;color:#6B7280;">総合エンゲージメント：<strong style="font-size:20px;color:#4F46E5;">${overall}</strong> / 5.0</p>
-      <img src="${buildRadarChartUrl(scores)}" alt="レーダーチャート" width="340" style="display:block;margin:0 auto 16px;border-radius:8px;">
-      <table style="width:100%;border-collapse:collapse;">${bars}</table>
+      <p style="margin:0 0 4px;font-size:13px;font-weight:800;color:#3730A3;">📊 6因子スコアサマリー（インプット指標）</p>
+      <p style="margin:0 0 16px;font-size:12px;color:#6B7280;">6因子平均：<strong style="font-size:20px;color:#4F46E5;">${overall}</strong> / 5.0</p>
+      <img src="${buildRadarChartUrl(scores)}" alt="レーダーチャート" width="380" style="display:block;margin:0 auto 16px;border-radius:8px;">
+      <table style="width:100%;border-collapse:collapse;">${renderBars(inputAxes)}</table>
+      <p style="margin:20px 0 8px;font-size:13px;font-weight:800;color:#3730A3;">🎯 アウトカム指標</p>
+      <table style="width:100%;border-collapse:collapse;">${renderBars(outcomeAxes)}</table>
       ${alertBox}
     </div>
     <div style="background:#FFF7ED;border:1.5px solid #FED7AA;border-radius:12px;padding:16px 20px;margin-bottom:16px;">
@@ -578,11 +617,12 @@ function sendManagerEmail(managerEmail, profile, report, scores, config, company
 }
 
 function sendAdminEmail(profile, company, employeeReport, managerReport, scores, config) {
-  const atRisk = scores.C < 2.5 || scores.D < 2.5 || scores.E < 2.5;
+  const atRisk = scores.E < 2.5 || scores.F < 2.5 || scores.G < 2.5;
   const riskFlags = [
-    scores.C < 2.5 ? `ウェルビーイング ${scores.C}` : null,
-    scores.D < 2.5 ? `離職予兆 ${scores.D}` : null,
-    scores.E < 2.5 ? `継続定着意思 ${scores.E}` : null,
+    scores.A < 2.5 ? `業務負荷 ${scores.A}（過重）` : null,
+    scores.E < 2.5 ? `自己調整感 ${scores.E}` : null,
+    scores.F < 2.5 ? `行動の変化 ${scores.F}` : null,
+    scores.G < 2.5 ? `継続定着意思 ${scores.G}` : null,
   ].filter(Boolean);
 
   const alertBanner = atRisk ? `
@@ -604,7 +644,15 @@ function sendAdminEmail(profile, company, employeeReport, managerReport, scores,
 
   const scoreTable = alertBanner + `<table style="width:100%;border-collapse:collapse;margin:16px 0;font-size:13px;">
     <tr style="background:#F3F4F6;"><th style="padding:8px 12px;text-align:left;">因子</th><th style="padding:8px 12px;text-align:center;">スコア</th></tr>
-    ${[['立ち上がり・戦力化',scores.A],['組織エンゲージメント',scores.B],['ウェルビーイング',scores.C],['離職予兆',scores.D],['継続定着意思',scores.E]].map(([l,v])=>`
+    ${[
+      ['【インプット】業務負荷',scores.A],
+      ['【インプット】業務適応',scores.B],
+      ['【インプット】関係性の共有度',scores.C],
+      ['【インプット】関係性の心理的安全性',scores.D],
+      ['【インプット】自己調整感',scores.E],
+      ['【インプット】行動の変化',scores.F],
+      ['【アウトカム】継続定着意思',scores.G]
+    ].map(([l,v])=>`
     <tr style="border-bottom:1px solid #E5E7EB;">
       <td style="padding:8px 12px;">${l}</td>
       <td style="padding:8px 12px;text-align:center;font-weight:700;color:${v>=3.5?'#10B981':v>=2.5?'#F59E0B':'#EF4444'};">${v}</td>
@@ -669,14 +717,25 @@ function sendMonthlyReports() {
 }
 
 function getCompanyResponses(sheet, code, startDate, endDate) {
-  return sheet.getDataRange().getValues().slice(1)
+  const all = sheet.getDataRange().getValues();
+  const headers = all[0];
+  const fIdx = headers.indexOf('score_f');
+  const gIdx = headers.indexOf('score_g');
+  return all.slice(1)
     .filter(r => r[1] === code && new Date(r[0]) >= startDate && new Date(r[0]) <= endDate)
-    .map(r => ({ name: r[3], job: r[7], scores: { A: r[9], B: r[10], C: r[11], D: r[12], E: r[13] } }));
+    .map(r => ({
+      name: r[3], job: r[7],
+      scores: {
+        A: r[9], B: r[10], C: r[11], D: r[12], E: r[13],
+        F: (fIdx > -1 && r[fIdx] !== '' && r[fIdx] != null) ? r[fIdx] : null,
+        G: (gIdx > -1 && r[gIdx] !== '' && r[gIdx] != null) ? r[gIdx] : null,
+      }
+    }));
 }
 
 function generateMonthlyAnalysis(company, responses, config) {
-  const avg = k => (responses.reduce((s,r) => s + r.scores[k], 0) / responses.length).toFixed(1);
-  const atRisk = responses.filter(r => r.scores.C < 2.5 || r.scores.D < 2.5 || r.scores.E < 2.5);
+  const avg = k => (responses.reduce((s,r) => s + (r.scores[k] || 0), 0) / responses.length).toFixed(1);
+  const atRisk = responses.filter(r => (r.scores.E && r.scores.E < 2.5) || (r.scores.F && r.scores.F < 2.5) || (r.scores.G && r.scores.G < 2.5));
 
   const system = `あなたは、組織の仕組み化を専門とするHRコンサルタントです。
 新入社員オンボーディングデータを分析し、
@@ -692,10 +751,11 @@ function generateMonthlyAnalysis(company, responses, config) {
 診断人数：${responses.length}名 ／ 要注意：${atRisk.length}名
 
 ## チーム平均
-立ち上がり・戦力化:${avg('A')} 組織エンゲージメント:${avg('B')} ウェルビーイング:${avg('C')} 離職予兆:${avg('D')} 継続定着意思:${avg('E')}
+【インプット6因子】業務負荷:${avg('A')} 業務適応:${avg('B')} 関係性の共有度:${avg('C')} 関係性の心理的安全性:${avg('D')} 自己調整感:${avg('E')} 行動の変化:${avg('F')}
+【アウトカム】継続定着意思:${avg('G')}
 
 ## 個別データ
-${responses.map(r=>`・${r.name}（${r.job}）：立上${r.scores.A}/エンゲ${r.scores.B}/ウェル${r.scores.C}/予兆${r.scores.D}/継続${r.scores.E}`).join('\n')}
+${responses.map(r=>`・${r.name}（${r.job}）：負荷${r.scores.A}/適応${r.scores.B}/共有${r.scores.C}/安全${r.scores.D}/調整${r.scores.E}/変化${r.scores.F||'-'}/定着${r.scores.G||'-'}`).join('\n')}
 
 以下の形式で回答してください：
 
@@ -725,20 +785,31 @@ ${atRisk.length > 0
 function buildMonthlyReportHTML(company, responses, aiAnalysis, periodLabel, prevActionData, actionCheckUrl, kpiUrl) {
   const sc = v => v >= 3.5 ? '#10B981' : v >= 2.5 ? '#F59E0B' : '#EF4444';
   const bar = v => `<div style="background:#F3F4F6;border-radius:99px;height:8px;"><div style="background:${sc(v)};height:8px;border-radius:99px;width:${Math.round(v/5*100)}%;"></div></div>`;
-  const avg = k => (responses.reduce((s,r)=>s+r.scores[k],0)/responses.length).toFixed(1);
-  const atRiskCount = responses.filter(r=>r.scores.C<2.5||r.scores.D<2.5||r.scores.E<2.5).length;
+  const avg = k => (responses.reduce((s,r)=>s+(r.scores[k]||0),0)/responses.length).toFixed(1);
+  const atRiskCount = responses.filter(r => (r.scores.E && r.scores.E<2.5) || (r.scores.F && r.scores.F<2.5) || (r.scores.G && r.scores.G<2.5)).length;
 
-  const scoreLabels = [['A','立ち上がり・戦力化'],['B','組織エンゲージメント'],['C','ウェルビーイング'],['D','離職予兆'],['E','継続定着意思']];
-  const avgBars = scoreLabels.map(([k,l]) => `
+  const inputLabels = [
+    ['A','業務負荷'],['B','業務適応'],
+    ['C','関係性の共有度'],['D','関係性の心理的安全性'],
+    ['E','自己調整感'],['F','行動の変化']
+  ];
+  const outcomeLabels = [['G','継続定着意思']];
+  const renderBars = labels => labels.map(([k,l]) => `
     <div style="margin-bottom:12px;">
       <div style="display:flex;justify-content:space-between;margin-bottom:4px;">
         <span style="font-size:13px;font-weight:600;color:#374151;">${l}</span>
         <span style="font-size:13px;font-weight:700;color:${sc(avg(k))};">${avg(k)}</span>
       </div>${bar(avg(k))}
     </div>`).join('');
+  const avgBars = `
+    <p style="margin:0 0 8px;font-size:12px;font-weight:800;color:#3730A3;">インプット指標（6因子）</p>
+    ${renderBars(inputLabels)}
+    <p style="margin:14px 0 8px;font-size:12px;font-weight:800;color:#3730A3;">アウトカム指標</p>
+    ${renderBars(outcomeLabels)}
+  `;
 
   const memberRows = responses.map(r => {
-    const risk = r.scores.C<2.5||r.scores.D<2.5||r.scores.E<2.5;
+    const risk = (r.scores.E && r.scores.E<2.5) || (r.scores.F && r.scores.F<2.5) || (r.scores.G && r.scores.G<2.5);
     return `<tr style="border-bottom:1px solid #E5E7EB;">
       <td style="padding:10px 12px;font-size:13px;">${risk?'⚠️ ':'✅ '}${r.name}</td>
       <td style="padding:10px 12px;font-size:12px;color:#6B7280;">${r.job}</td>
@@ -944,7 +1015,11 @@ function getResponsesCompany(params, config) {
   const ss = SpreadsheetApp.openById(config.spreadsheetId);
   const sheet = ss.getSheetByName('responses');
   if (!sheet) return ok({ company: company.name, responses: [] });
-  const rows = sheet.getDataRange().getValues().slice(1).filter(r => r[0] && r[1] === params.code);
+  const all = sheet.getDataRange().getValues();
+  const headers = all[0];
+  const fIdx = headers.indexOf('score_f');
+  const gIdx = headers.indexOf('score_g');
+  const rows = all.slice(1).filter(r => r[0] && r[1] === params.code);
   const responses = rows.map(r => ({
     timestamp:   Utilities.formatDate(new Date(r[0]), 'Asia/Tokyo', 'yyyy/MM/dd HH:mm'),
     name:        r[3],
@@ -953,7 +1028,11 @@ function getResponsesCompany(params, config) {
     age:         r[6] || '',
     job:         r[7] || '',
     type:        r[8] || '',
-    scores:      { A: r[9], B: r[10], C: r[11], D: r[12], E: r[13] },
+    scores: {
+      A: r[9], B: r[10], C: r[11], D: r[12], E: r[13],
+      F: (fIdx > -1 && r[fIdx] !== '' && r[fIdx] != null) ? r[fIdx] : null,
+      G: (gIdx > -1 && r[gIdx] !== '' && r[gIdx] != null) ? r[gIdx] : null,
+    },
     resultId:    r[16] || '',
   })).sort((a, b) => a.timestamp < b.timestamp ? 1 : -1);
   return ok({ company: company.name, responses });
@@ -963,9 +1042,21 @@ function getResponses(companyCode, config) {
   const ss = SpreadsheetApp.openById(config.spreadsheetId);
   const sheet = ss.getSheetByName('responses');
   if (!sheet) return ok({ responses: [] });
-  const rows = sheet.getDataRange().getValues().slice(1);
+  const all = sheet.getDataRange().getValues();
+  const headers = all[0];
+  const fIdx = headers.indexOf('score_f');
+  const gIdx = headers.indexOf('score_g');
+  const rows = all.slice(1);
   const filtered = companyCode ? rows.filter(r=>r[1]===companyCode) : rows;
-  return ok({ responses: filtered.map(r=>({ timestamp:r[0], companyName:r[2], name:r[3], email:r[4], gender:r[5], age:r[6], job:r[7], type:r[8], scores:{A:r[9],B:r[10],C:r[11],D:r[12],E:r[13]} })) });
+  return ok({ responses: filtered.map(r => ({
+    timestamp:r[0], companyName:r[2], name:r[3], email:r[4],
+    gender:r[5], age:r[6], job:r[7], type:r[8],
+    scores: {
+      A:r[9], B:r[10], C:r[11], D:r[12], E:r[13],
+      F: (fIdx > -1 && r[fIdx] !== '' && r[fIdx] != null) ? r[fIdx] : null,
+      G: (gIdx > -1 && r[gIdx] !== '' && r[gIdx] != null) ? r[gIdx] : null,
+    }
+  })) });
 }
 
 // ===== メールHTMLビルダー =====
@@ -1009,6 +1100,8 @@ function getResultById(id, config) {
   const rows = sheet.getDataRange().getValues();
   const headers = rows[0];
   const resultIdIdx = headers.indexOf('result_id');
+  const fIdx = headers.indexOf('score_f');
+  const gIdx = headers.indexOf('score_g');
   if (resultIdIdx === -1) return err('result_idカラムが見つかりません');
   for (let i = 1; i < rows.length; i++) {
     if (rows[i][resultIdIdx] === id) {
@@ -1017,7 +1110,11 @@ function getResultById(id, config) {
         result: {
           timestamp:      r[0],
           name:           r[3],
-          scores:         { A: r[9], B: r[10], C: r[11], D: r[12], E: r[13] },
+          scores: {
+            A: r[9], B: r[10], C: r[11], D: r[12], E: r[13],
+            F: (fIdx > -1 && r[fIdx] !== '' && r[fIdx] != null) ? r[fIdx] : null,
+            G: (gIdx > -1 && r[gIdx] !== '' && r[gIdx] != null) ? r[gIdx] : null,
+          },
           employeeReport: r[14],
         }
       });
@@ -1178,7 +1275,12 @@ function getKpiData(companyCode, config, startDate, endDate) {
   const responsesSheet = ss.getSheetByName('responses');
   if (!responsesSheet) return ok({ kpi: null });
 
-  let allRows = responsesSheet.getDataRange().getValues().slice(1).filter(r => r[0] && r[1]);
+  const allData = responsesSheet.getDataRange().getValues();
+  const headers = allData[0];
+  const fIdx = headers.indexOf('score_f');
+  const gIdx = headers.indexOf('score_g');
+
+  let allRows = allData.slice(1).filter(r => r[0] && r[1]);
   if (companyCode) allRows = allRows.filter(r => r[1] === companyCode);
   if (startDate) { const sd = new Date(startDate); allRows = allRows.filter(r => new Date(r[0]) >= sd); }
   if (endDate) { const ed = new Date(endDate); ed.setHours(23,59,59); allRows = allRows.filter(r => new Date(r[0]) <= ed); }
@@ -1191,16 +1293,41 @@ function getKpiData(companyCode, config, startDate, endDate) {
     if (c) resolvedCompanyName = c.name;
   }
 
+  // 新6因子+アウトカム対応のスコア取得ヘルパ
+  // A=業務負荷, B=業務適応, C=関係性の共有度, D=関係性の心理的安全性
+  // E=自己調整感, F=行動の変化, G=継続定着意思（アウトカム）
+  const sF = r => (fIdx > -1 && r[fIdx] !== '' && r[fIdx] != null) ? Number(r[fIdx]) : null;
+  const sG = r => (gIdx > -1 && r[gIdx] !== '' && r[gIdx] != null) ? Number(r[gIdx]) : null;
+
   const totalRespondents = allRows.length;
-  const atRiskRows = allRows.filter(r => Number(r[11]) < 2.5 || Number(r[12]) < 2.5 || Number(r[13]) < 2.5);
+  // at-risk: 自己調整感(E)・行動の変化(F)・継続定着意思(G) のいずれかが 2.5 未満
+  const atRiskRows = allRows.filter(r => {
+    const e = Number(r[13]);
+    const f = sF(r);
+    const g = sG(r);
+    return e < 2.5 || (f != null && f < 2.5) || (g != null && g < 2.5);
+  });
 
   const avgOf = idx => (allRows.reduce((s, r) => s + Number(r[idx]), 0) / allRows.length).toFixed(1);
-  const avgScores = { A: avgOf(9), B: avgOf(10), C: avgOf(11), D: avgOf(12), E: avgOf(13) };
-  avgScores.overall = ((+avgScores.A + +avgScores.B + +avgScores.C + +avgScores.D + +avgScores.E) / 5).toFixed(1);
+  const avgOfNullable = getter => {
+    const vals = allRows.map(getter).filter(v => v != null);
+    return vals.length ? (vals.reduce((s,v)=>s+v,0)/vals.length).toFixed(1) : null;
+  };
+  const avgScores = {
+    A: avgOf(9), B: avgOf(10), C: avgOf(11), D: avgOf(12), E: avgOf(13),
+    F: avgOfNullable(sF), G: avgOfNullable(sG),
+  };
+  avgScores.overall = ((+avgScores.A + +avgScores.B + +avgScores.C + +avgScores.D + +avgScores.E + (avgScores.F != null ? +avgScores.F : 0)) / (avgScores.F != null ? 6 : 5)).toFixed(1);
 
-  // 有報KPI 5指標
-  const retentionRate = Math.round(allRows.filter(r => Number(r[13]) >= 3.5).length / totalRespondents * 100);
-  const workEnvScore = ((allRows.reduce((s,r) => s+Number(r[10]),0) + allRows.reduce((s,r) => s+Number(r[11]),0)) / (allRows.length * 2)).toFixed(1);
+  // 人的資本KPI
+  // 定着意思率：継続定着意思(G) >= 3.5 の割合（Gが無い旧データはEで代替）
+  const retentionVals = allRows.map(r => {
+    const g = sG(r);
+    return g != null ? g : Number(r[13]);
+  });
+  const retentionRate = Math.round(retentionVals.filter(v => v >= 3.5).length / totalRespondents * 100);
+  // 関係性スコア：共有度(C)＋心理的安全性(D)の平均
+  const workEnvScore = ((allRows.reduce((s,r) => s+Number(r[11]),0) + allRows.reduce((s,r) => s+Number(r[12]),0)) / (allRows.length * 2)).toFixed(1);
 
   const groups = {};
   allRows.forEach(r => {
@@ -1212,14 +1339,23 @@ function getKpiData(companyCode, config, startDate, endDate) {
     .sort(([a], [b]) => a.localeCompare(b))
     .map(([month, rows]) => {
       const a = k => (rows.reduce((s, r) => s + Number(r[k]), 0) / rows.length).toFixed(1);
-      const riskCount = rows.filter(r => Number(r[11]) < 2.5 || Number(r[12]) < 2.5 || Number(r[13]) < 2.5).length;
+      const aN = getter => {
+        const vals = rows.map(getter).filter(v => v != null);
+        return vals.length ? (vals.reduce((s,v)=>s+v,0)/vals.length).toFixed(1) : null;
+      };
+      const riskCount = rows.filter(r => {
+        const e = Number(r[13]); const f = sF(r); const g = sG(r);
+        return e < 2.5 || (f != null && f < 2.5) || (g != null && g < 2.5);
+      }).length;
+      const monthRetVals = rows.map(r => { const g = sG(r); return g != null ? g : Number(r[13]); });
       return {
         month, count: rows.length,
         A: a(9), B: a(10), C: a(11), D: a(12), E: a(13),
+        F: aN(sF), G: aN(sG),
         riskCount,
         riskRate: Math.round(riskCount / rows.length * 100),
-        retentionRate: Math.round(rows.filter(r => Number(r[13]) >= 3.5).length / rows.length * 100),
-        workEnvScore: ((rows.reduce((s,r) => s+Number(r[10]),0) + rows.reduce((s,r) => s+Number(r[11]),0)) / (rows.length*2)).toFixed(1),
+        retentionRate: Math.round(monthRetVals.filter(v => v >= 3.5).length / rows.length * 100),
+        workEnvScore: ((rows.reduce((s,r) => s+Number(r[11]),0) + rows.reduce((s,r) => s+Number(r[12]),0)) / (rows.length*2)).toFixed(1),
         overall: (rows.reduce((s,r) => s+Number(r[9])+Number(r[10])+Number(r[11])+Number(r[12])+Number(r[13]),0) / (rows.length*5)).toFixed(1),
       };
     });
@@ -1242,9 +1378,16 @@ function getKpiData(companyCode, config, startDate, endDate) {
       const cRows = allRows.filter(r => r[1] === company.code);
       if (cRows.length === 0) return null;
       const avgC = idx => (cRows.reduce((s, r) => s + Number(r[idx]), 0) / cRows.length).toFixed(1);
-      const cs = { A: avgC(9), B: avgC(10), C: avgC(11), D: avgC(12), E: avgC(13) };
-      cs.overall = ((+cs.A + +cs.B + +cs.C + +cs.D + +cs.E) / 5).toFixed(1);
-      const cRisk = cRows.filter(r => Number(r[11]) < 2.5 || Number(r[12]) < 2.5 || Number(r[13]) < 2.5).length;
+      const avgCN = getter => {
+        const vals = cRows.map(getter).filter(v => v != null);
+        return vals.length ? (vals.reduce((s,v)=>s+v,0)/vals.length).toFixed(1) : null;
+      };
+      const cs = { A: avgC(9), B: avgC(10), C: avgC(11), D: avgC(12), E: avgC(13), F: avgCN(sF), G: avgCN(sG) };
+      cs.overall = ((+cs.A + +cs.B + +cs.C + +cs.D + +cs.E + (cs.F != null ? +cs.F : 0)) / (cs.F != null ? 6 : 5)).toFixed(1);
+      const cRisk = cRows.filter(r => {
+        const e = Number(r[13]); const f = sF(r); const g = sG(r);
+        return e < 2.5 || (f != null && f < 2.5) || (g != null && g < 2.5);
+      }).length;
       let latestActionRate = null;
       if (actionsSheet) {
         const ca = actionsSheet.getDataRange().getValues().slice(1).filter(r => r[0] && r[1] === company.code);
@@ -1299,6 +1442,35 @@ function getKpiCompany(params, config) {
   return ContentService.createTextOutput(JSON.stringify(parsed)).setMimeType(ContentService.MimeType.JSON);
 }
 
+// 6因子化対応の生データ整形
+function buildRowDataNew(r, headers) {
+  const fIdx = headers.indexOf('score_f');
+  const gIdx = headers.indexOf('score_g');
+  const f = (fIdx > -1 && r[fIdx] !== '' && r[fIdx] != null) ? Number(r[fIdx]) : null;
+  const g = (gIdx > -1 && r[gIdx] !== '' && r[gIdx] != null) ? Number(r[gIdx]) : null;
+  const A = Number(r[9]), B = Number(r[10]), C = Number(r[11]), D = Number(r[12]), E = Number(r[13]);
+  // 総合：F があれば6因子平均、無ければA〜Eの5因子平均
+  const overall = (f != null ? (A+B+C+D+E+f)/6 : (A+B+C+D+E)/5).toFixed(1);
+  // 関係性：C(関係性の共有度)+D(関係性の心理的安全性)の平均
+  const workEnv = ((C+D)/2).toFixed(1);
+  // リスク：E(自己調整感) / F(行動の変化) / G(継続定着意思) のいずれかが2.5未満
+  const atRisk = (E < 2.5 || (f != null && f < 2.5) || (g != null && g < 2.5)) ? 'あり' : 'なし';
+  return {
+    date: Utilities.formatDate(new Date(r[0]), 'Asia/Tokyo', 'yyyy/MM/dd'),
+    companyName: r[2] || '',
+    name: r[3],
+    email: r[4],
+    gender: r[5] || '',
+    age: r[6] || '',
+    job: r[7] || '',
+    type: r[8] || '',
+    A: A.toFixed(1), B: B.toFixed(1), C: C.toFixed(1), D: D.toFixed(1), E: E.toFixed(1),
+    F: f != null ? f.toFixed(1) : null,
+    G: g != null ? g.toFixed(1) : null,
+    overall, workEnv, atRisk,
+  };
+}
+
 function getRawDataCompany(params, config) {
   const company = getCompanyByCodeInternal(params.code, config);
   if (!company) return err('無効な会社コードです');
@@ -1306,28 +1478,13 @@ function getRawDataCompany(params, config) {
   const sheet = ss.getSheetByName('responses');
   if (!sheet) return ok({ company: company.name, rows: [] });
 
-  let rows = sheet.getDataRange().getValues().slice(1).filter(r => r[0] && r[1] === params.code);
+  const all = sheet.getDataRange().getValues();
+  const headers = all[0];
+  let rows = all.slice(1).filter(r => r[0] && r[1] === params.code);
   if (params.startDate) { const sd = new Date(params.startDate); rows = rows.filter(r => new Date(r[0]) >= sd); }
   if (params.endDate) { const ed = new Date(params.endDate); ed.setHours(23,59,59); rows = rows.filter(r => new Date(r[0]) <= ed); }
 
-  const data = rows.map(r => ({
-    date: Utilities.formatDate(new Date(r[0]), 'Asia/Tokyo', 'yyyy/MM/dd'),
-    name: r[3],
-    email: r[4],
-    gender: r[5] || '',
-    age: r[6] || '',
-    job: r[7] || '',
-    type: r[8] || '',
-    A: Number(r[9]).toFixed(1),
-    B: Number(r[10]).toFixed(1),
-    C: Number(r[11]).toFixed(1),
-    D: Number(r[12]).toFixed(1),
-    E: Number(r[13]).toFixed(1),
-    overall: ((Number(r[9])+Number(r[10])+Number(r[11])+Number(r[12])+Number(r[13]))/5).toFixed(1),
-    workEnv: ((Number(r[10])+Number(r[11]))/2).toFixed(1),
-    atRisk: (Number(r[11]) < 2.5 || Number(r[12]) < 2.5 || Number(r[13]) < 2.5) ? 'あり' : 'なし',
-  }));
-
+  const data = rows.map(r => buildRowDataNew(r, headers));
   return ok({ company: company.name, rows: data });
 }
 
@@ -1337,29 +1494,14 @@ function getRawDataAdmin(params, config) {
   const sheet = ss.getSheetByName('responses');
   if (!sheet) return ok({ company: '全社合算', rows: [] });
 
-  let rows = sheet.getDataRange().getValues().slice(1).filter(r => r[0]);
+  const all = sheet.getDataRange().getValues();
+  const headers = all[0];
+  let rows = all.slice(1).filter(r => r[0]);
   if (params.companyCode) rows = rows.filter(r => r[1] === params.companyCode);
   if (params.startDate) { const sd = new Date(params.startDate); rows = rows.filter(r => new Date(r[0]) >= sd); }
   if (params.endDate)   { const ed = new Date(params.endDate); ed.setHours(23,59,59); rows = rows.filter(r => new Date(r[0]) <= ed); }
 
-  const data = rows.map(r => ({
-    date: Utilities.formatDate(new Date(r[0]), 'Asia/Tokyo', 'yyyy/MM/dd'),
-    companyName: r[2] || '',
-    name: r[3],
-    email: r[4],
-    gender: r[5] || '',
-    age: r[6] || '',
-    job: r[7] || '',
-    type: r[8] || '',
-    A: Number(r[9]).toFixed(1),
-    B: Number(r[10]).toFixed(1),
-    C: Number(r[11]).toFixed(1),
-    D: Number(r[12]).toFixed(1),
-    E: Number(r[13]).toFixed(1),
-    overall: ((Number(r[9])+Number(r[10])+Number(r[11])+Number(r[12])+Number(r[13]))/5).toFixed(1),
-    workEnv: ((Number(r[10])+Number(r[11]))/2).toFixed(1),
-    atRisk: (Number(r[11]) < 2.5 || Number(r[12]) < 2.5 || Number(r[13]) < 2.5) ? 'あり' : 'なし',
-  }));
+  const data = rows.map(r => buildRowDataNew(r, headers));
 
   let companyLabel = '全社合算';
   if (params.companyCode) {
@@ -1788,7 +1930,7 @@ function sendInvitationEmail(employee, company, diagUrl, config) {
     <div style="background:#EEF2FF;border-radius:10px;padding:16px;">
       <p style="margin:0 0 6px;font-size:12px;font-weight:800;color:#3730A3;">🔒 プライバシーについて</p>
       <p style="margin:0;font-size:12px;color:#3730A3;line-height:1.9;">
-        上司に共有されるのは「立ち上がり・戦力化／組織エンゲージメント／ウェルビーイング／離職予兆／継続定着意思」の<strong>5つの軸スコア（1〜5）のみ</strong>です。<br>
+        上司に共有されるのは「業務負荷／業務適応／関係性の共有度／関係性の心理的安全性／自己調整感／行動の変化」の6因子スコアと「継続定着意思」の<strong>計7因子スコア（1〜5）のみ</strong>です。<br>
         「Q1にどう答えたか」などの設問ごとの回答内容は、上司・会社に一切共有されません。<br>
         安心して率直にお答えください。
       </p>

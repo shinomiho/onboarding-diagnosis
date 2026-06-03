@@ -395,44 +395,54 @@
           <p style="margin:6px 0 0;font-size:11px;color:#9CA3AF;">${sub}</p>
         </div>`;
 
+      const outcomeAvg = (kpi.avgScores.G != null && kpi.avgScores.G !== '') ? kpi.avgScores.G : kpi.avgScores.E;
       document.getElementById('kpi-summary').innerHTML =
-        card('インプット指標', 'エンゲージメント総合スコア', kpi.avgScores.overall + '<span style="font-size:16px;"> / 5.0</span>', `回答数 ${kpi.totalRespondents}名`, sc(kpi.avgScores.overall)) +
+        card('インプット指標', '6因子平均スコア', kpi.avgScores.overall + '<span style="font-size:16px;"> / 5.0</span>', `回答数 ${kpi.totalRespondents}名`, sc(kpi.avgScores.overall)) +
         card('プロセス指標', 'マネジメントアクション実施率', kpi.avgActionRate !== null ? kpi.avgActionRate + '<span style="font-size:20px;">%</span>' : '—', kpi.avgActionRate !== null ? '全期間平均' : 'フェーズ2で計測開始', kpi.avgActionRate !== null ? (kpi.avgActionRate >= 70 ? '#10B981' : kpi.avgActionRate >= 40 ? '#F59E0B' : '#EF4444') : '#D1D5DB') +
         card('アウトカム指標', '要注意アラート発生率', kpi.riskRate + '<span style="font-size:20px;">%</span>', `${kpi.atRiskCount}名 / ${kpi.totalRespondents}名`, kpi.riskRate >= 30 ? '#EF4444' : kpi.riskRate >= 10 ? '#F59E0B' : '#10B981') +
-        card('アウトカム指標', '継続定着意思スコア平均', kpi.avgScores.E + '<span style="font-size:16px;"> / 5.0</span>', '離職リスク逆指標', sc(kpi.avgScores.E));
+        card('アウトカム指標', '継続定着意思スコア平均', outcomeAvg + '<span style="font-size:16px;"> / 5.0</span>', '離職リスク逆指標', sc(outcomeAvg));
 
-      const labels = [['A','立ち上がり・戦力化'],['B','組織エンゲージメント'],['C','ウェルビーイング'],['D','離職予兆'],['E','継続定着意思']];
-      const bar = (v) => `<div style="display:flex;align-items:center;gap:10px;margin-bottom:10px;">
-        <div style="width:90px;font-size:12px;color:#374151;text-align:right;">${labels.find(l=>l[0]===v[0])[1]}</div>
+      const inputLabels = [
+        ['A','業務負荷'],['B','業務適応'],
+        ['C','関係性の共有度'],['D','関係性の心理的安全性'],
+        ['E','自己調整感'],['F','行動の変化']
+      ];
+      const outcomeLabels = [['G','継続定着意思']];
+      const bar = (k, label, val) => `<div style="display:flex;align-items:center;gap:10px;margin-bottom:10px;">
+        <div style="width:140px;font-size:12px;color:#374151;text-align:right;">${label}</div>
         <div style="flex:1;background:#F3F4F6;border-radius:99px;height:10px;">
-          <div style="background:${sc(v[1])};height:10px;border-radius:99px;width:${Math.round(v[1]/5*100)}%;"></div>
+          <div style="background:${sc(val)};height:10px;border-radius:99px;width:${Math.round((val||0)/5*100)}%;"></div>
         </div>
-        <div style="font-size:13px;font-weight:700;color:${sc(v[1])};width:32px;">${v[1]}</div>
+        <div style="font-size:13px;font-weight:700;color:${sc(val)};width:32px;">${val != null ? val : '-'}</div>
       </div>`;
       document.getElementById('kpi-scores').innerHTML =
-        `<h3 style="margin:0 0 16px;font-size:14px;font-weight:700;color:var(--text);">📊 5因子スコア（全期間平均）</h3>` +
-        labels.map(([k,]) => bar([k, kpi.avgScores[k]])).join('');
+        `<h3 style="margin:0 0 16px;font-size:14px;font-weight:700;color:var(--text);">📊 インプット指標：6因子スコア（全期間平均）</h3>` +
+        inputLabels.map(([k,l]) => bar(k, l, kpi.avgScores[k])).join('') +
+        `<h3 style="margin:24px 0 16px;font-size:14px;font-weight:700;color:var(--text);">🎯 アウトカム指標</h3>` +
+        outcomeLabels.map(([k,l]) => bar(k, l, kpi.avgScores[k])).join('');
 
       if (kpi.trend.length > 0) {
         document.getElementById('kpi-trend').innerHTML =
           `<h3 style="margin:0 0 16px;font-size:14px;font-weight:700;color:var(--text);">📈 月別スコア推移</h3>
           <div style="overflow-x:auto;">
-          <table style="width:100%;border-collapse:collapse;font-size:12px;min-width:420px;">
+          <table style="width:100%;border-collapse:collapse;font-size:12px;min-width:560px;">
             <thead><tr style="background:#F9FAFB;">
               <th style="padding:8px;text-align:left;">月</th>
               <th style="padding:8px;text-align:center;">人数</th>
-              <th style="padding:8px;text-align:center;">立上</th>
-              <th style="padding:8px;text-align:center;">エンゲ</th>
-              <th style="padding:8px;text-align:center;">ウェル</th>
-              <th style="padding:8px;text-align:center;">予兆</th>
-              <th style="padding:8px;text-align:center;">継続</th>
+              <th style="padding:8px;text-align:center;">負荷</th>
+              <th style="padding:8px;text-align:center;">適応</th>
+              <th style="padding:8px;text-align:center;">共有</th>
+              <th style="padding:8px;text-align:center;">安全</th>
+              <th style="padding:8px;text-align:center;">調整</th>
+              <th style="padding:8px;text-align:center;">変化</th>
+              <th style="padding:8px;text-align:center;">定着</th>
               <th style="padding:8px;text-align:center;">要注意</th>
             </tr></thead>
             <tbody>${kpi.trend.map(t => `
               <tr style="border-top:1px solid var(--border);">
                 <td style="padding:8px;font-size:11px;">${t.month}</td>
                 <td style="padding:8px;text-align:center;">${t.count}</td>
-                ${['A','B','C','D','E'].map(k => `<td style="padding:8px;text-align:center;font-weight:700;color:${sc(t[k])};">${t[k]}</td>`).join('')}
+                ${['A','B','C','D','E','F','G'].map(k => `<td style="padding:8px;text-align:center;font-weight:700;color:${sc(t[k])};">${t[k] != null ? t[k] : '-'}</td>`).join('')}
                 <td style="padding:8px;text-align:center;font-weight:700;color:${t.riskCount > 0 ? '#EF4444' : '#10B981'};">${t.riskCount}</td>
               </tr>`).join('')}
             </tbody>

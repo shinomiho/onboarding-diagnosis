@@ -170,12 +170,18 @@
   <script>
     const APPS_SCRIPT_URL = 'https://script.google.com/macros/s/AKfycbyGceshWFX-_kepVh5KHTvNwsrNAh7hW22U48KSp4DVvohXurOsAa6BDW7MFrsbKJ0n/exec';
 
+    // インプット6因子（人的資本KPI先行指標）
     const FACTORS = {
-      A: { label: '立ち上がり・戦力化' },
-      B: { label: '組織エンゲージメント' },
-      C: { label: 'ウェルビーイング' },
-      D: { label: '離職予兆' },
-      E: { label: '継続定着意思' },
+      A: { label: '業務負荷' },
+      B: { label: '業務適応' },
+      C: { label: '関係性の共有度' },
+      D: { label: '関係性の心理的安全性' },
+      E: { label: '自己調整感' },
+      F: { label: '行動の変化' },
+    };
+    // アウトカム指標
+    const OUTCOME = {
+      G: { label: '継続定着意思' },
     };
 
     window.onload = async () => {
@@ -212,21 +218,28 @@
     function renderScoreBars(scores) {
       const container = document.getElementById('score-bars');
       container.innerHTML = '';
-      for (const [key, factor] of Object.entries(FACTORS)) {
-        const val = scores[key];
-        const pct = (val / 5) * 100;
-        const cls = val >= 3.5 ? 'score-high' : val >= 2.5 ? 'score-mid' : 'score-low';
-        container.innerHTML += `
-          <div class="score-bar-item">
-            <div class="score-bar-header">
-              <span class="score-bar-label">${factor.label}</span>
-              <span class="score-bar-value">${parseFloat(val).toFixed(1)}</span>
-            </div>
-            <div class="score-bar-track">
-              <div class="score-bar-fill ${cls}" style="width:${pct}%"></div>
-            </div>
-          </div>`;
-      }
+      const renderGroup = (title, entries) => {
+        container.innerHTML += `<div class="score-section-label">${title}</div>`;
+        for (const [key, factor] of entries) {
+          const raw = scores[key];
+          if (raw == null) continue;
+          const val = parseFloat(raw);
+          const pct = (val / 5) * 100;
+          const cls = val >= 3.5 ? 'score-high' : val >= 2.5 ? 'score-mid' : 'score-low';
+          container.innerHTML += `
+            <div class="score-bar-item">
+              <div class="score-bar-header">
+                <span class="score-bar-label">${factor.label}</span>
+                <span class="score-bar-value">${val.toFixed(1)}</span>
+              </div>
+              <div class="score-bar-track">
+                <div class="score-bar-fill ${cls}" style="width:${pct}%"></div>
+              </div>
+            </div>`;
+        }
+      };
+      renderGroup('📊 インプット指標（6因子・先行指標）', Object.entries(FACTORS));
+      renderGroup('🎯 アウトカム指標（結果指標）', Object.entries(OUTCOME));
     }
 
     function renderRadarChart(scores) {
@@ -235,7 +248,7 @@
       const W = canvas.width, H = canvas.height;
       const cx = W/2, cy = H/2, R = Math.min(W,H)/2 - 50;
       const labels = Object.values(FACTORS).map(f => f.label);
-      const vals = ['A','B','C','D','E'].map(k => scores[k] / 5);
+      const vals = Object.keys(FACTORS).map(k => (parseFloat(scores[k]) || 0) / 5);
       const N = labels.length;
       ctx.clearRect(0, 0, W, H);
       for (let r = 1; r <= 5; r++) {
