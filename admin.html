@@ -170,7 +170,9 @@
     // ===== 設定（デプロイ後に書き換えてください） =====
     const APPS_SCRIPT_URL = 'https://script.google.com/macros/s/AKfycbyGceshWFX-_kepVh5KHTvNwsrNAh7hW22U48KSp4DVvohXurOsAa6BDW7MFrsbKJ0n/exec';
     const BASE_URL = window.location.origin + window.location.pathname.replace('admin.html', 'index.html');
+    const COMPANY_ADMIN_BASE_URL = window.location.origin + window.location.pathname.replace('admin.html', 'company-admin.html');
     const makeUrl = (code, name) => `${BASE_URL}?code=${code}&c=${encodeURIComponent(name)}`;
+    const makeAdminUrl = (code) => `${COMPANY_ADMIN_BASE_URL}?code=${code}`;
 
     let adminSecret = '';
 
@@ -245,6 +247,7 @@
       }
       container.innerHTML = companies.map(c => {
         const url = makeUrl(c.code, c.name);
+        const adminUrl = makeAdminUrl(c.code);
         return `
         <div class="card">
           <div class="card-header">
@@ -254,9 +257,15 @@
             </div>
             <button onclick="deleteCompany('${c.code}','${c.name}')" class="delete-btn">削除</button>
           </div>
-          <div class="url-box">
+          <div style="margin-top:12px;font-size:11px;font-weight:700;color:var(--text-sub);">📝 診断URL（従業員向け）</div>
+          <div class="url-box" style="margin-top:4px;">
             <span class="url-text" id="url-${c.code}">${url}</span>
             <button onclick="copyUrl('${c.code}')" class="copy-btn">コピー</button>
+          </div>
+          <div style="margin-top:10px;font-size:11px;font-weight:700;color:var(--text-sub);">🏢 企業管理URL（人事・上司向け）</div>
+          <div class="url-box" style="margin-top:4px;">
+            <span class="url-text" id="admin-url-${c.code}">${adminUrl}</span>
+            <button onclick="copyAdminUrl('${c.code}')" class="copy-btn">コピー</button>
           </div>
           <div style="margin-top:8px;font-size:11px;color:var(--text-sub);">コード: ${c.code} ／ 登録日: ${new Date(c.createdAt).toLocaleDateString('ja-JP')}</div>
         </div>`;
@@ -265,7 +274,12 @@
 
     function copyUrl(code) {
       const url = document.getElementById(`url-${code}`).textContent;
-      navigator.clipboard.writeText(url).then(() => alert('URLをコピーしました'));
+      navigator.clipboard.writeText(url).then(() => alert('診断URLをコピーしました'));
+    }
+
+    function copyAdminUrl(code) {
+      const url = document.getElementById(`admin-url-${code}`).textContent;
+      navigator.clipboard.writeText(url).then(() => alert('企業管理URLをコピーしました'));
     }
 
     // ===== 回答一覧 =====
