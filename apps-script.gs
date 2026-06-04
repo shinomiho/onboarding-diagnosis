@@ -108,6 +108,7 @@ function doPost(e) {
     if (data.action === 'submit_action_check') return submitActionCheck(data, config);
     if (data.action === 'register_company')    return registerCompany(data, config);
     if (data.action === 'add_employee')        return addEmployee(data, config);
+    if (data.action === 'bulk_add_employee')   return bulkAddEmployee(data, config);
     if (data.action === 'remove_employee')     return removeEmployee(data, config);
     if (data.action === 'resend_invitation')   return resendInvitation(data, config);
     if (data.action === 'subscribe_email')     return subscribeEmail(data, config);
@@ -1805,11 +1806,16 @@ function sendRegistrationNotify(data, diagUrl, code, config) {
 // ===== 従業員管理 =====
 
 function getOrCreateEmployeeSheet(ss) {
-  let sheet = ss.getSheetByName('employees');
+  var sheet = ss.getSheetByName('employees');
   if (!sheet) {
     sheet = ss.insertSheet('employees');
-    sheet.appendRow(['id', 'company_code', 'name', 'email', 'department', 'invited_at']);
+    sheet.appendRow(['id', 'company_code', 'name', 'email', 'department', 'invited_at', 'manager_email']);
     sheet.setFrozenRows(1);
+  } else {
+    var headers = sheet.getRange(1, 1, 1, Math.max(1, sheet.getLastColumn())).getValues()[0];
+    if (headers.indexOf('manager_email') === -1) {
+      sheet.getRange(1, sheet.getLastColumn() + 1).setValue('manager_email');
+    }
   }
   return sheet;
 }
@@ -1858,7 +1864,7 @@ function addEmployee(data, config) {
   if (existing) return err('このメールアドレスはすでに登録されています');
 
   const id = Utilities.getUuid();
-  sheet.appendRow([id, data.companyCode, data.name, data.email, data.department || '', new Date().toISOString()]);
+  sheet.appendRow([id, data.companyCode, data.name, data.email, data.department || '', new Date().toISOString(), data.managerEmail || '']);
 
   var emailStatus = 'sent';
   var emailError = '';
@@ -1877,6 +1883,86 @@ function addEmployee(data, config) {
   }
 
   return ok({ id: id, emailStatus: emailStatus, emailError: emailError });
+}
+
+function bulkAddEmployee(data, config) {
+  var company = getCompanyByCodeInternal(data.companyCode, config);
+  if (!company) return err('無効な会社コードです');
+  if (!data.employees || !data.employees.length) return err('従業員データが空です');
+
+  var ss = SpreadsheetApp.openById(config.spreadsheetId);
+  var sheet = getOrCreateEmployeeSheet(ss);
+
+  var existingEmails = {};
+  var allRows = sheet.getDataRange().getValues().slice(1);
+  for (var i = 0; i < allRows.length; i++) {
+    if (allRows[i][1] === data.companyCode) {
+      existingEmails[String(allRows[i][3]).toLowerCase()] = true;
+    }
+  }
+
+  var added = [];
+  var failed = [];
+  var skipped = [];
+  var emailRe = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
+  var nowIso = new Date().toISOString();
+
+  for (var j = 0; j < data.employees.length; j++) {
+    var e = data.employees[j];
+    var name = String(e.name || '').trim();
+    var email = String(e.email || '').trim();
+    var dept = String(e.department || '').trim();
+    var mgr = String(e.managerEmail || '').trim();
+    var rowNum = j + 2;
+
+    if (!name || !email) {
+      failed.push({ row: rowNum, name: name, email: email, error: '氏名またはメールが空です' });
+      continue;
+    }
+    if (!emailRe.test(email)) {
+      failed.push({ row: rowNum, name: name, email: email, error: 'メールアドレスの形式が不正です' });
+      continue;
+    }
+    if (mgr && !emailRe.test(mgr)) {
+      failed.push({ row: rowNum, name: name, email: email, error: '担当マネージャーメールの形式が不正です' });
+      continue;
+    }
+    if (existingEmails[email.toLowerCase()]) {
+      skipped.push({ row: rowNum, name: name, email: email, reason: 'すでに登録済み' });
+      continue;
+    }
+
+    var id = Utilities.getUuid();
+    sheet.appendRow([id, data.companyCode, name, email, dept, nowIso, mgr]);
+    existingEmails[email.toLowerCase()] = true;
+
+    var emailStatus = 'sent';
+    var emailError = '';
+    if (!config.siteUrl) {
+      emailStatus = 'skipped';
+      emailError = 'SITE_URL未設定';
+    } else {
+      try {
+        var diagUrl = config.siteUrl + '/index.html?code=' + data.companyCode + '&c=' + encodeURIComponent(company.name);
+        sendInvitationEmail({ name: name, email: email }, company, diagUrl, config);
+      } catch (sendErr) {
+        emailStatus = 'failed';
+        emailError = String(sendErr);
+        Logger.log('bulk sendInvitationEmail failed (' + email + '): ' + emailError);
+      }
+    }
+    added.push({ row: rowNum, name: name, email: email, emailStatus: emailStatus, emailError: emailError });
+  }
+
+  return ok({
+    total: data.employees.length,
+    addedCount: added.length,
+    failedCount: failed.length,
+    skippedCount: skipped.length,
+    added: added,
+    failed: failed,
+    skipped: skipped,
+  });
 }
 
 function removeEmployee(data, config) {

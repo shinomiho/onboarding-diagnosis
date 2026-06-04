@@ -145,6 +145,12 @@
       font-size: 13px; font-weight: 700; cursor: pointer; display: flex; align-items: center; gap: 6px;
     }
     .add-btn:active { background: #3730A3; }
+    .csv-btn {
+      background: #fff; color: #4F46E5; border: 1.5px solid #4F46E5; padding: 9px 16px; border-radius: 10px;
+      font-size: 13px; font-weight: 700; cursor: pointer; display: flex; align-items: center; gap: 6px;
+    }
+    .csv-btn:active { background: #EEF2FF; }
+    .header-actions { display: flex; gap: 8px; }
 
     .employee-list { display: flex; flex-direction: column; gap: 10px; }
 
@@ -205,6 +211,38 @@
       border-radius: 10px; font-size: 14px; font-weight: 700; cursor: pointer;
     }
     .btn-submit:disabled { opacity: 0.5; cursor: not-allowed; }
+
+    .modal-lg { max-width: 640px; }
+    .csv-help {
+      background: #F9FAFB; border-radius: 10px; padding: 12px 14px;
+      font-size: 12px; color: #4B5563; line-height: 1.7; margin-bottom: 16px;
+    }
+    .csv-help code { background: #fff; padding: 1px 6px; border-radius: 4px; font-size: 11px; color: #4F46E5; }
+    .csv-help a { color: #4F46E5; font-weight: 600; text-decoration: none; }
+    .csv-help a:hover { text-decoration: underline; }
+    .csv-file-input {
+      display: block; width: 100%; padding: 10px 12px; border: 1.5px dashed #D1D5DB;
+      border-radius: 10px; background: #F9FAFB; font-size: 13px; cursor: pointer;
+    }
+    .csv-preview-wrap { margin-top: 16px; max-height: 280px; overflow: auto; border: 1px solid #E5E7EB; border-radius: 10px; }
+    .csv-preview-table { width: 100%; border-collapse: collapse; font-size: 12px; }
+    .csv-preview-table th, .csv-preview-table td {
+      padding: 8px 10px; border-bottom: 1px solid #F3F4F6; text-align: left; white-space: nowrap;
+    }
+    .csv-preview-table th { background: #F9FAFB; font-weight: 700; color: #6B7280; font-size: 11px; }
+    .csv-preview-table tr.row-err td { background: #FEF2F2; }
+    .csv-preview-table .err-cell { color: #DC2626; font-size: 11px; }
+    .csv-summary { display: flex; gap: 12px; margin-top: 12px; font-size: 12px; }
+    .csv-summary span { padding: 4px 10px; border-radius: 99px; font-weight: 700; }
+    .csv-summary .ok { background: #D1FAE5; color: #065F46; }
+    .csv-summary .ng { background: #FEE2E2; color: #991B1B; }
+    .csv-summary .skip { background: #FEF3C7; color: #92400E; }
+    .csv-result {
+      margin-top: 14px; padding: 12px 14px; border-radius: 10px; font-size: 13px;
+      background: #F9FAFB; max-height: 200px; overflow: auto;
+    }
+    .csv-result .res-line { padding: 4px 0; border-bottom: 1px solid #F3F4F6; }
+    .csv-result .res-line:last-child { border-bottom: none; }
 
     .toast {
       position: fixed; bottom: 24px; left: 50%; transform: translateX(-50%);
@@ -294,9 +332,14 @@
       <!-- Employee list -->
       <div class="section-header">
         <div class="section-title">従業員一覧</div>
-        <button class="add-btn" onclick="openModal()">
-          <span>＋</span> 追加
-        </button>
+        <div class="header-actions">
+          <button class="csv-btn" onclick="openCsvModal()">
+            <span>📥</span> CSVで一括追加
+          </button>
+          <button class="add-btn" onclick="openModal()">
+            <span>＋</span> 追加
+          </button>
+        </div>
       </div>
 
       <div class="employee-list" id="employeeList">
@@ -363,6 +406,43 @@
     <div class="modal-actions">
       <button class="btn-cancel" onclick="closeModal()">キャンセル</button>
       <button class="btn-submit" id="submitBtn" onclick="submitAddEmployee()">追加して案内メール送信</button>
+    </div>
+  </div>
+</div>
+
+<!-- Bulk CSV Upload Modal -->
+<div class="modal-overlay" id="csvModal">
+  <div class="modal modal-lg">
+    <h3>📥 CSVで一括追加</h3>
+    <div class="csv-help">
+      <strong>CSV列構成：</strong> <code>氏名</code>, <code>メール</code>, <code>部署</code>, <code>担当マネージャーメール</code><br>
+      ・1行目はヘッダー（自動でスキップされます）<br>
+      ・部署・担当マネージャーメールは空欄OK<br>
+      ・既に登録済みのメールアドレスは自動でスキップされます<br>
+      ・アップロードと同時に全員へ招待メールが送信されます<br>
+      <a href="#" onclick="downloadCsvTemplate(); return false;">📄 テンプレートCSVをダウンロード</a>
+    </div>
+    <input type="file" id="csvFile" accept=".csv,text/csv" class="csv-file-input" onchange="handleCsvFile(event)">
+
+    <div id="csvPreviewBlock" style="display:none;">
+      <div class="csv-summary" id="csvSummary"></div>
+      <div class="csv-preview-wrap">
+        <table class="csv-preview-table">
+          <thead>
+            <tr><th>#</th><th>氏名</th><th>メール</th><th>部署</th><th>マネージャー</th><th>状態</th></tr>
+          </thead>
+          <tbody id="csvPreviewBody"></tbody>
+        </table>
+      </div>
+    </div>
+
+    <div id="csvResultBlock" style="display:none;">
+      <div class="csv-result" id="csvResult"></div>
+    </div>
+
+    <div class="modal-actions">
+      <button class="btn-cancel" onclick="closeCsvModal()">閉じる</button>
+      <button class="btn-submit" id="csvSubmitBtn" onclick="submitCsvBulk()" disabled>アップロード</button>
     </div>
   </div>
 </div>
@@ -541,6 +621,169 @@
 
     btn.disabled = false;
     btn.textContent = '追加して案内メール送信';
+  }
+
+  // ===== CSV 一括追加 =====
+  let csvParsedRows = [];
+
+  function downloadCsvTemplate() {
+    const csv = '﻿氏名,メール,部署,担当マネージャーメール\n山田太郎,yamada@example.com,営業部,manager@example.com\n佐藤花子,sato@example.com,開発部,\n';
+    const blob = new Blob([csv], { type: 'text/csv;charset=utf-8' });
+    const a = document.createElement('a');
+    a.href = URL.createObjectURL(blob);
+    a.download = 'employees_template.csv';
+    a.click();
+    URL.revokeObjectURL(a.href);
+  }
+
+  function openCsvModal() {
+    csvParsedRows = [];
+    document.getElementById('csvFile').value = '';
+    document.getElementById('csvPreviewBlock').style.display = 'none';
+    document.getElementById('csvResultBlock').style.display = 'none';
+    document.getElementById('csvPreviewBody').innerHTML = '';
+    document.getElementById('csvSummary').innerHTML = '';
+    document.getElementById('csvResult').innerHTML = '';
+    document.getElementById('csvSubmitBtn').disabled = true;
+    document.getElementById('csvSubmitBtn').textContent = 'アップロード';
+    document.getElementById('csvModal').classList.add('open');
+  }
+  function closeCsvModal() { document.getElementById('csvModal').classList.remove('open'); }
+  document.getElementById('csvModal').addEventListener('click', function(e) {
+    if (e.target === this) closeCsvModal();
+  });
+
+  function parseCsv(text) {
+    // BOM除去
+    if (text.charCodeAt(0) === 0xFEFF) text = text.slice(1);
+    const rows = [];
+    let cur = [], field = '', inQuotes = false;
+    for (let i = 0; i < text.length; i++) {
+      const ch = text[i];
+      if (inQuotes) {
+        if (ch === '"') {
+          if (text[i+1] === '"') { field += '"'; i++; } else { inQuotes = false; }
+        } else { field += ch; }
+      } else {
+        if (ch === '"') { inQuotes = true; }
+        else if (ch === ',') { cur.push(field); field = ''; }
+        else if (ch === '\n') { cur.push(field); rows.push(cur); cur = []; field = ''; }
+        else if (ch === '\r') { /* skip */ }
+        else { field += ch; }
+      }
+    }
+    if (field.length || cur.length) { cur.push(field); rows.push(cur); }
+    return rows.filter(r => r.some(c => String(c).trim() !== ''));
+  }
+
+  function handleCsvFile(ev) {
+    const file = ev.target.files[0];
+    if (!file) return;
+    const reader = new FileReader();
+    reader.onload = function(e) {
+      try {
+        const rows = parseCsv(e.target.result);
+        if (rows.length < 2) { showToast('CSVにデータがありません', 3500); return; }
+        // ヘッダー行を判定（1行目が「氏名」等を含むならスキップ）
+        const headerLooksLikeHeader = /氏名|name/i.test(rows[0][0] || '');
+        const dataRows = headerLooksLikeHeader ? rows.slice(1) : rows;
+        const emailRe = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
+        csvParsedRows = dataRows.map(r => {
+          const name = String(r[0] || '').trim();
+          const email = String(r[1] || '').trim();
+          const dept = String(r[2] || '').trim();
+          const mgr = String(r[3] || '').trim();
+          const errs = [];
+          if (!name) errs.push('氏名なし');
+          if (!email) errs.push('メールなし');
+          else if (!emailRe.test(email)) errs.push('メール形式不正');
+          if (mgr && !emailRe.test(mgr)) errs.push('マネージャーメール形式不正');
+          return { name, email, department: dept, managerEmail: mgr, errors: errs };
+        });
+        renderCsvPreview();
+      } catch (err) {
+        showToast('CSVの解析に失敗：' + err.message, 4000);
+      }
+    };
+    reader.readAsText(file, 'UTF-8');
+  }
+
+  function renderCsvPreview() {
+    const body = document.getElementById('csvPreviewBody');
+    const validCount = csvParsedRows.filter(r => r.errors.length === 0).length;
+    const errCount = csvParsedRows.length - validCount;
+
+    body.innerHTML = csvParsedRows.map((r, i) => {
+      const err = r.errors.length ? `<span class="err-cell">${r.errors.join(' / ')}</span>` : '✓';
+      return `
+        <tr class="${r.errors.length ? 'row-err' : ''}">
+          <td>${i + 2}</td>
+          <td>${esc(r.name)}</td>
+          <td>${esc(r.email)}</td>
+          <td>${esc(r.department)}</td>
+          <td>${esc(r.managerEmail)}</td>
+          <td>${err}</td>
+        </tr>`;
+    }).join('');
+
+    document.getElementById('csvSummary').innerHTML = `
+      <span class="ok">送信予定 ${validCount}名</span>
+      ${errCount > 0 ? `<span class="ng">エラー ${errCount}名（スキップ）</span>` : ''}
+    `;
+    document.getElementById('csvPreviewBlock').style.display = 'block';
+    document.getElementById('csvSubmitBtn').disabled = validCount === 0;
+    document.getElementById('csvSubmitBtn').textContent = `${validCount}名を一括追加して招待メール送信`;
+  }
+
+  function esc(s) {
+    return String(s == null ? '' : s)
+      .replace(/&/g, '&amp;').replace(/</g, '&lt;').replace(/>/g, '&gt;')
+      .replace(/"/g, '&quot;').replace(/'/g, '&#39;');
+  }
+
+  async function submitCsvBulk() {
+    const valid = csvParsedRows.filter(r => r.errors.length === 0);
+    if (!valid.length) { showToast('送信可能な行がありません'); return; }
+
+    const btn = document.getElementById('csvSubmitBtn');
+    btn.disabled = true;
+    btn.textContent = '送信中... (最大1〜2分)';
+
+    try {
+      const res = await gasPost({
+        action: 'bulk_add_employee',
+        companyCode: COMPANY_CODE,
+        employees: valid.map(r => ({ name: r.name, email: r.email, department: r.department, managerEmail: r.managerEmail })),
+      });
+      if (res.success) {
+        const lines = [];
+        lines.push(`<strong>✅ 完了：登録${res.addedCount}件 / スキップ${res.skippedCount}件 / 失敗${res.failedCount}件</strong>`);
+        const mailFailed = (res.added || []).filter(a => a.emailStatus !== 'sent');
+        if (mailFailed.length) {
+          lines.push(`<div style="margin-top:8px;color:#92400E;">⚠️ メール送信失敗 ${mailFailed.length}件：</div>`);
+          mailFailed.forEach(a => {
+            lines.push(`<div class="res-line">${esc(a.name)} (${esc(a.email)}) — ${esc(a.emailError || a.emailStatus)}</div>`);
+          });
+        }
+        (res.skipped || []).forEach(s => {
+          lines.push(`<div class="res-line" style="color:#92400E;">行${s.row}: ${esc(s.name)} (${esc(s.email)}) — ${esc(s.reason)}</div>`);
+        });
+        (res.failed || []).forEach(f => {
+          lines.push(`<div class="res-line" style="color:#991B1B;">行${f.row}: ${esc(f.name)} (${esc(f.email)}) — ${esc(f.error)}</div>`);
+        });
+        document.getElementById('csvResult').innerHTML = lines.join('');
+        document.getElementById('csvResultBlock').style.display = 'block';
+        showToast(`✅ ${res.addedCount}名を登録しました`, 3500);
+        loadDashboard();
+      } else {
+        showToast('❌ ' + (res.error || '一括登録失敗'), 4000);
+      }
+    } catch (e) {
+      showToast('❌ 通信エラー：' + e.message, 4000);
+    }
+
+    btn.disabled = false;
+    btn.textContent = 'もう一度アップロード';
   }
 
   async function resend(email) {
