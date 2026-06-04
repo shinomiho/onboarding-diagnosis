@@ -218,8 +218,24 @@
       font-size: 12px; color: #4B5563; line-height: 1.7; margin-bottom: 16px;
     }
     .csv-help code { background: #fff; padding: 1px 6px; border-radius: 4px; font-size: 11px; color: #4F46E5; }
-    .csv-help a { color: #4F46E5; font-weight: 600; text-decoration: none; }
-    .csv-help a:hover { text-decoration: underline; }
+    .csv-template-btn {
+      display: inline-flex; align-items: center; gap: 8px;
+      background: #F59E0B; color: #fff !important; text-decoration: none;
+      font-size: 14px; font-weight: 800; padding: 12px 20px; border-radius: 10px;
+      box-shadow: 0 3px 10px rgba(245,158,11,0.35);
+      transition: transform .1s;
+    }
+    .csv-template-btn:hover { background: #D97706; transform: translateY(-1px); }
+    .csv-template-btn:active { background: #B45309; transform: translateY(0); }
+    .csv-template-row {
+      background: #FFFBEB; border: 1.5px solid #FCD34D; border-radius: 12px;
+      padding: 14px 16px; margin-bottom: 14px;
+      display: flex; align-items: center; justify-content: space-between; gap: 12px; flex-wrap: wrap;
+    }
+    .csv-template-row .lead {
+      font-size: 13px; font-weight: 700; color: #92400E; line-height: 1.5;
+    }
+    .csv-template-row .lead small { display: block; font-size: 11px; font-weight: 500; color: #B45309; margin-top: 2px; }
     .csv-file-input {
       display: block; width: 100%; padding: 10px 12px; border: 1.5px dashed #D1D5DB;
       border-radius: 10px; background: #F9FAFB; font-size: 13px; cursor: pointer;
@@ -414,13 +430,19 @@
 <div class="modal-overlay" id="csvModal">
   <div class="modal modal-lg">
     <h3>📥 CSVで一括追加</h3>
+    <div class="csv-template-row">
+      <div class="lead">
+        まずはテンプレートをDL
+        <small>サンプル入りCSV（Excelでそのまま開けます）</small>
+      </div>
+      <a href="#" class="csv-template-btn" onclick="downloadCsvTemplate(); return false;">⬇️ テンプレートCSVをダウンロード</a>
+    </div>
     <div class="csv-help">
       <strong>CSV列構成：</strong> <code>氏名</code>, <code>メール</code>, <code>部署</code>, <code>担当マネージャーメール</code><br>
       ・1行目はヘッダー（自動でスキップされます）<br>
       ・部署・担当マネージャーメールは空欄OK<br>
       ・既に登録済みのメールアドレスは自動でスキップされます<br>
-      ・アップロードと同時に全員へ招待メールが送信されます<br>
-      <a href="#" onclick="downloadCsvTemplate(); return false;">📄 テンプレートCSVをダウンロード</a>
+      ・アップロードと同時に全員へ招待メールが送信されます
     </div>
     <input type="file" id="csvFile" accept=".csv,text/csv" class="csv-file-input" onchange="handleCsvFile(event)">
 
@@ -856,7 +878,7 @@
       document.getElementById('responsesCount').textContent = data.responses.length + '名';
       list.innerHTML = data.responses.map(r => {
         const meta = [r.gender, r.age ? r.age + '歳' : '', r.job, r.type].filter(Boolean).join(' ／ ');
-        const scores = [['A','立上'],['B','エンゲ'],['C','ウェル'],['D','予兆'],['E','継続']];
+        const scores = [['A','立上'],['B','エンゲ'],['C','ウェル'],['D','心理的安定'],['E','継続']];
         const chips = scores.map(([k, lbl]) => {
           const v = Number(r.scores[k]).toFixed(1);
           return '<div class="score-chip"><div class="score-chip-label">' + lbl + '</div><div class="score-chip-val" style="color:' + scoreColor(v) + ';">' + v + '</div></div>';
