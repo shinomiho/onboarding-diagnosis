@@ -120,7 +120,8 @@
 
     /* 簡易KPIスタイル */
     .summary-grid {
-      display: grid; grid-template-columns: 1fr 1fr; gap: 10px; margin-bottom: 14px;
+      display: grid; grid-template-columns: repeat(auto-fit, minmax(140px, 1fr));
+      gap: 10px; margin-bottom: 14px;
     }
     .summary-card {
       background: #fff; border-radius: 12px; padding: 14px;
@@ -919,16 +920,17 @@
         '<div class="summary-card-sub">' + sub + '</div>' +
         '</div>';
       const overallCls = Number(k.avgScores.overall) >= 3.5 ? 'green' : Number(k.avgScores.overall) >= 2.5 ? 'orange' : 'red';
-      const riskCls = k.riskRate >= 30 ? 'red' : k.riskRate >= 10 ? 'orange' : 'green';
-      const eCls = Number(k.avgScores.E) >= 3.5 ? 'green' : Number(k.avgScores.E) >= 2.5 ? 'orange' : 'red';
+      const retentionCls = k.retentionRate >= 80 ? 'green' : k.retentionRate >= 60 ? 'orange' : 'red';
       const actionCls = k.avgActionRate == null ? '' : k.avgActionRate >= 70 ? 'green' : k.avgActionRate >= 40 ? 'orange' : 'red';
-      const gAvg = (k.avgScores.G != null && k.avgScores.G !== '') ? k.avgScores.G : k.avgScores.E;
+      const riskCls = k.riskRate >= 30 ? 'red' : k.riskRate >= 10 ? 'orange' : 'green';
+      const workEnvCls = Number(k.workEnvScore) >= 3.5 ? 'green' : Number(k.workEnvScore) >= 2.5 ? 'orange' : 'red';
       summary.innerHTML =
         '<div class="summary-grid">' +
-        card(overallCls, 'インプット指標', '6因子総合スコア', k.avgScores.overall + '<span style="font-size:12px;font-weight:600;color:#6B7280;"> / 5.0</span>', '回答数 ' + k.totalRespondents + '名') +
-        card(actionCls, 'プロセス指標', 'アクション実施率', k.avgActionRate != null ? k.avgActionRate + '<span style="font-size:12px;">%</span>' : '—', k.avgActionRate != null ? '全期間平均' : 'まだデータなし') +
-        card(riskCls, 'アウトカム指標', '要注意アラート率', k.riskRate + '<span style="font-size:12px;">%</span>', k.atRiskCount + '名 / ' + k.totalRespondents + '名') +
-        card(eCls, 'アウトカム指標', '継続定着意思', gAvg + '<span style="font-size:12px;font-weight:600;color:#6B7280;"> / 5.0</span>', '離職リスク逆指標') +
+        card(overallCls, '指標①', 'エンゲージメントスコア', k.avgScores.overall + '<span style="font-size:12px;font-weight:600;color:#6B7280;"> / 5.0</span>', '6因子総合 ／ 回答 ' + k.totalRespondents + '名') +
+        card(retentionCls, '指標②', 'オンボーディング定着率', (k.retentionRate != null ? k.retentionRate : '—') + '<span style="font-size:12px;">%</span>', '継続定着意思 ≥ 3.5 の割合') +
+        card(actionCls, '指標③', 'マネジメントアクション実施率', k.avgActionRate != null ? k.avgActionRate + '<span style="font-size:12px;">%</span>' : '—', k.avgActionRate != null ? '全期間平均' : 'まだデータなし') +
+        card(riskCls, '指標④', '早期離職リスク検知率', k.riskRate + '<span style="font-size:12px;">%</span>', k.atRiskCount + '名 / ' + k.totalRespondents + '名（低いほど良）') +
+        card(workEnvCls, '指標⑤', '職場環境スコア', (k.workEnvScore != null ? k.workEnvScore : '—') + '<span style="font-size:12px;font-weight:600;color:#6B7280;"> / 5.0</span>', '関係性 共有度＋心理的安全性') +
         '</div>' +
         '<div style="background:#fff;border-radius:12px;padding:16px;box-shadow:0 1px 4px rgba(0,0,0,0.06);">' +
         '<div style="font-size:13px;font-weight:700;margin-bottom:12px;color:#1F2937;">📊 インプット指標：6因子スコア（全期間平均）</div>' +
